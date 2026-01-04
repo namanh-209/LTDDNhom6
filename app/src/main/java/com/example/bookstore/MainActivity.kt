@@ -1,6 +1,5 @@
 package com.example.bookstore
 
-
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -11,7 +10,9 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            ManHinhThayDoiMatKhau()
+            //ManHinhThayDoiMatKhau()
+            //gọi trang login & đăng kí
+            //Appnavgraph()
         }
     }
 }

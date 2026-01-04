@@ -40,6 +40,8 @@ android {
 }
 
 dependencies {
+    //thư viện điều hướng navigation( cho Jetpack Compose)
+    implementation("androidx.navigation:navigation-compose:2.7.7")
     // Networking (Retrofit + Gson)
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
