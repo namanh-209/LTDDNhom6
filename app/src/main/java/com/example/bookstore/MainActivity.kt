@@ -13,7 +13,7 @@ class MainActivity : ComponentActivity() {
             //ManHinhThayDoiMatKhau()
             //gọi trang login & đăng kí
             //Appnavgraph()
-            //DonDaMua
+            DonDaMua()
         }
     }
 }
