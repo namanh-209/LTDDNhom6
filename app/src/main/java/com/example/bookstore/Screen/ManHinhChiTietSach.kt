@@ -27,7 +27,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.bookstore.model.Sach
 
-// Màu xanh chủ đạo của bạn
+
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -40,7 +40,7 @@ fun ManHinhChiTietSach(
     var selectedTab by remember { mutableIntStateOf(0) }
 
     Scaffold(
-        // 1. THANH TIÊU ĐỀ TRÊN CÙNG
+        // thanh trên cùng
         topBar = {
             TopAppBar(
                 title = {
@@ -54,7 +54,7 @@ fun ManHinhChiTietSach(
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = MauXanh)
             )
         },
-        // 2. THANH CHỨC NĂNG DƯỚI CÙNG (Yêu thích, Giỏ hàng, Mua)
+        // thanh chức năng dưới cùng
         bottomBar = {
             BottomAppBar(
                 containerColor = Color(0xFFEEEEEE),
@@ -80,7 +80,7 @@ fun ManHinhChiTietSach(
 
                     Spacer(modifier = Modifier.width(16.dp))
 
-                    // Nút MUA (To và nổi bật)
+                    // Nút mua
                     Button(
                         onClick = { /* Xử lý mua hàng */ },
                         colors = ButtonDefaults.buttonColors(containerColor = MauXanh),
@@ -93,7 +93,7 @@ fun ManHinhChiTietSach(
             }
         }
     ) { padding ->
-        // 3. NỘI DUNG CHÍNH (Cuộn được)
+        // nội dung chính
         Column(
             modifier = Modifier
                 .padding(padding)
@@ -101,7 +101,7 @@ fun ManHinhChiTietSach(
                 .verticalScroll(rememberScrollState())
                 .background(Color.White)
         ) {
-            // --- PHẦN HEADER: ẢNH + GIÁ + TÁC GIẢ ---
+           //phần header
             Row(modifier = Modifier.padding(16.dp)) {
                 // Ảnh bìa sách
                 Card(
@@ -144,7 +144,7 @@ fun ManHinhChiTietSach(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // --- TAB SWITCH: THÔNG TIN / ĐÁNH GIÁ ---
+            // thông tin/ đánh giá
             Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
                 Column(
                     modifier = Modifier
@@ -183,9 +183,9 @@ fun ManHinhChiTietSach(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // --- NỘI DUNG TAB ---
+
             if (selectedTab == 0) {
-                // === TAB THÔNG TIN ===
+                // tab thong tin
                 Column(modifier = Modifier.padding(horizontal = 16.dp)) {
                     ThongTinDong("Tên sách", sach.TenSach)
                     ThongTinDong("Tác giả", sach.TenTacGia ?: "Đang cập nhật")
@@ -219,7 +219,7 @@ fun ManHinhChiTietSach(
     }
 }
 
-// Helper: Dòng thông tin (VD: Tác giả: Tuệ Kiến)
+//  thông tin
 @Composable
 fun ThongTinDong(tieuDe: String, noiDung: String) {
     Row(modifier = Modifier.padding(vertical = 4.dp)) {
@@ -228,7 +228,7 @@ fun ThongTinDong(tieuDe: String, noiDung: String) {
     }
 }
 
-// Helper: Item Đánh giá
+// Đánh giá
 @Composable
 fun ItemDanhGia(ten: String, sao: Int, binhLuan: String) {
     Card(
@@ -244,7 +244,7 @@ fun ItemDanhGia(ten: String, sao: Int, binhLuan: String) {
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(ten, fontWeight = FontWeight.Bold)
             }
-            Text("Đánh giá: $sao/5 ⭐", fontSize = 12.sp, color = MauXanh, modifier = Modifier.padding(vertical = 4.dp))
+            Text("Đánh giá: $sao/5 ", fontSize = 12.sp, color = MauXanh, modifier = Modifier.padding(vertical = 4.dp))
             Text(binhLuan)
         }
     }

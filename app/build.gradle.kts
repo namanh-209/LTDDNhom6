@@ -40,7 +40,6 @@ android {
 }
 
 dependencies {
-<<<<<<< HEAD
 
 
 
@@ -52,7 +51,7 @@ dependencies {
         implementation("io.coil-kt:coil-compose:2.5.0")
 
 
-=======
+
     //thư viện điều hướng navigation( cho Jetpack Compose)
     implementation("androidx.navigation:navigation-compose:2.7.7")
     // Networking (Retrofit + Gson)
@@ -63,7 +62,7 @@ dependencies {
 // Xử lý bất đồng bộ (Coroutines)
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2")
->>>>>>> 4a61e7f0f92e39a558a623d137309a02c48c9b1e
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)

@@ -52,7 +52,7 @@ fun LoginScreen(
         Image(
             painter = painterResource(id = R.drawable.logo),
             contentDescription = "Logo",
-            modifier = Modifier.size(400.dp)
+            modifier = Modifier.size(250.dp)
         )
 
         // Email / SĐT
@@ -124,7 +124,7 @@ fun LoginScreen(
         Text(
             text = "Bạn chưa có tài khoản? Đăng ký ngay",
             textAlign = TextAlign.Center,
-            color = MaterialTheme.colorScheme.primary,
+            color = Color.Red,
             modifier = Modifier
                 .fillMaxWidth()
                 .clickable {

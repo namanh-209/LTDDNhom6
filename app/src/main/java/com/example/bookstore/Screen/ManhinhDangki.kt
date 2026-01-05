@@ -37,7 +37,7 @@ import com.example.bookstore.R
 
 @Composable
 fun RegisterScreen(
-    onLoginClick: () -> Unit   // KHAI BÁO CALLBACK
+    onLoginClick: () -> Unit   // khai báo callback
 ) {
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
@@ -54,10 +54,10 @@ fun RegisterScreen(
         Image(
             painter = painterResource(id = R.drawable.logo),
             contentDescription = "Logo",
-            modifier = Modifier.size(300.dp)
+            modifier = Modifier.size(250.dp)
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+//        Spacer(modifier = Modifier.height(16.dp))
 
         // Nhập tên
         Text(
@@ -148,12 +148,12 @@ fun RegisterScreen(
         // Text chuyển sang Login
         Text(
             text = "Đã có tài khoản? Đăng nhập",
-            color = MaterialTheme.colorScheme.primary,
+            color = Color.Red,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 8.dp)
+                .padding(top = 4.dp)
                 .clickable {
-                    onLoginClick()   // ✅ GỌI CALLBACK
+                    onLoginClick()
                 },
             textAlign = TextAlign.Center
         )

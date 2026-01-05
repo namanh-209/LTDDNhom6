@@ -32,7 +32,7 @@ fun DonDaMua() {
                 .padding(paddingValues)
         ) {
 
-            /* -------- TAB -------- */
+
             TabRow(
                 selectedTabIndex = selectedTab,
                 containerColor = Color.White
@@ -54,7 +54,7 @@ fun DonDaMua() {
                 }
             }
 
-            /* -------- NỘI DUNG THEO TAB -------- */
+
             when (selectedTab) {
 
                 // Chờ xác nhận
