@@ -40,14 +40,17 @@ android {
 }
 
 dependencies {
-    // Networking (Retrofit + Gson)
-    implementation("com.squareup.retrofit2:retrofit:2.9.0")
-    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
-// Load ảnh từ URL (Glide)
-    implementation("com.github.bumptech.glide:glide:4.16.0")
-// Xử lý bất đồng bộ (Coroutines)
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2")
+
+
+
+        // Gọi API
+        implementation("com.squareup.retrofit2:retrofit:2.9.0")
+        implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+
+        // Load ảnh từ URL
+        implementation("io.coil-kt:coil-compose:2.5.0")
+
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
