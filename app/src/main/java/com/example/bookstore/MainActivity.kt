@@ -1,6 +1,5 @@
 package com.example.bookstore
 
-
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -16,6 +15,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
+<<<<<<< HEAD
 //            ManHinhThayDoiMatKhau()
 //            ManHinhTrangChu()
             var selectedSach by remember { mutableStateOf<Sach?>(null) }
@@ -36,6 +36,12 @@ class MainActivity : ComponentActivity() {
                     }
                 )
             }
+=======
+            //ManHinhThayDoiMatKhau()
+            //gọi trang login & đăng kí
+            //Appnavgraph()
+            DonDaMua()
+>>>>>>> 4a61e7f0f92e39a558a623d137309a02c48c9b1e
         }
     }
 }
