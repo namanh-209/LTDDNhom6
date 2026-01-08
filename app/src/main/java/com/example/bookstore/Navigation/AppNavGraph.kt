@@ -11,6 +11,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.bookstore.Screen.LoginScreen
 import com.example.bookstore.Screen.RegisterScreen
 import com.example.bookstore.Model.Sach
+import com.example.bookstore.Screen.CaiDat
 import com.example.bookstore.Screen.DonDaMua
 import com.example.bookstore.Screen.TaiKhoan
 import com.example.bookstore.ui.screen.DanhSachSach
@@ -84,9 +85,13 @@ fun AppNavGraph() {
             )
         }
 
-        // Giỏ hàng (Ví dụ)
-        composable("cart") {
-            // Màn hình giỏ hàng
+        //Caidat
+        composable("caidat") {
+            CaiDat(
+                navController = navController,
+                onBackClick = { navController.popBackStack() } // TRUYỀN HÀM BACK
+            )
         }
+
     }
 }
