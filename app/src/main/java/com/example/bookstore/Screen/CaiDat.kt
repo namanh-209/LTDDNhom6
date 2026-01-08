@@ -13,11 +13,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.example.bookstore.KhungGiaoDien
 
 @Composable
-fun CaiDat() {
-    KhungGiaoDien(tieuDe = "Cài đặt") { paddingValues ->
+fun CaiDat(navController: NavController, onBackClick: () -> Unit) {
+    KhungGiaoDien(tieuDe = "Cài đặt",
+        onBackClick = onBackClick, // TRANG CON -> CÓ BACK (được truyền từ AppNavGraph)
+        onHomeClick = { navController.navigate("home") },
+        onCategoryClick = { navController.navigate("trangdanhsach") },
+        onCartClick = {  },
+        onProfileClick = { navController.navigate("trangtaikhoan") }) { paddingValues ->
         Column(
             modifier = Modifier
                 .padding(paddingValues)

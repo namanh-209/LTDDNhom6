@@ -175,7 +175,7 @@ fun ActionRow(navController: NavController) {
             ActionItem(Icons.Default.List, "Đơn hàng") { navController.navigate("dondamua") }
             ActionItem(Icons.Default.List, "Lịch sử") { }
             ActionItem(Icons.Default.ShoppingCart, "Giỏ hàng") {  }
-            ActionItem(Icons.Default.Settings, "Cài đặt") {  }
+            ActionItem(Icons.Default.Settings, "Cài đặt") { navController.navigate("trangcaidat") }
         }
     }
 }
