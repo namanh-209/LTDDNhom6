@@ -1,5 +1,6 @@
 package com.example.bookstore.Api
 
+import YeuThichRequest
 import com.example.bookstore.Model.ApiResponse
 import com.example.bookstore.Model.DangKi
 import com.example.bookstore.Model.DangNhap
@@ -46,4 +47,15 @@ interface ApiService {
     // 2. Lấy sách thuộc thể loại đó (khi bấm vào Tab)
     @GET("api/sach/theloai/{id}")
     suspend fun laySachTheoTheLoai(@Path("id") maTheLoai: Int): ApiResponse<List<Sach>>
+
+    @GET("api/yeuthich/{userId}")
+    suspend fun layDanhSachYeuThich(
+        @Path("userId") userId: Int
+    ): ApiResponse<List<Sach>>
+
+    //  THÊM / XOÁ YÊU THÍCH (TOGGLE)
+    @POST("api/yeuthich")
+    suspend fun toggleYeuThich(
+        @Body request: YeuThichRequest
+    ): ApiResponse<Any>
 }

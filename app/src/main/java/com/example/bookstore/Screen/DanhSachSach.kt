@@ -1,5 +1,6 @@
 package com.example.bookstore.ui.screen
 
+import YeuThichRequest
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -9,6 +10,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.*
@@ -21,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.bookstore.Api.RetrofitClient
+import com.example.bookstore.Components.BienDungChung
 import com.example.bookstore.KhungGiaoDien
 import com.example.bookstore.Model.Sach
 import com.example.bookstore.Model.TheLoai
@@ -71,15 +74,16 @@ fun TabItem(ten: String, isSelected: Boolean, onClick: () -> Unit) {
 @Composable
 fun SachItem(
     sach: Sach,
+    isFavorite: Boolean, // <--- thêm trạng thái tim
     onAddCart: () -> Unit,
     onFavorite: () -> Unit,
-    onClick: () -> Unit // <--- 1. THÊM THAM SỐ CLICK
+    onClick: () -> Unit
 ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 12.dp, vertical = 6.dp)
-            .clickable { onClick() }, // <--- 2. GẮN SỰ KIỆN CLICK VÀO CARD
+            .clickable { onClick() },
         shape = RoundedCornerShape(14.dp),
         colors = CardDefaults.cardColors(containerColor = Color(0xFFF2F2F2))
     ) {
@@ -93,14 +97,18 @@ fun SachItem(
                 modifier = Modifier
                     .size(80.dp)
                     .background(Color.LightGray, RoundedCornerShape(10.dp)),
-                contentScale = ContentScale.Crop
+                contentScale = ContentScale.Inside
             )
 
             Spacer(modifier = Modifier.width(10.dp))
 
             Column(modifier = Modifier.weight(1f)) {
                 Text(text = sach.TenSach, maxLines = 2, style = MaterialTheme.typography.bodyMedium)
-                Text(text = "Tác giả: ${sach.TenTacGia ?: "Đang cập nhật"}", style = MaterialTheme.typography.bodySmall, color = Color.Gray)
+                Text(
+                    text = "Tác giả: ${sach.TenTacGia ?: "Đang cập nhật"}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.Gray
+                )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(text = "${sach.GiaBan.toInt()} VND", color = Color.Red, style = MaterialTheme.typography.bodyMedium)
             }
@@ -112,32 +120,40 @@ fun SachItem(
                 ) {
                     Icon(Icons.Default.ShoppingCart, contentDescription = null, tint = Color.White)
                 }
+
                 Spacer(modifier = Modifier.height(6.dp))
+
                 IconButton(onClick = onFavorite) {
-                    Icon(Icons.Default.FavoriteBorder, contentDescription = null)
+                    Icon(
+                        imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Default.FavoriteBorder,
+                        contentDescription = null,
+                        tint = if (isFavorite) Color.Red else Color.Black
+                    )
                 }
             }
         }
     }
 }
 
+
 /* ===================== MÀN HÌNH CHÍNH (Đã sửa tìm kiếm & chuyển trang) ===================== */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DanhSachSach(
-    navController: NavController, // Thêm cái này
+    navController: NavController,
     onSachClick: (Sach) -> Unit
 ) {
     var tuKhoaTimKiem by remember { mutableStateOf("") }
     var selectedTheLoaiId by remember { mutableIntStateOf(0) }
 
-    var dsSachGoc by remember { mutableStateOf<List<Sach>>(emptyList()) } // Danh sách gốc từ API
+    var dsSachGoc by remember { mutableStateOf<List<Sach>>(emptyList()) }
     var dsTheLoai by remember { mutableStateOf<List<TheLoai>>(emptyList()) }
     var loading by remember { mutableStateOf(false) }
 
+    val favoriteStates = remember { mutableStateMapOf<Int, Boolean>() } // Lưu trạng thái tim
     val scope = rememberCoroutineScope()
 
-    // Tải danh sách Thể Loại
+    // ================= Tải Thể Loại =================
     LaunchedEffect(Unit) {
         try {
             val res = RetrofitClient.api.layDanhSachTheLoai()
@@ -145,18 +161,18 @@ fun DanhSachSach(
         } catch (e: Exception) { Log.e("API", "Lỗi: ${e.message}") }
     }
 
-    // Tải danh sách Sách khi chọn Thể Loại
+    // ================= Tải Sách theo Thể Loại =================
     LaunchedEffect(selectedTheLoaiId) {
         scope.launch {
             loading = true
             try {
-                if (selectedTheLoaiId == 0) {
-                    val res = RetrofitClient.api.layDanhSachSach()
-                    dsSachGoc = res.data ?: emptyList()
+                dsSachGoc = if (selectedTheLoaiId == 0) {
+                    RetrofitClient.api.layDanhSachSach().data ?: emptyList()
                 } else {
-                    val res = RetrofitClient.api.laySachTheoTheLoai(selectedTheLoaiId)
-                    dsSachGoc = res.data ?: emptyList()
+                    RetrofitClient.api.laySachTheoTheLoai(selectedTheLoaiId).data ?: emptyList()
                 }
+                // Khởi tạo trạng thái tim
+                dsSachGoc.forEach { favoriteStates[it.MaSach] = false }
             } catch (e: Exception) {
                 dsSachGoc = emptyList()
             } finally {
@@ -165,35 +181,31 @@ fun DanhSachSach(
         }
     }
 
-    // 4. LOGIC LỌC TÌM KIẾM (Client-side)
+    // ================= Lọc tìm kiếm (client-side) =================
     val dsSachHienThi = remember(dsSachGoc, tuKhoaTimKiem) {
-        if (tuKhoaTimKiem.isBlank()) {
-            dsSachGoc
-        } else {
-            dsSachGoc.filter {
-                it.TenSach.contains(tuKhoaTimKiem, ignoreCase = true)
-            }
-        }
+        if (tuKhoaTimKiem.isBlank()) dsSachGoc
+        else dsSachGoc.filter { it.TenSach.contains(tuKhoaTimKiem, ignoreCase = true) }
     }
 
-    KhungGiaoDien(tieuDe = "Danh mục sách",
-        onBackClick = null, // TRANG CHÍNH -> KHÔNG BACK
+    KhungGiaoDien(
+        tieuDe = "Danh mục sách",
+        onBackClick = null,
         onHomeClick = { navController.navigate("home") },
-        onCategoryClick = { /* Đang ở Danh mục */ },
-        onCartClick = {  },
-        onProfileClick = { navController.navigate("trangtaikhoan") })
-
-    { paddingValues ->
+        onCategoryClick = { },
+        onCartClick = { },
+        onProfileClick = { navController.navigate("trangtaikhoan") }
+    ) { paddingValues ->
         Column(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
 
             // Thanh tìm kiếm
             ThanhTimKiem(
                 tuKhoa = tuKhoaTimKiem,
-                khiGoChu = { tuKhoaTimKiem = it } // Cập nhật từ khóa để kích hoạt lọc
+                khiGoChu = { tuKhoaTimKiem = it }
             )
 
             Spacer(modifier = Modifier.height(8.dp))
 
+            // Tab Thể Loại
             TabTheLoai(
                 danhSach = dsTheLoai,
                 selectedId = selectedTheLoaiId,
@@ -218,9 +230,25 @@ fun DanhSachSach(
                         items(dsSachHienThi) { sach ->
                             SachItem(
                                 sach = sach,
-                                onAddCart = { /* TODO */ },
-                                onFavorite = { /* TODO */ },
-                                onClick = { onSachClick(sach) } // <--- 5. GỌI LỆNH CHUYỂN TRANG
+                                isFavorite = favoriteStates[sach.MaSach] ?: false, // <-- truyền trạng thái tim
+                                onAddCart = { /* TODO: thêm giỏ hàng */ },
+                                onFavorite = {
+                                    // Toggle trạng thái tim đỏ
+                                    favoriteStates[sach.MaSach] = !(favoriteStates[sach.MaSach] ?: false)
+
+                                    // Gọi API toggle nếu muốn
+                                    scope.launch {
+                                        try {
+                                            RetrofitClient.api.toggleYeuThich(
+                                                YeuThichRequest(
+                                                    MaNguoiDung = BienDungChung.userHienTai!!.MaNguoiDung,
+                                                    MaSach = sach.MaSach
+                                                )
+                                            )
+                                        } catch (_: Exception) { }
+                                    }
+                                },
+                                onClick = { onSachClick(sach) }
                             )
                         }
                     }
