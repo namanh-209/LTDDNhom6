@@ -25,7 +25,7 @@ import kotlinx.coroutines.delay
 import java.text.NumberFormat
 import java.util.Locale
 
-import com.example.bookstore.model.Sach
+import com.example.bookstore.Model.Sach
 
 @Composable
 fun BannerQuangCao(danhSachSach: List<Sach>,

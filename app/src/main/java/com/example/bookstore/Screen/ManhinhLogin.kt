@@ -1,61 +1,51 @@
 package com.example.bookstore.Screen
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.bookstore.Api.RetrofitClient
+import com.example.bookstore.Components.BienDungChung
+import com.example.bookstore.Model.DangNhap
 import com.example.bookstore.R
+import kotlinx.coroutines.launch
 
 @Composable
 fun LoginScreen(
-    onRegisterClick: () -> Unit   // callback điều hướng
+    onRegisterClick: () -> Unit,
+    onLoginSuccess: () -> Unit // ✅ Đã thêm tham số này
 ) {
-    var email by remember { mutableStateOf("") }
+    var contactInput by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(24.dp),
+        modifier = Modifier.fillMaxSize().padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-
-        // ảnh logo
+        // Logo (Nếu lỗi ảnh thì tạm thời comment dòng Image lại)
         Image(
             painter = painterResource(id = R.drawable.logo),
             contentDescription = "Logo",
             modifier = Modifier.size(250.dp)
         )
 
-        // Email / SĐT
         Text(
             text = "Email/Sđt",
             modifier = Modifier.fillMaxWidth(),
@@ -63,22 +53,16 @@ fun LoginScreen(
         )
 
         OutlinedTextField(
-            value = email,
-            onValueChange = { email = it },
+            value = contactInput,
+            onValueChange = { contactInput = it },
             label = { Text("Nhập email/ số điện thoại") },
-            leadingIcon = {
-                Icon(
-                    imageVector = Icons.Default.Email,
-                    contentDescription = null
-                )
-            },
+            leadingIcon = { Icon(imageVector = Icons.Default.Email, contentDescription = null) },
             shape = RoundedCornerShape(16.dp),
             modifier = Modifier.fillMaxWidth()
         )
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Mật khẩu
         Text(
             text = "Mật khẩu",
             modifier = Modifier.fillMaxWidth(),
@@ -89,47 +73,52 @@ fun LoginScreen(
             value = password,
             onValueChange = { password = it },
             label = { Text("Nhập mật khẩu") },
-            leadingIcon = {
-                Icon(
-                    imageVector = Icons.Default.Lock,
-                    contentDescription = null
-                )
-            },
+            leadingIcon = { Icon(imageVector = Icons.Default.Lock, contentDescription = null) },
             shape = RoundedCornerShape(16.dp),
             modifier = Modifier.fillMaxWidth()
         )
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(48.dp))
 
-        // Nút đăng nhập
         Button(
-            onClick = { },
-            modifier = Modifier
-                .width(200.dp)
-                .height(50.dp),
+            onClick = {
+                if (contactInput.isBlank() || password.isBlank()) {
+                    Toast.makeText(context, "Nhập thiếu thông tin!", Toast.LENGTH_SHORT).show()
+                } else {
+                    scope.launch {
+                        try {
+                            val req = DangNhap(contact = contactInput, password = password)
+                            val res = RetrofitClient.api.dangNhap(req)
+
+                            if (res.status == "success") {
+                                // Lưu thông tin User vào biến dùng chung
+                                BienDungChung.userHienTai = res.data
+                                Toast.makeText(context, "Xin chào ${res.data?.HoTen}", Toast.LENGTH_SHORT).show()
+
+                                // ✅ Gọi hàm chuyển màn hình
+                                onLoginSuccess()
+                            } else {
+                                Toast.makeText(context, res.message ?: "Lỗi đăng nhập", Toast.LENGTH_SHORT).show()
+                            }
+                        } catch (e: Exception) {
+                            Toast.makeText(context, "Lỗi mạng: ${e.message}", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
+            },
+            modifier = Modifier.width(200.dp).height(50.dp),
             shape = RoundedCornerShape(16.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFF0D71A3)
-            )
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0D71A3))
         ) {
-            Text(
-                text = "Đăng nhập",
-                fontSize = 24.sp
-            )
+            Text("Đăng nhập", fontSize = 20.sp)
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Text chuyển sang Register
         Text(
             text = "Bạn chưa có tài khoản? Đăng ký ngay",
-            textAlign = TextAlign.Center,
-            color = Color.Red,
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable {
-                    onRegisterClick()
-                }
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.clickable { onRegisterClick() }
         )
     }
 }

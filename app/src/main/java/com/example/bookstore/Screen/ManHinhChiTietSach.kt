@@ -1,8 +1,6 @@
 package com.example.bookstore
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -19,13 +17,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
-import com.example.bookstore.model.Sach
+import com.example.bookstore.Model.Sach
 
 
 
@@ -129,7 +126,7 @@ fun ManHinhChiTietSach(
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = formatTienTe(sach.GiaBan),
+                        text = formatTienTe(sach.GiaBan.toInt()),
                         color = Color.Red,
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold
@@ -207,9 +204,9 @@ fun ManHinhChiTietSach(
             } else {
                 // === TAB ĐÁNH GIÁ (Giao diện giả lập) ===
                 Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-                    ItemDanhGia("Trần Văn A", 5, "Sách rất hay, đóng gói đẹp!")
-                    ItemDanhGia("Nguyễn Thị B", 4, "Nội dung ổn, giao hàng hơi chậm.")
-                    ItemDanhGia("Lê Văn C", 5, "Tuyệt vời, sẽ ủng hộ tiếp.")
+                    ItemDanhGia("Trần Văn A", "5", "Sách rất hay, đóng gói đẹp!")
+                    ItemDanhGia("Nguyễn Thị B", "4", "Nội dung ổn, giao hàng hơi chậm.")
+                    ItemDanhGia("Lê Văn C", "4", "Tuyệt vời, sẽ ủng hộ tiếp.")
                 }
             }
 
@@ -230,7 +227,7 @@ fun ThongTinDong(tieuDe: String, noiDung: String) {
 
 // Đánh giá
 @Composable
-fun ItemDanhGia(ten: String, sao: Int, binhLuan: String) {
+fun ItemDanhGia(ten: String, sao: String, binhLuan: String) {
     Card(
         modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
         colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F5F5))
@@ -244,7 +241,7 @@ fun ItemDanhGia(ten: String, sao: Int, binhLuan: String) {
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(ten, fontWeight = FontWeight.Bold)
             }
-            Text("Đánh giá: $sao/5 ", fontSize = 12.sp, color = MauXanh, modifier = Modifier.padding(vertical = 4.dp))
+            Text("Đánh giá: 5⭐", fontSize = 12.sp, color = MauXanh, modifier = Modifier.padding(vertical = 4.dp))
             Text(binhLuan)
         }
     }

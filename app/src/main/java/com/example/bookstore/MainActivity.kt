@@ -9,7 +9,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.example.bookstore.Screen.CaiDat
-import com.example.bookstore.model.Sach
+import com.example.bookstore.Model.Sach
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -44,9 +44,9 @@ class MainActivity : ComponentActivity() {
 //            }
 
 
-            //ManHinhThayDoiMatKhau()
+//            ManHinhThayDoiMatKhau()
             //gọi trang login & đăng kí
-   Appnavgraph()
+ AppNavGraph()
 //            DonDaMua()
 
         }

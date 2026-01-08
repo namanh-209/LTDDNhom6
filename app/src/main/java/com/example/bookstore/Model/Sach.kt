@@ -1,4 +1,4 @@
-package com.example.bookstore.model
+package com.example.bookstore.Model
 
 data class SachResponse(
     val status: String,
@@ -9,7 +9,7 @@ data class Sach(
     val MaSach: Int,
     val TenSach: String,
     val GiaBan: Double,
-    val GiaGoc: Int,
+    val GiaGoc: Double,
     val AnhBia: String,
     val TenTacGia: String?,
     val TenTheLoai: String?,
