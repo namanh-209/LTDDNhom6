@@ -30,7 +30,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun TaiKhoan(
-    navController: NavController
+    navController: NavController,
 ) {
     // 1. Lấy thông tin User từ Biến dùng chung (Đã lưu khi đăng nhập)
     val nguoiDung = BienDungChung.userHienTai
@@ -60,7 +60,12 @@ fun TaiKhoan(
         }
     }
 
-    KhungGiaoDien(tieuDe = "Tài khoản") { paddingValues ->
+    KhungGiaoDien(tieuDe = "Tài khoản",
+        onBackClick = null, // TRANG CHÍNH -> KHÔNG BACK
+        onHomeClick = { navController.navigate("home") },
+        onCategoryClick = { navController.navigate("trangdanhsach") },
+        onCartClick = { },
+        onProfileClick = { /* Đang ở Tài khoản */ }) { paddingValues ->
         LazyColumn(
             modifier = Modifier
                 .padding(paddingValues)

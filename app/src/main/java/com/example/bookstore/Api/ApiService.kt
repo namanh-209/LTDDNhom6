@@ -7,6 +7,7 @@ import com.example.bookstore.Model.DiaChi
 import com.example.bookstore.Model.DonHangSach
 import com.example.bookstore.Model.RegisterResponse
 import com.example.bookstore.Model.Sach // ✅ Nhớ import model Sach
+import com.example.bookstore.Model.TheLoai
 import com.example.bookstore.Model.User
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -39,5 +40,10 @@ interface ApiService {
 
     @GET("api/diachi/{userId}")
     suspend fun layDiaChi(@Path("userId") userId: Int): ApiResponse<List<DiaChi>>
+    @GET("api/theloai")
+    suspend fun layDanhSachTheLoai(): ApiResponse<List<TheLoai>>
 
+    // 2. Lấy sách thuộc thể loại đó (khi bấm vào Tab)
+    @GET("api/sach/theloai/{id}")
+    suspend fun laySachTheoTheLoai(@Path("id") maTheLoai: Int): ApiResponse<List<Sach>>
 }

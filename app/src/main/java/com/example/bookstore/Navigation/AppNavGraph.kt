@@ -13,78 +13,80 @@ import com.example.bookstore.Screen.RegisterScreen
 import com.example.bookstore.Model.Sach
 import com.example.bookstore.Screen.DonDaMua
 import com.example.bookstore.Screen.TaiKhoan
-import com.example.bookstore.Screen.TaiKhoan
-
-
-// Import thêm màn hình Trang chủ và Chi tiết
-// (Đảm bảo bạn đã có các file này ở bước trước)
+import com.example.bookstore.ui.screen.DanhSachSach
 
 @Composable
 fun AppNavGraph() {
     val navController = rememberNavController()
-
-    // Biến tạm để lưu cuốn sách đang được chọn xem chi tiết
     var selectedSach by remember { mutableStateOf<Sach?>(null) }
 
-    NavHost(
-        navController = navController,
-        startDestination = "login"
-    ) {
-        // 1. MÀN HÌNH ĐĂNG NHẬP
+    NavHost(navController = navController, startDestination = "login") {
+
+        // --- LOGIN & REGISTER ---
         composable("login") {
             LoginScreen(
-                onRegisterClick = {
-                    navController.navigate("register")
-                },
-                onLoginSuccess = {
-                    // Đăng nhập xong thì vào Home và xóa lịch sử Login để không back lại được
-                    navController.navigate("home") {
-                        popUpTo("login") { inclusive = true }
-                    }
-                }
+                onRegisterClick = { navController.navigate("register") },
+                onLoginSuccess = { navController.navigate("home") { popUpTo("login") { inclusive = true } } }
             )
         }
-
-        // 2. MÀN HÌNH ĐĂNG KÝ
         composable("register") {
-            RegisterScreen(
-                onLoginClick = {
-                    navController.popBackStack() // Quay lại màn login
-                }
-            )
+            RegisterScreen(onLoginClick = { navController.popBackStack() })
         }
 
-        // 3. MÀN HÌNH TRANG CHỦ
+        // --- CÁC TRANG CHÍNH (TRANG LỚN - KHÔNG CÓ BACK) ---
+
+        // 1. Trang chủ
         composable("home") {
             ManHinhTrangChu(
+                navController = navController, // Truyền navController để xử lý BottomBar
                 onSachClick = { sach ->
-                    // Khi bấm vào sách: Lưu sách đó lại và chuyển sang màn chi tiết
                     selectedSach = sach
                     navController.navigate("detail")
-                },
-                onProfileClick={
-
-                    navController.navigate("trangtaikhoan")
                 }
             )
         }
 
-        // 4. MÀN HÌNH CHI TIẾT SÁCH
+        // 2. Trang Danh mục
+        composable("trangdanhsach") {
+            DanhSachSach(
+                navController = navController,
+                onSachClick = { sach ->
+                    selectedSach = sach
+                    navController.navigate("detail")
+                }
+                // KHÔNG truyền onBackClick -> Mặc định là null -> Ẩn nút Back
+            )
+        }
+
+        // 3. Trang Tài khoản
+        composable("trangtaikhoan") {
+            TaiKhoan(navController = navController)
+            // KHÔNG truyền onBackClick -> Ẩn nút Back
+        }
+
+        // --- CÁC TRANG CON (CÓ NÚT BACK) ---
+
+        // 4. Chi tiết sách
         composable("detail") {
             if (selectedSach != null) {
                 ManHinhChiTietSach(
                     sach = selectedSach!!,
-                    onBackClick = {
-                        navController.popBackStack() // Quay lại trang chủ
-                    }
+                    onBackClick = { navController.popBackStack() } // TRUYỀN HÀM BACK
                 )
             }
         }
+
+        // 5. Đơn đã mua
         composable("dondamua") {
-            DonDaMua()
+            DonDaMua(
+                navController = navController,
+                onBackClick = { navController.popBackStack() } // TRUYỀN HÀM BACK
+            )
         }
-        composable("trangtaikhoan") {
-            TaiKhoan(navController=navController)
+
+        // Giỏ hàng (Ví dụ)
+        composable("cart") {
+            // Màn hình giỏ hàng
         }
     }
 }

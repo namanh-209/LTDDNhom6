@@ -18,6 +18,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.bookstore.Api.RetrofitClient
 import com.example.bookstore.Components.BienDungChung
@@ -28,7 +29,7 @@ import kotlinx.coroutines.launch
 import java.text.DecimalFormat
 
 @Composable
-fun DonDaMua() {
+fun DonDaMua(navController: NavController, onBackClick: () -> Unit) {
 
     // 1. Chuẩn bị dữ liệu
     val tabs = listOf("Chờ xác nhận", "Chờ giao hàng", "Đã giao", "Đã huỷ")
@@ -59,7 +60,12 @@ fun DonDaMua() {
     }
 
     // 4. Vẽ giao diện chính
-    KhungGiaoDien(tieuDe = "Đơn đã mua") { paddingValues ->
+    KhungGiaoDien(tieuDe = "Đơn đã mua",
+        onBackClick = onBackClick, // TRANG CON -> CÓ BACK (được truyền từ AppNavGraph)
+        onHomeClick = { navController.navigate("home") },
+        onCategoryClick = { navController.navigate("trangdanhsach") },
+        onCartClick = {  },
+        onProfileClick = { navController.navigate("trangtaikhoan") }) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
