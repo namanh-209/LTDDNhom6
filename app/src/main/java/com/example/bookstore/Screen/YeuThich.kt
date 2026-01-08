@@ -123,7 +123,7 @@ fun DanhSachYeuThichScreen(
         onBackClick = onBackClick, // TRANG CON -> CÓ BACK (được truyền từ AppNavGraph)
         onHomeClick = { navController.navigate("home") },
         onCategoryClick = { navController.navigate("trangdanhsach") },
-        onCartClick = {  },
+        onCartClick = { navController.navigate("giohang") },
         onProfileClick = { navController.navigate("trangtaikhoan") }) { padding ->
         if (loading) {
             Box(

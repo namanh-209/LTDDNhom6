@@ -41,7 +41,8 @@ android {
 
 dependencies {
 
-
+//thư viện icon
+    implementation ("androidx.compose.material:material-icons-extended")
 
         // Gọi API
         implementation("com.squareup.retrofit2:retrofit:2.9.0")

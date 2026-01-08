@@ -192,7 +192,7 @@ fun DanhSachSach(
         onBackClick = null,
         onHomeClick = { navController.navigate("home") },
         onCategoryClick = { },
-        onCartClick = { },
+        onCartClick = {navController.navigate("giohang") },
         onProfileClick = { navController.navigate("trangtaikhoan") }
     ) { paddingValues ->
         Column(modifier = Modifier.fillMaxSize().padding(paddingValues)) {

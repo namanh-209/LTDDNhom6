@@ -67,7 +67,7 @@ fun TaiKhoan(
         onBackClick = null, // TRANG CHÍNH -> KHÔNG BACK
         onHomeClick = { navController.navigate("home") },
         onCategoryClick = { navController.navigate("trangdanhsach") },
-        onCartClick = { },
+        onCartClick = {navController.navigate("giohang") },
         onProfileClick = { /* Đang ở Tài khoản */ }) { paddingValues ->
         LazyColumn(
             modifier = Modifier
@@ -199,7 +199,7 @@ fun ActionRow(navController: NavController) {
             // Gắn sự kiện click chuyển màn hình
             ActionItem(Icons.Default.List, "Đơn hàng") { navController.navigate("dondamua") }
             ActionItem(Icons.Default.List, "Lịch sử") { }
-            ActionItem(Icons.Default.ShoppingCart, "Giỏ hàng") {  }
+            ActionItem(Icons.Default.ShoppingCart, "Giỏ hàng") { navController.navigate("giohang")  }
             ActionItem(Icons.Default.Favorite, "Yêu thích") {  }
             ActionItem(Icons.Default.Settings, "Cài đặt") { navController.navigate("caidat") }
         }
