@@ -172,12 +172,26 @@ fun DanhSachSach(
                     RetrofitClient.api.laySachTheoTheLoai(selectedTheLoaiId).data ?: emptyList()
                 }
                 // Khởi tạo trạng thái tim
-                dsSachGoc.forEach { favoriteStates[it.MaSach] = false }
             } catch (e: Exception) {
                 dsSachGoc = emptyList()
             } finally {
                 loading = false
             }
+        }
+    }
+
+    // ================= LOAD YÊU THÍCH (TIM) =================
+    LaunchedEffect(Unit) {
+        try {
+            val res = RetrofitClient.api.layDanhSachYeuThich(
+                BienDungChung.userHienTai!!.MaNguoiDung
+            )
+
+            res.data?.forEach { sach ->
+                favoriteStates[sach.MaSach] = true
+            }
+        } catch (e: Exception) {
+            Log.e("API", "Lỗi load yêu thích")
         }
     }
 

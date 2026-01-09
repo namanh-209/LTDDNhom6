@@ -29,7 +29,7 @@ fun AppNavGraph() {
             LoginScreen(
                 onRegisterClick = { navController.navigate("register") },
                 onLoginSuccess = {
-                    navController.navigate("danhsachyeuthich") {
+                    navController.navigate("home") {
                         popUpTo("login") {
                             inclusive = true
                         }
