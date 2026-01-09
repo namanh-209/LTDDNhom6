@@ -1,6 +1,7 @@
 package com.example.bookstore.Api
 
 import CapNhatGioHangRequest
+import XoaGioHangRequest
 import YeuThichRequest
 import com.example.bookstore.Model.ApiResponse
 import com.example.bookstore.Model.DangKi
@@ -13,6 +14,7 @@ import com.example.bookstore.Model.SachtrongGioHang
 import com.example.bookstore.Model.TheLoai
 import com.example.bookstore.Model.User
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.PUT
@@ -74,4 +76,11 @@ interface ApiService {
     suspend fun capNhatGioHang(
         @Body request: CapNhatGioHangRequest
     ): ApiResponse<Any>
+
+    @DELETE("api/giohang/{id}")
+    suspend fun xoaGioHang(
+        @Path("id") maGioHang: Int
+    ): ApiResponse<Unit>
+
+
 }
