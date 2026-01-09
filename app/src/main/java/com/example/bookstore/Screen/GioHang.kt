@@ -1,8 +1,12 @@
+@file:OptIn(DelicateCoroutinesApi::class)
+
 package com.example.bookstore.Screen
 
 
 import CapNhatGioHangRequest
+import XoaGioHangRequest
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -27,21 +31,19 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.bookstore.Api.RetrofitClient
 import com.example.bookstore.Components.BienDungChung
 import com.example.bookstore.KhungGiaoDien
 import com.example.bookstore.Model.SachtrongGioHang
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.launch
 
 
@@ -72,8 +74,6 @@ fun GioHang(
 
         dangTai = false
     }
-
-
 
     KhungGiaoDien(
         tieuDe = "Giỏ hàng",
@@ -133,6 +133,13 @@ fun GioHang(
                                         setLoi = { loi = it }
                                     )
                                 }
+                            },
+                            onXoa = {
+                                xuLyXoaSanPham(
+                                    sach = sach,
+                                    capNhatDanhSach = { danhSachSach = it },
+                                    setLoi = { loi = it }
+                                )
                             }
                         )
 
@@ -149,7 +156,8 @@ fun GioHang(
 fun GioHangItem(
     sach: SachtrongGioHang,
     onTang: () -> Unit,
-    onGiam: () -> Unit
+    onGiam: () -> Unit,
+    onXoa:()-> Unit
 ) {
     Row(
         modifier = Modifier
@@ -187,6 +195,17 @@ fun GioHangItem(
             IconButton(onClick = onTang) {
                 Icon(Icons.Default.Add, contentDescription = "Tăng")
             }
+
+            // NÚT XOÁ
+            Text(
+                text = "Xoá",
+                color = Color.Red,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier
+                    .padding(top = 4.dp)
+                    .clickable { onXoa() }
+            )
+
         }
     }
 }
@@ -234,6 +253,39 @@ fun xuLyTangGiam(
 
         } catch (e: Exception) {
             setLoi("Lỗi cập nhật giỏ hàng")
+        }
+    }
+}
+//----Xử lý xóa----
+fun xuLyXoaSanPham(
+    sach: SachtrongGioHang,
+    capNhatDanhSach: (List<SachtrongGioHang>) -> Unit,
+    setLoi: (String) -> Unit
+) {
+    kotlinx.coroutines.GlobalScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+        try {
+            val resXoa = RetrofitClient.api.xoaGioHang(sach.MaGioHang)
+
+            if (resXoa.status != "success") {
+                kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
+                    setLoi("Không thể xoá sản phẩm")
+                }
+                return@launch
+            }
+
+            val user = BienDungChung.userHienTai ?: return@launch
+            val res = RetrofitClient.api.layGioHang(user.MaNguoiDung)
+
+            kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
+                if (res.status == "success") {
+                    capNhatDanhSach(res.data ?: emptyList())
+                }
+            }
+
+        } catch (e: Exception) {
+            kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
+                setLoi("Lỗi xoá sản phẩm")
+            }
         }
     }
 }

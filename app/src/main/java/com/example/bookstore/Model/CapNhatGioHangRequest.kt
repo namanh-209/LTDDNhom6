@@ -3,3 +3,7 @@ data class CapNhatGioHangRequest(
     val MaSach: Int,
     val SoLuong: Int
 )
+data class XoaGioHangRequest(
+    val MaNguoiDung: Int,
+    val MaSach: Int
+)
