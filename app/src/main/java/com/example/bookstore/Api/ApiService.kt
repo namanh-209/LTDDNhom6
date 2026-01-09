@@ -1,9 +1,6 @@
 package com.example.bookstore.Api
 
-<<<<<<< HEAD
 import CapNhatGioHangRequest
-=======
->>>>>>> 2ca056145084c9412a7d537117551660b2bc1d0a
 import YeuThichRequest
 import com.example.bookstore.Model.ApiResponse
 import com.example.bookstore.Model.DangKi
@@ -65,7 +62,6 @@ interface ApiService {
         @Body request: YeuThichRequest
     ): ApiResponse<Any>
 
-<<<<<<< HEAD
     //Giỏ hàng
     @GET("api/giohang/{userId}")
     suspend fun layGioHang(
@@ -78,7 +74,4 @@ interface ApiService {
     suspend fun capNhatGioHang(
         @Body request: CapNhatGioHangRequest
     ): ApiResponse<Any>
-
-=======
->>>>>>> 2ca056145084c9412a7d537117551660b2bc1d0a
 }

@@ -157,7 +157,19 @@ fun DanhSachYeuThichScreen(
                     items(dsYeuThich) { sach ->
                         SachItemYeuThich(
                             sach = sach,
-                            onAddCart = { onAddCart(sach) },
+                            onAddCart = {
+                                scope.launch {
+                                    try {
+                                        RetrofitClient.api.capNhatGioHang(
+                                            CapNhatGioHangRequest(
+                                                MaNguoiDung = BienDungChung.userHienTai!!.MaNguoiDung,
+                                                MaSach = sach.MaSach,
+                                                SoLuong = 1
+                                            )
+                                        )
+                                    } catch (e: Exception) { }
+                                }
+                            },
                             onRemoveFavorite = {
                                 // Gọi API toggle yêu thích
                                 scope.launch {

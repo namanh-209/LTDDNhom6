@@ -1,5 +1,6 @@
 package com.example.bookstore.ui.screen
 
+import CapNhatGioHangRequest
 import YeuThichRequest
 import android.util.Log
 import androidx.compose.foundation.background
@@ -245,7 +246,19 @@ fun DanhSachSach(
                             SachItem(
                                 sach = sach,
                                 isFavorite = favoriteStates[sach.MaSach] ?: false, // <-- truyền trạng thái tim
-                                onAddCart = { /* TODO: thêm giỏ hàng */ },
+                                onAddCart = {
+                                    scope.launch {
+                                        try {
+                                            RetrofitClient.api.capNhatGioHang(
+                                                CapNhatGioHangRequest(
+                                                    MaNguoiDung = BienDungChung.userHienTai!!.MaNguoiDung,
+                                                    MaSach = sach.MaSach,
+                                                    SoLuong = 1
+                                                )
+                                            )
+                                        } catch (e: Exception) { }
+                                    }
+                                },
                                 onFavorite = {
                                     // Toggle trạng thái tim đỏ
                                     favoriteStates[sach.MaSach] = !(favoriteStates[sach.MaSach] ?: false)
