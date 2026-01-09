@@ -17,10 +17,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.example.bookstore.Api.RetrofitClient
 import com.example.bookstore.Components.BienDungChung
 import com.example.bookstore.KhungGiaoDien
@@ -129,12 +132,34 @@ fun HeaderNguoiDung(nguoiDung: User?) {
             contentAlignment = Alignment.Center
         ) {
             // Nếu có ảnh đại diện thì hiện ảnh, không thì hiện icon
-            Icon(
-                Icons.Default.Person,
-                null,
-                tint = Color.DarkGray,
-                modifier = Modifier.size(36.dp)
-            )
+            // Nếu có ảnh đại diện thì hiện ảnh, không thì hiện icon
+            Box(
+                modifier = Modifier
+                    .size(70.dp)
+                    .background(Color(0xFFE0E0E0), CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                if (!nguoiDung?.AnhDaiDien.isNullOrBlank()) {
+                    AsyncImage(
+                        model = ImageRequest.Builder(LocalContext.current)
+                            .data(nguoiDung!!.AnhDaiDien)
+                            .crossfade(true)
+                            .build(),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(70.dp)
+                            .clip(CircleShape)
+                    )
+                } else {
+                    Icon(
+                        Icons.Default.Person,
+                        null,
+                        tint = Color.LightGray,
+                        modifier = Modifier.size(36.dp)
+                    )
+                }
+            }
+
         }
 
         Spacer(Modifier.width(12.dp))
