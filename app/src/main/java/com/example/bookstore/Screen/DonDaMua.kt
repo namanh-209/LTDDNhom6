@@ -205,6 +205,45 @@ fun BookOrderItem(don: DonHangSach, formatter: DecimalFormat) {
                     fontWeight = FontWeight.Bold,
                     fontSize = 15.sp
                 )
+
+                Spacer(modifier = Modifier.width(12.dp))
+
+                if (don.TrangThai == "HoanThanh") {
+                    Row(
+                        modifier = Modifier.padding(top = 8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Button(
+                            onClick = { /* TODO: Xử lý nút Trả hàng/Hoàn tiền */ },
+                            colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray),
+                            shape = RoundedCornerShape(10.dp),
+                            modifier = Modifier.height(36.dp)
+                        ) {
+                            Text(text = "Mua lại", color = Color.Black, fontSize = 14.sp) // Màu chữ nên đen để nhìn rõ trên nền sáng
+                        }
+
+                        Button(
+                            onClick = { /* TODO: Xử lý nút Đánh giá */ },
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF9800)),
+                            shape = RoundedCornerShape(10.dp),
+                            modifier = Modifier.height(36.dp)
+                        ) {
+                            Text(text = "Đánh giá", color = Color.White, fontSize = 14.sp)
+                        }
+                    }
+                }
+
+                if (don.TrangThai == "DaHuy"){
+                    Button(
+                        onClick = { /* TODO: Xử lý nút Trả hàng/Hoàn tiền */ },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray),
+                        shape = RoundedCornerShape(10.dp),
+                        modifier = Modifier.height(36.dp)
+                    ) {
+                        Text(text = "Mua lại", color = Color.Black, fontSize = 14.sp) // Màu chữ nên đen để nhìn rõ trên nền sáng
+                    }
+                }
+
             }
         }
     }
