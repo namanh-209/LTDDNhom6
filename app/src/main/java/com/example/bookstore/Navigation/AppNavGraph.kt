@@ -30,7 +30,11 @@ fun AppNavGraph() {
             LoginScreen(
                 onRegisterClick = { navController.navigate("register") },
                 onLoginSuccess = {
+<<<<<<< HEAD
                     navController.navigate("giohang") {
+=======
+                    navController.navigate("home") {
+>>>>>>> 2ca056145084c9412a7d537117551660b2bc1d0a
                         popUpTo("login") {
                             inclusive = true
                         }
@@ -104,7 +108,7 @@ fun AppNavGraph() {
         composable("danhsachyeuthich") {
             DanhSachYeuThichScreen(
                 navController = navController,
-                onBackClick = { navController.navigate("trangdanhsach") }, // quay lại màn trước
+                onBackClick = { navController.navigate("trangtaikhoan") }, // quay lại màn trước
                 onAddCart = { sach ->
                     // TODO: xử lý thêm giỏ hàng
                 },

@@ -108,19 +108,18 @@ fun DanhSachYeuThichScreen(
 
     // Load danh sách yêu thích từ API
     LaunchedEffect(Unit) {
-        scope.launch {
-            loading = true
-            try {
-                val res = RetrofitClient.api.layDanhSachYeuThich(userId)
-                dsYeuThich = res.data ?: emptyList()
-            } catch (e: Exception) {
-                Log.e("API", "Lỗi khi lấy danh sách yêu thích: ${e.message}")
-                dsYeuThich = emptyList()
-            } finally {
-                loading = false
-            }
+        loading = true
+        try {
+            val res = RetrofitClient.api.layDanhSachYeuThich(userId)
+            dsYeuThich = res.data ?: emptyList()
+        } catch (e: Exception) {
+            Log.e("API", "Lỗi load yêu thích: ${e.message}")
+            dsYeuThich = emptyList()
+        } finally {
+            loading = false
         }
     }
+
 
     KhungGiaoDien(tieuDe = "Yêu thích",
         onBackClick = onBackClick, // TRANG CON -> CÓ BACK (được truyền từ AppNavGraph)
