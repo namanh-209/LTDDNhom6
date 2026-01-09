@@ -1,6 +1,6 @@
 package com.example.bookstore.Api
 
-import CapNhatSLRequest
+import CapNhatGioHangRequest
 import YeuThichRequest
 import com.example.bookstore.Model.ApiResponse
 import com.example.bookstore.Model.DangKi
@@ -63,14 +63,16 @@ interface ApiService {
     ): ApiResponse<Any>
 
     //Giỏ hàng
-    @GET("giohang/{maNguoiDung}")
+    @GET("api/giohang/{userId}")
     suspend fun layGioHang(
-        @Path("maNguoiDung") maNguoiDung: Int
-    ): List<SachtrongGioHang>
+        @Path("userId") userId: Int
+    ): ApiResponse<List<SachtrongGioHang>>
+
 
     //cập nhật số lượng giỏ hàng
-    @PUT("giohang/capnhat")
-    suspend fun capNhatSoLuong(
-        @Body request: CapNhatSLRequest
-    )
+    @POST("api/giohang")
+    suspend fun capNhatGioHang(
+        @Body request: CapNhatGioHangRequest
+    ): ApiResponse<Any>
+
 }

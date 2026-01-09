@@ -14,6 +14,7 @@ import com.example.bookstore.Screen.RegisterScreen
 import com.example.bookstore.Model.Sach
 import com.example.bookstore.Screen.CaiDat
 import com.example.bookstore.Screen.DonDaMua
+import com.example.bookstore.Screen.GioHang
 import com.example.bookstore.Screen.TaiKhoan
 import com.example.bookstore.ui.screen.DanhSachSach
 
@@ -29,7 +30,7 @@ fun AppNavGraph() {
             LoginScreen(
                 onRegisterClick = { navController.navigate("register") },
                 onLoginSuccess = {
-                    navController.navigate("danhsachyeuthich") {
+                    navController.navigate("giohang") {
                         popUpTo("login") {
                             inclusive = true
                         }
@@ -115,6 +116,12 @@ fun AppNavGraph() {
                     selectedSach = sach
                     navController.navigate("detail")
                 }
+            )
+        }
+        composable("giohang"){
+            GioHang(
+                navController = navController,
+                onBackClick = { navController.popBackStack() } // TRUYỀN HÀM BACK
             )
         }
 

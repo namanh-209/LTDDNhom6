@@ -1,7 +1,7 @@
 package com.example.bookstore.Model
 
 data class SachtrongGioHang(
-    val MaGioHang: Int,
+    val MaSach: Int,
     val TenSach: String,
     val TenTacGia: String,
     val GiaBan: Int,
