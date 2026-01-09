@@ -12,9 +12,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.bookstore.Api.RetrofitClient
@@ -45,24 +47,29 @@ fun SachItemYeuThich(
 
             AsyncImage(
                 model = sach.AnhBia,
-                contentDescription = sach.TenSach,
+                contentDescription = null,
                 modifier = Modifier
-                    .size(70.dp)
-                    .background(Color.LightGray, RoundedCornerShape(10.dp)),
-                contentScale = ContentScale.Inside
+                    .width(80.dp)
+                    .height(120.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(Color.LightGray),
+                contentScale = ContentScale.Crop
             )
 
             Spacer(modifier = Modifier.width(10.dp))
 
             Column(modifier = Modifier.weight(1f)) {
-                Text(sach.TenSach, maxLines = 2)
+                Text(sach.TenSach, maxLines = 2, fontSize = 18.sp)
+                Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = "Tác giả: ${sach.TenTacGia ?: "Đang cập nhật"}",
                     color = Color.Gray
                 )
+                Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = "${sach.GiaBan.toInt()} VND",
-                    color = Color.Red
+                    color = Color.Red,
+                    fontSize = 16.sp
                 )
             }
 
