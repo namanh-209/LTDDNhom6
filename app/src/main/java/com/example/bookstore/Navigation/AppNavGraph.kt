@@ -1,5 +1,6 @@
 package com.example.bookstore
 
+import DanhSachYeuThichScreen
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -27,7 +28,13 @@ fun AppNavGraph() {
         composable("login") {
             LoginScreen(
                 onRegisterClick = { navController.navigate("register") },
-                onLoginSuccess = { navController.navigate("home") { popUpTo("login") { inclusive = true } } }
+                onLoginSuccess = {
+                    navController.navigate("danhsachyeuthich") {
+                        popUpTo("login") {
+                            inclusive = true
+                        }
+                    }
+                }
             )
         }
         composable("register") {
@@ -90,6 +97,24 @@ fun AppNavGraph() {
             CaiDat(
                 navController = navController,
                 onBackClick = { navController.popBackStack() } // TRUYỀN HÀM BACK
+            )
+        }
+
+        composable("danhsachyeuthich") {
+            DanhSachYeuThichScreen(
+                navController = navController,
+                onBackClick = { navController.navigate("trangdanhsach") }, // quay lại màn trước
+                onAddCart = { sach ->
+                    // TODO: xử lý thêm giỏ hàng
+                },
+                onRemoveFavorite = { sach ->
+                    // TODO: xử lý khi bỏ yêu thích nếu cần
+                },
+                onSachClick = { sach ->
+                    // Điều hướng sang màn hình chi tiết sách
+                    selectedSach = sach
+                    navController.navigate("detail")
+                }
             )
         }
 

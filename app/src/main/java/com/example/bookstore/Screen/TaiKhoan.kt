@@ -200,7 +200,7 @@ fun ActionRow(navController: NavController) {
             ActionItem(Icons.Default.List, "Đơn hàng") { navController.navigate("dondamua") }
             ActionItem(Icons.Default.List, "Lịch sử") { }
             ActionItem(Icons.Default.ShoppingCart, "Giỏ hàng") {  }
-            ActionItem(Icons.Default.Favorite, "Yêu thích") {  }
+            ActionItem(Icons.Default.Favorite, "Yêu thích") { navController.navigate("danhsachyeuthich") }
             ActionItem(Icons.Default.Settings, "Cài đặt") { navController.navigate("caidat") }
         }
     }

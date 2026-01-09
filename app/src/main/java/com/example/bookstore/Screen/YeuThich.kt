@@ -1,5 +1,6 @@
 import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -27,12 +28,13 @@ import kotlinx.coroutines.launch
 fun SachItemYeuThich(
     sach: Sach,
     onAddCart: () -> Unit,
-    onRemoveFavorite: () -> Unit
+    onRemoveFavorite: () -> Unit,
+    onClick: () -> Unit
 ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 12.dp, vertical = 6.dp),
+            .padding(horizontal = 12.dp, vertical = 6.dp).clickable{onClick()},
         shape = RoundedCornerShape(14.dp),
         colors = CardDefaults.cardColors(containerColor = Color(0xFFF2F2F2))
     ) {
@@ -95,7 +97,8 @@ fun DanhSachYeuThichScreen(
     onAddCart: (Sach) -> Unit = {},
     onRemoveFavorite: (Sach) -> Unit = {},
     navController: NavController,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    onSachClick: (Sach) -> Unit
 ) {
     var dsYeuThich by remember { mutableStateOf<List<Sach>>(emptyList()) }
     var loading by remember { mutableStateOf(false) }
@@ -173,7 +176,8 @@ fun DanhSachYeuThichScreen(
                                         Log.e("API", "Lỗi toggle yêu thích: ${e.message}")
                                     }
                                 }
-                            }
+                            },
+                            onClick = {onSachClick(sach)}
                         )
                     }
                 }
