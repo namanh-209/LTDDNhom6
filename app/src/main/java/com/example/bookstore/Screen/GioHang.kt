@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -37,6 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.bookstore.Api.RetrofitClient
@@ -58,6 +60,8 @@ fun GioHang(
     var dangTai by remember { mutableStateOf(true) }
     var loi by remember { mutableStateOf("") }
 
+
+
     LaunchedEffect(Unit) {
         val user = BienDungChung.userHienTai
         if (user == null) {
@@ -75,6 +79,8 @@ fun GioHang(
         dangTai = false
     }
 
+    //tính tổng tiền trong gio hàng
+    val tongTien = danhSachSach.sumOf { it.GiaBan * it.SoLuong }
     KhungGiaoDien(
         tieuDe = "Giỏ hàng",
         onBackClick = onBackClick,
@@ -108,45 +114,90 @@ fun GioHang(
             }
 
             else -> {
-                LazyColumn(
+                Column(
                     modifier = Modifier
+                        .fillMaxSize()
                         .padding(padding)
-                        .padding(12.dp)
                 ) {
-                    items(danhSachSach) { sach ->
-                        GioHangItem(
-                            sach = sach,
-                            onTang = {
-                                xuLyTangGiam(
-                                    sach = sach,
-                                    soLuongThayDoi = 1,
-                                    capNhatDanhSach = { danhSachSach = it },
-                                    setLoi = { loi = it }
-                                )
-                            },
-                            onGiam = {
-                                if (sach.SoLuong > 1) {
+                    LazyColumn(
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(12.dp)
+                    ) {
+                        items(danhSachSach) { sach ->
+                            GioHangItem(
+                                sach = sach,
+                                onTang = {
                                     xuLyTangGiam(
                                         sach = sach,
-                                        soLuongThayDoi = -1,
+                                        soLuongThayDoi = 1,
+                                        capNhatDanhSach = { danhSachSach = it },
+                                        setLoi = { loi = it }
+                                    )
+                                },
+                                onGiam = {
+                                    if (sach.SoLuong > 1) {
+                                        xuLyTangGiam(
+                                            sach = sach,
+                                            soLuongThayDoi = -1,
+                                            capNhatDanhSach = { danhSachSach = it },
+                                            setLoi = { loi = it }
+                                        )
+                                    }
+                                },
+                                onXoa = {
+                                    xuLyXoaSanPham(
+                                        sach = sach,
                                         capNhatDanhSach = { danhSachSach = it },
                                         setLoi = { loi = it }
                                     )
                                 }
-                            },
-                            onXoa = {
-                                xuLyXoaSanPham(
-                                    sach = sach,
-                                    capNhatDanhSach = { danhSachSach = it },
-                                    setLoi = { loi = it }
-                                )
-                            }
-                        )
-
-                    Spacer(modifier = Modifier.height(10.dp))
+                            )
+                            Spacer(modifier = Modifier.height(10.dp))
+                        }
                     }
 
+                    // ===== THANH TOÁN =====
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(Color.White)
+                            .padding(12.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text("Tổng tiền", color = Color.Gray)
+                                Text(
+                                    text = "${tongTien} VNĐ",
+                                    color = Color.Red,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 18.sp
+                                )
+                            }
+
+                            Box(
+                                modifier = Modifier
+                                    .background(Color.Red, RoundedCornerShape(8.dp))
+                                    .clickable {
+                                        navController.navigate("thanhtoan")
+                                    }
+                                    .padding(horizontal = 24.dp, vertical = 12.dp)
+                            ) {
+                                Text(
+                                    text = "Thanh toán",
+                                    color = Color.White,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 20.sp
+                                )
+                            }
+
+                        }
+                    }
                 }
+
             }
         }
     }
@@ -178,8 +229,11 @@ fun GioHangItem(
                 .weight(1f)
                 .padding(start = 8.dp)
         ) {
-            Text(sach.TenSach, fontWeight = FontWeight.Bold)
-            Text("Giá: ${sach.GiaBan} VNĐ", color = Color.Red)
+            Text(sach.TenSach, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+            Spacer(modifier = Modifier.height(4.dp))
+            Text("Tác giả: ${sach.TenTacGia}", color = Color.LightGray)
+            Spacer(modifier = Modifier.height(8.dp))
+            Text("Giá: ${sach.GiaBan} VNĐ", color = Color.Red, fontSize = 16.sp)
         }
 
         Row(verticalAlignment = Alignment.CenterVertically) {
