@@ -27,7 +27,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun LoginScreen(
     onRegisterClick: () -> Unit,
-    onLoginSuccess: () -> Unit // ✅ Đã thêm tham số này
+    onLoginSuccess: () -> Unit
 ) {
     var contactInput by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -95,7 +95,7 @@ fun LoginScreen(
                                 BienDungChung.userHienTai = res.data
                                 Toast.makeText(context, "Xin chào ${res.data?.HoTen}", Toast.LENGTH_SHORT).show()
 
-                                // ✅ Gọi hàm chuyển màn hình
+                                // Gọi hàm chuyển màn hình
                                 onLoginSuccess()
                             } else {
                                 Toast.makeText(context, res.message ?: "Lỗi đăng nhập", Toast.LENGTH_SHORT).show()
