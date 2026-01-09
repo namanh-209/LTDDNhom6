@@ -17,7 +17,7 @@ import androidx.navigation.NavController
 import com.example.bookstore.KhungGiaoDien
 
 @Composable
-fun CaiDat( navController: NavController,onBackClick:()-> Unit) {
+fun CaiDat(navController: NavController, onBackClick: () -> Unit) {
     KhungGiaoDien(tieuDe = "Cài đặt",
         onBackClick = onBackClick, // TRANG CON -> CÓ BACK (được truyền từ AppNavGraph)
         onHomeClick = { navController.navigate("home") },

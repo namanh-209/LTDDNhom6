@@ -103,7 +103,7 @@ fun AppNavGraph() {
         composable("danhsachyeuthich") {
             DanhSachYeuThichScreen(
                 navController = navController,
-                onBackClick = { navController.navigate("trangdanhsach") }, // quay lại màn trước
+                onBackClick = { navController.navigate("trangtaikhoan") }, // quay lại màn trước
                 onAddCart = { sach ->
                     // TODO: xử lý thêm giỏ hàng
                 },
