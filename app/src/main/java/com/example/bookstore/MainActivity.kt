@@ -11,6 +11,7 @@ import androidx.compose.runtime.setValue
 import com.example.bookstore.Screen.CaiDat
 import com.example.bookstore.Model.Sach
 
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,7 +44,7 @@ class MainActivity : ComponentActivity() {
 //                )
 //            }
 
-
+        //  ChinhSuaThongTin()
 //            ManHinhThayDoiMatKhau()
             //gọi trang login & đăng kí
  AppNavGraph()

@@ -25,7 +25,7 @@
 //
 //@Composable
 //fun ChinhSuaThongTin(
-//    navController: NavController
+//   //navController: NavController
 //) {
 //    val user = BienDungChung.userHienTai
 //
@@ -55,7 +55,8 @@
 //                tint = Color.White,
 //                modifier = Modifier
 //                    .size(28.dp)
-//                    .clickable { navController.popBackStack() }
+//                    .clickable { //navController.popBackStack()
+//                         }
 //            )
 //
 //            Spacer(Modifier.width(12.dp))
@@ -155,7 +156,7 @@
 //            onClick = {
 //                // TODO: Gọi API cập nhật thông tin
 //                // Sau khi update thành công:
-//                navController.popBackStack()
+//                //navController.popBackStack()
 //            },
 //            modifier = Modifier
 //                .align(Alignment.CenterHorizontally)

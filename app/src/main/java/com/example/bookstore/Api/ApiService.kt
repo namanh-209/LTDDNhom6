@@ -1,5 +1,7 @@
 package com.example.bookstore.Api
 
+import CapNhatSLRequest
+import YeuThichRequest
 import com.example.bookstore.Model.ApiResponse
 import com.example.bookstore.Model.DangKi
 import com.example.bookstore.Model.DangNhap
@@ -7,11 +9,13 @@ import com.example.bookstore.Model.DiaChi
 import com.example.bookstore.Model.DonHangSach
 import com.example.bookstore.Model.RegisterResponse
 import com.example.bookstore.Model.Sach // ✅ Nhớ import model Sach
+import com.example.bookstore.Model.SachtrongGioHang
 import com.example.bookstore.Model.TheLoai
 import com.example.bookstore.Model.User
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Path
 
 interface ApiService {
@@ -46,4 +50,27 @@ interface ApiService {
     // 2. Lấy sách thuộc thể loại đó (khi bấm vào Tab)
     @GET("api/sach/theloai/{id}")
     suspend fun laySachTheoTheLoai(@Path("id") maTheLoai: Int): ApiResponse<List<Sach>>
+
+    @GET("api/yeuthich/{userId}")
+    suspend fun layDanhSachYeuThich(
+        @Path("userId") userId: Int
+    ): ApiResponse<List<Sach>>
+
+    //  THÊM / XOÁ YÊU THÍCH (TOGGLE)
+    @POST("api/yeuthich")
+    suspend fun toggleYeuThich(
+        @Body request: YeuThichRequest
+    ): ApiResponse<Any>
+
+    //Giỏ hàng
+    @GET("giohang/{maNguoiDung}")
+    suspend fun layGioHang(
+        @Path("maNguoiDung") maNguoiDung: Int
+    ): List<SachtrongGioHang>
+
+    //cập nhật số lượng giỏ hàng
+    @PUT("giohang/capnhat")
+    suspend fun capNhatSoLuong(
+        @Body request: CapNhatSLRequest
+    )
 }
