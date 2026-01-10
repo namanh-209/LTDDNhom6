@@ -98,7 +98,12 @@ fun DonDaMua(navController: NavController, onBackClick: () -> Unit) {
                 0 -> danhSachFull.filter { it.TrangThai == "MoiDat" }
                 1 -> danhSachFull.filter { it.TrangThai == "DangGiao" }
                 2 -> danhSachFull.filter { it.TrangThai == "HoanThanh" }
-                else -> danhSachFull.filter { it.TrangThai == "DaHuy" }
+                // Chấp nhận mọi trạng thái có chứa chữ "Huy"
+                else -> danhSachFull.filter {
+                    it.TrangThai != "MoiDat" &&
+                            it.TrangThai != "DangGiao" &&
+                            it.TrangThai != "HoanThanh"
+                }
             }
 
             Spacer(modifier = Modifier.height(8.dp))

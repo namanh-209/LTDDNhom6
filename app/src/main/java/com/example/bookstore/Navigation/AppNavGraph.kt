@@ -13,6 +13,7 @@ import com.example.bookstore.Screen.LoginScreen
 import com.example.bookstore.Screen.RegisterScreen
 import com.example.bookstore.Model.Sach
 import com.example.bookstore.Screen.CaiDat
+import com.example.bookstore.Screen.ChinhSuaThongTin
 import com.example.bookstore.Screen.DonDaMua
 import com.example.bookstore.Screen.GioHang
 import com.example.bookstore.Screen.TaiKhoan
@@ -125,6 +126,15 @@ fun AppNavGraph() {
                 onBackClick = { navController.popBackStack() } // TRUYỀN HÀM BACK
             )
         }
-
+        composable("thaydoimatkhau") {
+            ManHinhThayDoiMatKhau(
+                onBackClick = { navController.popBackStack() } // Xử lý nút quay lại
+            )
+        }
+        composable("chinhsuathongtin") {
+            ChinhSuaThongTin(
+                onBackClick = { navController.popBackStack() } // Xử lý nút quay lại
+            )
+        }
     }
 }

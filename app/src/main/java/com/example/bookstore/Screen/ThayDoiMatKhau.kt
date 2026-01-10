@@ -1,5 +1,4 @@
 package com.example.bookstore
-
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -23,9 +22,11 @@ import androidx.compose.ui.unit.sp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ManHinhThayDoiMatKhau() {
+fun ManHinhThayDoiMatKhau(onBackClick: () -> Unit) {
 
-    KhungGiaoDien(tieuDe = "Thay đổi mật khẩu")
+    KhungGiaoDien(tieuDe = "Thay đổi mật khẩu",
+        onBackClick = onBackClick,
+        )
 
      { paddingValues ->
 

@@ -1,5 +1,6 @@
 package com.example.bookstore.Screen
 
+import android.R.attr.onClick
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -39,7 +40,15 @@ fun CaiDat(navController: NavController, onBackClick: () -> Unit) {
                     "Thay đổi mật khẩu",
                     "Chỉnh sửa thông tin",
                     "Tài khoản/ Thẻ ngân hàng"
-                )
+                ),onItemClick = { item ->
+                    // Kiểm tra xem người dùng bấm vào dòng nào
+                    if (item == "Thay đổi mật khẩu") {
+                        navController.navigate("thaydoimatkhau")
+                    }
+                    if (item == "Chỉnh sửa thông tin") {
+                        navController.navigate("chinhsuathongtin")
+                    }
+                }
             )
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -95,7 +104,7 @@ fun CaiDat(navController: NavController, onBackClick: () -> Unit) {
 }
 
 @Composable
-fun NhomCaiDat(tieuDe: String, items: List<String>) {
+fun NhomCaiDat(tieuDe: String, items: List<String>,onItemClick: (String) -> Unit = {}) {
     Column {
         Text(
             text = tieuDe,
@@ -112,7 +121,7 @@ fun NhomCaiDat(tieuDe: String, items: List<String>) {
         ) {
             Column {
                 items.forEachIndexed { index, item ->
-                    HangCaiDat(item)
+                    HangCaiDat(item,onClick = { onItemClick(item) })
                     if (index < items.lastIndex) {
                         Divider()
                     }
@@ -124,11 +133,11 @@ fun NhomCaiDat(tieuDe: String, items: List<String>) {
 }
 
 @Composable
-fun HangCaiDat(text: String) {
+fun HangCaiDat(text: String,onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable {}
+            .clickable {onClick()}
             .padding(horizontal = 12.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
