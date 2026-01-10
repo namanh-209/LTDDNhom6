@@ -1,5 +1,6 @@
 package com.example.bookstore.Screen // Hoặc package com.example.bookstore.ui tùy cấu trúc của bạn
 
+import CapNhatGioHangRequest
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -24,6 +25,8 @@ import com.example.bookstore.Api.RetrofitClient
 import com.example.bookstore.Components.BienDungChung
 import com.example.bookstore.KhungGiaoDien
 import com.example.bookstore.Model.DonHangSach
+import com.example.bookstore.Model.Sach
+import com.example.bookstore.Model.SachtrongGioHang
 import com.example.bookstore.R
 import kotlinx.coroutines.launch
 import java.text.DecimalFormat
@@ -118,7 +121,7 @@ fun DonDaMua(navController: NavController, onBackClick: () -> Unit) {
                 ) {
                     items(danhSachHienThi) { donHang ->
                         // Gọi hàm vẽ từng cuốn sách
-                        BookOrderItem(don = donHang, formatter = decimalFormat)
+                        BookOrderItem(don = donHang, formatter = decimalFormat,  navController = navController)
                     }
                 }
             }
@@ -130,7 +133,11 @@ fun DonDaMua(navController: NavController, onBackClick: () -> Unit) {
 // PHẦN 2: ITEM CON (VẼ 1 CUỐN SÁCH)
 // =================================================================
 @Composable
-fun BookOrderItem(don: DonHangSach, formatter: DecimalFormat) {
+fun BookOrderItem(
+    don: DonHangSach,
+    formatter: DecimalFormat,
+    navController: NavController,
+) {
 
     // Logic chọn màu sắc theo trạng thái
     val (mauSac, trangThaiText) = when (don.TrangThai) {
@@ -139,6 +146,8 @@ fun BookOrderItem(don: DonHangSach, formatter: DecimalFormat) {
         "HoanThanh" -> Pair(Color(0xFF388E3C), "Thành công")    // Xanh lá
         else -> Pair(Color(0xFFD32F2F), "Đã huỷ")               // Đỏ
     }
+    val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -219,7 +228,29 @@ fun BookOrderItem(don: DonHangSach, formatter: DecimalFormat) {
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         Button(
-                            onClick = { /* TODO: Xử lý nút Trả hàng/Hoàn tiền */ },
+                            onClick = {
+                                scope.launch {
+                                    try {
+                                        RetrofitClient.api.capNhatGioHang(
+                                            CapNhatGioHangRequest(
+                                                MaNguoiDung = BienDungChung.userHienTai!!.MaNguoiDung,
+                                                MaSach = don.MaSach,
+                                                SoLuong = 1
+                                            )
+                                        )
+                                        scope.launch {
+                                            snackbarHostState.showSnackbar("${don.TenSach} đã được thêm vào giỏ hàng")
+                                        }
+                                        // Chuyển sang trang giỏ hàng
+                                        navController.navigate("giohang")
+
+                                    } catch (e: Exception) { }
+                                }
+
+
+
+
+                            },
                             colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray),
                             shape = RoundedCornerShape(10.dp),
                             modifier = Modifier.height(36.dp)
