@@ -16,6 +16,7 @@ import com.example.bookstore.Screen.CaiDat
 import com.example.bookstore.Screen.ChinhSuaThongTin
 import com.example.bookstore.Screen.DonDaMua
 import com.example.bookstore.Screen.GioHang
+import com.example.bookstore.Screen.ManHinhThayDoiMatKhau
 import com.example.bookstore.Screen.TaiKhoan
 import com.example.bookstore.ui.screen.DanhSachSach
 
@@ -127,7 +128,7 @@ fun AppNavGraph() {
             )
         }
         composable("thaydoimatkhau") {
-            ManHinhThayDoiMatKhau(
+            ManHinhThayDoiMatKhau (
                 onBackClick = { navController.popBackStack() } // Xử lý nút quay lại
             )
         }

@@ -7,6 +7,7 @@ import com.example.bookstore.Model.ApiResponse
 import com.example.bookstore.Model.DangKi
 import com.example.bookstore.Model.DangNhap
 import com.example.bookstore.Model.DiaChi
+import com.example.bookstore.Model.DoiMatKhau
 import com.example.bookstore.Model.DonHangSach
 import com.example.bookstore.Model.RegisterResponse
 import com.example.bookstore.Model.Sach // ✅ Nhớ import model Sach
@@ -82,5 +83,9 @@ interface ApiService {
         @Path("id") maGioHang: Int
     ): ApiResponse<Unit>
 
+// ... các api khác ...
 
+    // API Đổi mật khẩu
+    @POST("api/changepassword")
+    suspend fun doiMatKhau(@Body request: DoiMatKhau): ApiResponse<Any>
 }
