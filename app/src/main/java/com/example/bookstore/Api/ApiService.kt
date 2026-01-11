@@ -88,4 +88,11 @@ interface ApiService {
     // API Đổi mật khẩu
     @POST("api/changepassword")
     suspend fun doiMatKhau(@Body request: DoiMatKhau): ApiResponse<Any>
+
+    //api đánh giá
+    @POST("api/danhgia")
+    suspend fun guiDanhGia(
+        @Body request: com.example.bookstore.Model.DanhGiaRequest
+    ): ApiResponse<Any>
+
 }

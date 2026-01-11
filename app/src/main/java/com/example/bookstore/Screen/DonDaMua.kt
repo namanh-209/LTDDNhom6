@@ -259,7 +259,8 @@ fun BookOrderItem(
                         }
 
                         Button(
-                            onClick = { /* TODO: Xử lý nút Đánh giá */ },
+                            onClick = {
+                                navController.navigate("danhgia/${don.MaSach}/${don.MaDonHang}") },
                             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF9800)),
                             shape = RoundedCornerShape(10.dp),
                             modifier = Modifier.height(36.dp)

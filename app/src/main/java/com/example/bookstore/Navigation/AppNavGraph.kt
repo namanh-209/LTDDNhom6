@@ -14,6 +14,7 @@ import com.example.bookstore.Screen.RegisterScreen
 import com.example.bookstore.Model.Sach
 import com.example.bookstore.Screen.CaiDat
 import com.example.bookstore.Screen.ChinhSuaThongTin
+import com.example.bookstore.Screen.DanhGia
 import com.example.bookstore.Screen.DonDaMua
 import com.example.bookstore.Screen.GioHang
 import com.example.bookstore.Screen.ManHinhThayDoiMatKhau
@@ -137,5 +138,17 @@ fun AppNavGraph() {
                 onBackClick = { navController.popBackStack() } // Xử lý nút quay lại
             )
         }
+
+        //trang danh gia
+        // 8. Trang đánh giá
+        composable("danhgia/{maSach}/{maDonHang}") { backStackEntry ->
+            DanhGia(
+                navController = navController,
+                onBackClick = { navController.popBackStack() },
+                maSach = backStackEntry.arguments!!.getString("maSach")!!.toInt(),
+                maDonHang = backStackEntry.arguments!!.getString("maDonHang")!!.toInt()
+            )
+        }
+
     }
 }
