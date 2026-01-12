@@ -6,6 +6,7 @@ import YeuThichRequest
 import com.example.bookstore.Model.ApiResponse
 import com.example.bookstore.Model.DangKi
 import com.example.bookstore.Model.DangNhap
+import com.example.bookstore.Model.DanhGia
 import com.example.bookstore.Model.DiaChi
 import com.example.bookstore.Model.DoiMatKhau
 import com.example.bookstore.Model.DonHangSach
@@ -96,8 +97,15 @@ interface ApiService {
         @Body request: com.example.bookstore.Model.DanhGiaRequest
     ): ApiResponse<Any>
 
+<<<<<<< HEAD
     //api khuyen mai
     @GET("/api/khuyenmai")
     suspend fun layDanhSachKhuyenMai(): ApiResponse<List<KhuyenMai>>
 
+=======
+
+    //API hiển thị đánh giá
+    @GET("api/danhgia/{bookId}")
+    suspend fun layDanhSachDanhGia(@Path("bookId") bookId: Int): ApiResponse<List<DanhGia>>
+>>>>>>> 313a706a6f77e232d94e5e93516f9020d127d7cf
 }

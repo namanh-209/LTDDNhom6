@@ -1,5 +1,8 @@
 package com.example.bookstore
 
+import CapNhatGioHangRequest
+import YeuThichRequest
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -8,8 +11,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material.icons.outlined.Star
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -17,15 +23,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.example.bookstore.Api.RetrofitClient
+import com.example.bookstore.Components.BienDungChung
+import com.example.bookstore.Model.DanhGia
 import com.example.bookstore.Model.Sach
-
-
-
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -33,25 +41,50 @@ fun ManHinhChiTietSach(
     sach: Sach,
     onBackClick: () -> Unit
 ) {
-    // State để quản lý Tab (0: Thông tin, 1: Đánh giá)
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val user = BienDungChung.userHienTai
+
+    // --- STATE QUẢN LÝ ---
     var selectedTab by remember { mutableIntStateOf(0) }
+    var listDanhGia by remember { mutableStateOf<List<DanhGia>>(emptyList()) }
+
+    // State cho nút Yêu thích (Tim)
+    var isFavorite by remember { mutableStateOf(false) }
+
+    // --- LOGIC KHỞI TẠO (Gọi API khi mở màn hình) ---
+    LaunchedEffect(sach.MaSach) {
+        scope.launch {
+            try {
+                // 1. Lấy danh sách đánh giá
+                val responseDG = RetrofitClient.api.layDanhSachDanhGia(sach.MaSach)
+                listDanhGia = responseDG.data ?: emptyList()
+
+                // 2. Kiểm tra xem sách này có trong danh sách yêu thích của User không
+                if (user != null) {
+                    val responseYT = RetrofitClient.api.layDanhSachYeuThich(user.MaNguoiDung)
+                    val danhSachYeuThich = responseYT.data ?: emptyList()
+                    // Nếu tìm thấy sách trong list yêu thích -> set tim màu đỏ
+                    isFavorite = danhSachYeuThich.any { it.MaSach == sach.MaSach }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
 
     Scaffold(
-        // thanh trên cùng
         topBar = {
             TopAppBar(
-                title = {
-                    Text("Thông tin chi tiết", color = Color.White, fontWeight = FontWeight.Bold)
-                },
+                title = { Text("Thông tin chi tiết", color = Color.White, fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = Color.White)
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = MauXanh)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFF1976D2))
             )
         },
-        // thanh chức năng dưới cùng
         bottomBar = {
             BottomAppBar(
                 containerColor = Color(0xFFEEEEEE),
@@ -62,35 +95,97 @@ fun ManHinhChiTietSach(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    // Nút Yêu thích
-                    IconButton(onClick = {}) {
-                        Icon(Icons.Default.FavoriteBorder, contentDescription = null, modifier = Modifier.size(28.dp))
+                    // --- NÚT YÊU THÍCH (XỬ LÝ LOGIC) ---
+                    IconButton(onClick = {
+                        if (user == null) {
+                            Toast.makeText(context, "Vui lòng đăng nhập!", Toast.LENGTH_SHORT).show()
+                        } else {
+                            // 1. Đổi trạng thái UI ngay lập tức cho mượt (Optimistic Update)
+                            isFavorite = !isFavorite
+
+                            // 2. Gọi API cập nhật server
+                            scope.launch {
+                                try {
+                                    RetrofitClient.api.toggleYeuThich(
+                                        YeuThichRequest(user.MaNguoiDung, sach.MaSach)
+                                    )
+                                    // Thông báo nhẹ
+
+                                } catch (e: Exception) {
+                                    isFavorite = !isFavorite
+                                    Toast.makeText(context, "Lỗi kết nối", Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                        }
+                    }) {
+                        // Đổi Icon và Màu sắc dựa trên biến isFavorite
+                        Icon(
+                            imageVector = if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                            contentDescription = null,
+                            modifier = Modifier.size(32.dp), // To hơn xíu cho dễ bấm
+                            tint = if (isFavorite) Color.Red else Color.Gray // Đỏ nếu thích, Xám nếu không
+                        )
                     }
 
-                    // Đường kẻ dọc
                     Spacer(modifier = Modifier.width(8.dp).height(24.dp).background(Color.Gray))
 
-                    // Nút Giỏ hàng
-                    IconButton(onClick = {}) {
-                        Icon(Icons.Default.ShoppingCart, contentDescription = null, modifier = Modifier.size(28.dp))
+                    // --- NÚT THÊM VÀO GIỎ HÀNG (XỬ LÝ LOGIC) ---
+                    IconButton(onClick = {
+                        if (user == null) {
+                            Toast.makeText(context, "Vui lòng đăng nhập!", Toast.LENGTH_SHORT).show()
+                        } else {
+                            scope.launch {
+                                try {
+                                    RetrofitClient.api.capNhatGioHang(
+                                        CapNhatGioHangRequest(
+                                            MaNguoiDung = user.MaNguoiDung,
+                                            MaSach = sach.MaSach,
+                                            SoLuong = 1 // Mặc định thêm 1 cuốn
+                                        )
+                                    )
+                                    Toast.makeText(context, "Đã thêm vào giỏ hàng!", Toast.LENGTH_SHORT).show()
+                                } catch (e: Exception) {
+                                    Toast.makeText(context, "Lỗi thêm giỏ hàng", Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                        }
+                    }) {
+                        Icon(
+                            Icons.Default.ShoppingCart,
+                            contentDescription = null,
+                            modifier = Modifier.size(32.dp),
+                            tint = Color(0xFF1976D2) // Màu xanh cho giỏ hàng
+                        )
                     }
 
                     Spacer(modifier = Modifier.width(16.dp))
 
-                    // Nút mua
+                    // Nút Mua (Giữ nguyên hoặc xử lý chuyển sang màn thanh toán)
                     Button(
-                        onClick = { /* Xử lý mua hàng */ },
-                        colors = ButtonDefaults.buttonColors(containerColor = MauXanh),
+                        onClick = {
+                            // Logic mua ngay (thường là thêm vào giỏ rồi chuyển sang giỏ hàng)
+                            if (user == null) {
+                                Toast.makeText(context, "Vui lòng đăng nhập!", Toast.LENGTH_SHORT).show()
+                            } else {
+                                scope.launch {
+                                    try {
+                                        RetrofitClient.api.capNhatGioHang(CapNhatGioHangRequest(user.MaNguoiDung, sach.MaSach, 1))
+                                        Toast.makeText(context, "Đã thêm vào giỏ, vui lòng kiểm tra!", Toast.LENGTH_SHORT).show()
+                                    } catch (e: Exception) {}
+                                }
+                            }
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1976D2)),
                         shape = RoundedCornerShape(4.dp),
                         modifier = Modifier.weight(1f).height(48.dp)
                     ) {
-                        Text("Mua", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                        Text("Mua ngay", fontSize = 18.sp, fontWeight = FontWeight.Bold)
                     }
                 }
             }
         }
     ) { padding ->
-        // nội dung chính
+        // ... (Phần hiển thị nội dung bên dưới GIỮ NGUYÊN CODE CŨ của bạn) ...
         Column(
             modifier = Modifier
                 .padding(padding)
@@ -98,125 +193,74 @@ fun ManHinhChiTietSach(
                 .verticalScroll(rememberScrollState())
                 .background(Color.White)
         ) {
-           //phần header
+            // Phần Header Sách
             Row(modifier = Modifier.padding(16.dp)) {
-                // Ảnh bìa sách
-                Card(
-                    elevation = CardDefaults.cardElevation(4.dp),
-                    shape = RoundedCornerShape(4.dp)
-                ) {
+                Card(elevation = CardDefaults.cardElevation(4.dp), shape = RoundedCornerShape(4.dp)) {
                     AsyncImage(
-                        model = sach.AnhBia,
-                        contentDescription = null,
-                        modifier = Modifier.width(100.dp).height(150.dp),
-                        contentScale = ContentScale.Crop
+                        model = sach.AnhBia, contentDescription = null,
+                        modifier = Modifier.width(100.dp).height(150.dp), contentScale = ContentScale.Crop
                     )
                 }
-
                 Spacer(modifier = Modifier.width(16.dp))
-
-                // Thông tin bên cạnh ảnh
                 Column {
-                    Text(
-                        text = sach.TenSach,
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis
-                    )
+                    Text(sach.TenSach, fontSize = 20.sp, fontWeight = FontWeight.Bold, maxLines = 2, overflow = TextOverflow.Ellipsis)
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = formatTienTe(sach.GiaBan.toInt()),
-                        color = Color.Red,
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold
-                    )
+                    Text("${sach.GiaBan.toInt()} đ", color = Color.Red, fontSize = 18.sp, fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.height(8.dp))
                     Text("Tác giả: ${sach.TenTacGia ?: "Đang cập nhật"}", fontSize = 14.sp)
-                    Text("Đánh giá: 4.5/5", fontSize = 14.sp, modifier = Modifier.padding(vertical = 4.dp))
-                    // Giả lập năm xuất bản vì model chưa có
-                    Text("Năm xuất bản: 2024", fontSize = 14.sp)
+
+                    val diemTB = if (listDanhGia.isNotEmpty()) {
+                        String.format("%.1f", listDanhGia.map { it.SoSao }.average())
+                    } else "0"
+                    Text("Đánh giá: $diemTB/5 (${listDanhGia.size} lượt)", fontSize = 14.sp, modifier = Modifier.padding(vertical = 4.dp))
                 }
             }
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // thông tin/ đánh giá
+            // Tabs
             Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
-                Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .clickable { selectedTab = 0 },
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        "Thông tin",
-                        fontSize = 16.sp,
-                        fontWeight = if (selectedTab == 0) FontWeight.Bold else FontWeight.Normal
-                    )
-                    if (selectedTab == 0) {
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Box(modifier = Modifier.height(2.dp).fillMaxWidth().background(Color.Black))
-                    }
+                Column(modifier = Modifier.weight(1f).clickable { selectedTab = 0 }, horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text("Thông tin", fontSize = 16.sp, fontWeight = if (selectedTab == 0) FontWeight.Bold else FontWeight.Normal)
+                    if (selectedTab == 0) Box(modifier = Modifier.height(2.dp).fillMaxWidth().background(Color.Black))
                 }
-
-                Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .clickable { selectedTab = 1 },
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        "Đánh giá",
-                        fontSize = 16.sp,
-                        fontWeight = if (selectedTab == 1) FontWeight.Bold else FontWeight.Normal
-                    )
-                    if (selectedTab == 1) {
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Box(modifier = Modifier.height(2.dp).fillMaxWidth().background(Color.Black))
-                    }
+                Column(modifier = Modifier.weight(1f).clickable { selectedTab = 1 }, horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text("Đánh giá", fontSize = 16.sp, fontWeight = if (selectedTab == 1) FontWeight.Bold else FontWeight.Normal)
+                    if (selectedTab == 1) Box(modifier = Modifier.height(2.dp).fillMaxWidth().background(Color.Black))
                 }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
-
             if (selectedTab == 0) {
-                // tab thong tin
+                // Tab Thông tin
                 Column(modifier = Modifier.padding(horizontal = 16.dp)) {
                     ThongTinDong("Tên sách", sach.TenSach)
                     ThongTinDong("Tác giả", sach.TenTacGia ?: "Đang cập nhật")
                     ThongTinDong("Thể loại", sach.TenTheLoai ?: "Khác")
-                    // Các thông tin giả lập cho giống mẫu (do model thiếu)
-                    ThongTinDong("Nhà xuất bản", "NXB Văn Học")
-                    ThongTinDong("Số trang", "272")
-                    ThongTinDong("Hình thức", "Bìa mềm")
-
                     Spacer(modifier = Modifier.height(16.dp))
                     Text("Tóm tắt nội dung:", fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = "Đây là cuốn sách hấp dẫn kể về hành trình đầy cảm xúc...", // Thay bằng sach.MoTa nếu có
-                        style = LocalTextStyle.current.copy(lineHeight = 20.sp),
-                        color = Color.DarkGray
-                    )
+                    Text(text = sach.MoTa ?: "Đang cập nhật mô tả...", style = LocalTextStyle.current.copy(lineHeight = 20.sp), color = Color.DarkGray)
                 }
             } else {
-                // === TAB ĐÁNH GIÁ (Giao diện giả lập) ===
+                // Tab Đánh giá (Dùng ItemDanhGiaThat đẹp đã sửa ở bước trước)
                 Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-                    ItemDanhGia("Trần Văn A", "5", "Sách rất hay, đóng gói đẹp!")
-                    ItemDanhGia("Nguyễn Thị B", "4", "Nội dung ổn, giao hàng hơi chậm.")
-                    ItemDanhGia("Lê Văn C", "4", "Tuyệt vời, sẽ ủng hộ tiếp.")
+                    if (listDanhGia.isEmpty()) {
+                        Text("Chưa có đánh giá nào.", modifier = Modifier.padding(20.dp).align(Alignment.CenterHorizontally), color = Color.Gray)
+                    } else {
+                        listDanhGia.forEach { danhGia ->
+                            ItemDanhGiaThat(danhGia)
+                        }
+                    }
                 }
             }
-
-            // Khoảng trống dưới cùng để không bị che bởi nút Mua
             Spacer(modifier = Modifier.height(20.dp))
         }
     }
 }
 
-//  thông tin
+// ... Các hàm phụ trợ ItemDanhGiaThat, ThongTinDong giữ nguyên như cũ ...
 @Composable
 fun ThongTinDong(tieuDe: String, noiDung: String) {
     Row(modifier = Modifier.padding(vertical = 4.dp)) {
@@ -225,24 +269,50 @@ fun ThongTinDong(tieuDe: String, noiDung: String) {
     }
 }
 
-// Đánh giá
 @Composable
-fun ItemDanhGia(ten: String, sao: String, binhLuan: String) {
+fun ItemDanhGiaThat(danhGia: DanhGia) {
     Card(
-        modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F5F5))
+        modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        shape = RoundedCornerShape(12.dp)
     ) {
-        Column(modifier = Modifier.padding(12.dp)) {
+        Column(modifier = Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                // Avatar tròn giả lập
-                Box(modifier = Modifier.size(32.dp).clip(RoundedCornerShape(50)).background(Color.Gray), contentAlignment = Alignment.Center) {
-                    Text(ten.take(1), color = Color.White, fontWeight = FontWeight.Bold)
+                if (danhGia.AnhDaiDien != null && danhGia.AnhDaiDien.isNotEmpty()) {
+                    AsyncImage(
+                        model = danhGia.AnhDaiDien,
+                        contentDescription = null,
+                        modifier = Modifier.size(40.dp).clip(RoundedCornerShape(50)).background(Color(0xFFE0E0E0)),
+                        contentScale = ContentScale.Crop
+                    )
+                } else {
+                    Box(
+                        modifier = Modifier.size(40.dp).clip(RoundedCornerShape(50)).background(Color(0xFFE3F2FD)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(text = danhGia.HoTen.take(1).uppercase(), color = Color(0xFF1565C0), fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                    }
                 }
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(ten, fontWeight = FontWeight.Bold)
+                Spacer(modifier = Modifier.width(12.dp))
+                Column {
+                    Text(text = danhGia.HoTen, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = Color(0xFF333333))
+                    Text(text = danhGia.NgayDanhGia.take(10), fontSize = 12.sp, color = Color.Gray)
+                }
             }
-            Text("Đánh giá: 5⭐", fontSize = 12.sp, color = MauXanh, modifier = Modifier.padding(vertical = 4.dp))
-            Text(binhLuan)
+            Spacer(modifier = Modifier.height(8.dp))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                repeat(5) { index ->
+                    val starColor = if (index < danhGia.SoSao) Color(0xFFFFC107) else Color(0xFFE0E0E0)
+                    Icon(imageVector = Icons.Default.Star, contentDescription = null, tint = starColor, modifier = Modifier.size(18.dp))
+                }
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+            Box(
+                modifier = Modifier.fillMaxWidth().background(Color(0xFFFAFAFA), shape = RoundedCornerShape(8.dp)).padding(10.dp)
+            ) {
+                Text(text = danhGia.BinhLuan, fontSize = 14.sp, color = Color(0xFF424242), lineHeight = 20.sp)
+            }
         }
     }
 }
