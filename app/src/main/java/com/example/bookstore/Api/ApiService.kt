@@ -9,13 +9,16 @@ import com.example.bookstore.Model.DangNhap
 import com.example.bookstore.Model.DanhGia
 import com.example.bookstore.Model.DiaChi
 import com.example.bookstore.Model.DoiMatKhau
+import com.example.bookstore.Model.DonHangGui
 import com.example.bookstore.Model.DonHangSach
 import com.example.bookstore.Model.KhuyenMai
+import com.example.bookstore.Model.PhanHoiApi
 import com.example.bookstore.Model.RegisterResponse
 import com.example.bookstore.Model.Sach // ✅ Nhớ import model Sach
 import com.example.bookstore.Model.SachtrongGioHang
 import com.example.bookstore.Model.TheLoai
 import com.example.bookstore.Model.User
+import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
@@ -97,15 +100,27 @@ interface ApiService {
         @Body request: com.example.bookstore.Model.DanhGiaRequest
     ): ApiResponse<Any>
 
-<<<<<<< HEAD
+
     //api khuyen mai
     @GET("/api/khuyenmai")
     suspend fun layDanhSachKhuyenMai(): ApiResponse<List<KhuyenMai>>
 
-=======
 
     //API hiển thị đánh giá
     @GET("api/danhgia/{bookId}")
     suspend fun layDanhSachDanhGia(@Path("bookId") bookId: Int): ApiResponse<List<DanhGia>>
->>>>>>> 313a706a6f77e232d94e5e93516f9020d127d7cf
+
+    //API trang thanh toán
+    //Lấy địa chỉ
+    @GET("api/diachi/{maNguoiDung}")
+    suspend fun layDanhSachDiaChi(
+        @Path("maNguoiDung") maNguoiDung: Int
+    ): List<DiaChi>
+
+
+    //tạo đơn hàng
+    @POST("api/donhang")
+    fun taoDonHang(
+        @Body donHang: DonHangGui
+    ): Call<PhanHoiApi>
 }

@@ -59,7 +59,12 @@ fun KhuyenMai(navController: NavController) {
                 ItemKhuyenMai(
                     km = km,
                     onApplyClick = {
-                        // 👉 Áp dụng xong → chuyển sang giỏ hàng
+                        //them khi có trang thanh toán
+                        navController.previousBackStackEntry
+                            ?.savedStateHandle
+                            ?.set("khuyenMaiDaChon", km)
+
+                        // Áp dụng xong → chuyển sang giỏ hàng
                         navController.navigate("giohang") {
                             launchSingleTop = true
                         }

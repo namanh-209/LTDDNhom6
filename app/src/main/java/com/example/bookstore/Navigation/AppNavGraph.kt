@@ -12,6 +12,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.bookstore.Screen.LoginScreen
 import com.example.bookstore.Screen.RegisterScreen
 import com.example.bookstore.Model.Sach
+import com.example.bookstore.Model.SachtrongGioHang
 import com.example.bookstore.Screen.CaiDat
 import com.example.bookstore.Screen.ChinhSuaThongTin
 import com.example.bookstore.Screen.DanhGia
@@ -156,6 +157,21 @@ fun AppNavGraph() {
                 onBackClick = { navController.popBackStack() },
                 maSach = backStackEntry.arguments!!.getString("maSach")!!.toInt(),
                 maDonHang = backStackEntry.arguments!!.getString("maDonHang")!!.toInt()
+            )
+        }
+
+        //THANH TOÁN
+        composable("thanhtoan"){
+            val gioHang =
+                navController.previousBackStackEntry
+                    ?.savedStateHandle
+                    ?.get<List<SachtrongGioHang>>("gioHang")
+                    ?: emptyList()
+
+            ManHinhThanhToan(
+                navController=navController,
+                danhSachSanPham = gioHang,
+                BamQuayLai = { navController.popBackStack() }
             )
         }
 

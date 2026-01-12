@@ -23,6 +23,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Remove
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -179,22 +180,15 @@ fun GioHang(
                                 )
                             }
 
-                            Box(
-                                modifier = Modifier
-                                    .background(Color.Red, RoundedCornerShape(8.dp))
-                                    .clickable {
-                                        navController.navigate("thanhtoan")
-                                    }
-                                    .padding(horizontal = 24.dp, vertical = 12.dp)
-                            ) {
-                                Text(
-                                    text = "Thanh toán",
-                                    color = Color.White,
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 20.sp
-                                )
-                            }
+                            Button(onClick = {
+                                navController.currentBackStackEntry
+                                    ?.savedStateHandle
+                                    ?.set("gioHang", danhSachSach)
 
+                                navController.navigate("thanhtoan")
+                            }) {
+                                Text("Thanh toán")
+                            }
                         }
                     }
                 }
