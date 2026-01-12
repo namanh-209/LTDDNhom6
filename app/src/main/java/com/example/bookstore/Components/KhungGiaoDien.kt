@@ -23,6 +23,7 @@ fun KhungGiaoDien(
     onHomeClick: () -> Unit = {},
     onCategoryClick: () -> Unit = {},
     onCartClick: () -> Unit = {},
+    onSaleClick: () -> Unit,
     onProfileClick: () -> Unit = {},
     noiDung: @Composable (PaddingValues) -> Unit
 ) {
@@ -49,7 +50,7 @@ fun KhungGiaoDien(
                 NutMenuVector("Trang chủ", Icons.Default.Home, onClick = onHomeClick)
                 NutMenuAnh("Danh mục", R.drawable.list, onClick = onCategoryClick)
                 NutMenuVector("Giỏ hàng", Icons.Default.ShoppingCart, onClick = onCartClick)
-                NutMenuAnh("Khuyến mãi", R.drawable.icon_giam_gia, onClick = {})
+                NutMenuAnh("Khuyến mãi", R.drawable.icon_giam_gia, onClick = onSaleClick)
                 NutMenuVector("Tài khoản", Icons.Default.Person, onClick = onProfileClick)
             }
         }

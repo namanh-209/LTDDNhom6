@@ -24,6 +24,7 @@ fun CaiDat(navController: NavController, onBackClick: () -> Unit) {
         onHomeClick = { navController.navigate("home") },
         onCategoryClick = { navController.navigate("trangdanhsach") },
         onCartClick = { navController.navigate("giohang") },
+        onSaleClick = { navController.navigate("khuyenmai") },
         onProfileClick = { navController.navigate("trangtaikhoan") }) { paddingValues ->
         Column(
             modifier = Modifier

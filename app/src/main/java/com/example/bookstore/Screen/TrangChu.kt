@@ -63,6 +63,7 @@ fun ManHinhTrangChu(
         onHomeClick = { /* Đang ở Home */ },
         onCategoryClick = { navController.navigate("trangdanhsach") },
         onCartClick = { navController.navigate("giohang") },
+        onSaleClick = { navController.navigate("khuyenmai") },
         onProfileClick = { navController.navigate("trangtaikhoan") }
     ) { padding ->
         LazyColumn(
