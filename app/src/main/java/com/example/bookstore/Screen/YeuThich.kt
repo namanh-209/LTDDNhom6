@@ -115,15 +115,18 @@ fun DanhSachYeuThichScreen(
 
     // Load danh sách yêu thích từ API
     LaunchedEffect(Unit) {
-        loading = true
-        try {
-            val res = RetrofitClient.api.layDanhSachYeuThich(userId)
-            dsYeuThich = res.data ?: emptyList()
-        } catch (e: Exception) {
-            Log.e("API", "Lỗi load yêu thích: ${e.message}")
-            dsYeuThich = emptyList()
-        } finally {
-            loading = false
+        scope.launch {
+            loading = true
+            try {
+                val res = RetrofitClient.api.layDanhSachYeuThich(
+                    BienDungChung.userHienTai!!.MaNguoiDung
+                )
+                dsYeuThich = res.data ?: emptyList()
+            } catch (e: Exception) {
+                dsYeuThich = emptyList()
+            } finally {
+                loading = false
+            }
         }
     }
 
