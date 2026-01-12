@@ -9,6 +9,7 @@ import com.example.bookstore.Model.DangNhap
 import com.example.bookstore.Model.DiaChi
 import com.example.bookstore.Model.DoiMatKhau
 import com.example.bookstore.Model.DonHangSach
+import com.example.bookstore.Model.KhuyenMai
 import com.example.bookstore.Model.RegisterResponse
 import com.example.bookstore.Model.Sach // ✅ Nhớ import model Sach
 import com.example.bookstore.Model.SachtrongGioHang
@@ -94,5 +95,9 @@ interface ApiService {
     suspend fun guiDanhGia(
         @Body request: com.example.bookstore.Model.DanhGiaRequest
     ): ApiResponse<Any>
+
+    //api khuyen mai
+    @GET("/api/khuyenmai")
+    suspend fun layDanhSachKhuyenMai(): ApiResponse<List<KhuyenMai>>
 
 }

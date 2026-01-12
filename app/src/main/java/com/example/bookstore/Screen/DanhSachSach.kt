@@ -213,6 +213,7 @@ fun DanhSachSach(
         onHomeClick = { navController.navigate("home") },
         onCategoryClick = { },
         onCartClick = {navController.navigate("giohang") },
+        onSaleClick = { navController.navigate("khuyenmai") },
         onProfileClick = { navController.navigate("trangtaikhoan") }
     ) { paddingValues ->
         Column(modifier = Modifier.fillMaxSize().padding(paddingValues)) {

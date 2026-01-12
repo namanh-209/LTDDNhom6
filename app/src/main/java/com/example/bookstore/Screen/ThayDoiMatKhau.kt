@@ -20,6 +20,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.bookstore.Api.RetrofitClient
 import com.example.bookstore.Components.BienDungChung
 import com.example.bookstore.KhungGiaoDien
@@ -30,7 +31,7 @@ import com.example.bookstore.R
 import kotlinx.coroutines.launch
 
 @Composable
-fun ManHinhThayDoiMatKhau(onBackClick: () -> Unit) {
+fun ManHinhThayDoiMatKhau(navController: NavController, onBackClick: () -> Unit) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
@@ -42,7 +43,12 @@ fun ManHinhThayDoiMatKhau(onBackClick: () -> Unit) {
 
     KhungGiaoDien(
         tieuDe = "Thay đổi mật khẩu",
-        onBackClick = onBackClick,
+        onBackClick = onBackClick, // TRANG CON -> CÓ BACK (được truyền từ AppNavGraph)
+        onHomeClick = { navController.navigate("home") },
+        onCategoryClick = { navController.navigate("trangdanhsach") },
+        onCartClick = { navController.navigate("giohang") },
+        onSaleClick = { navController.navigate("khuyenmai") },
+        onProfileClick = { navController.navigate("trangtaikhoan") }
     ) { paddingValues ->
 
         Column(

@@ -87,6 +87,7 @@ fun GioHang(
         onHomeClick = { navController.navigate("home") },
         onCategoryClick = { navController.navigate("trangdanhsach") },
         onCartClick = {},
+        onSaleClick = { navController.navigate("khuyenmai") },
         onProfileClick = { navController.navigate("trangtaikhoan") }
     ) { padding ->
 

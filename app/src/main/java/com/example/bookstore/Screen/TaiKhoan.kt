@@ -67,7 +67,8 @@ fun TaiKhoan(
         onBackClick = null, // TRANG CHÍNH -> KHÔNG BACK
         onHomeClick = { navController.navigate("home") },
         onCategoryClick = { navController.navigate("trangdanhsach") },
-        onCartClick = { },
+        onCartClick = { navController.navigate("giohang")},
+        onSaleClick = { navController.navigate("khuyenmai") },
         onProfileClick = { /* Đang ở Tài khoản */ }) { paddingValues ->
         LazyColumn(
             modifier = Modifier

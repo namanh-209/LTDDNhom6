@@ -17,6 +17,7 @@ import com.example.bookstore.Screen.ChinhSuaThongTin
 import com.example.bookstore.Screen.DanhGia
 import com.example.bookstore.Screen.DonDaMua
 import com.example.bookstore.Screen.GioHang
+import com.example.bookstore.Screen.KhuyenMai
 import com.example.bookstore.Screen.ManHinhThayDoiMatKhau
 import com.example.bookstore.Screen.TaiKhoan
 import com.example.bookstore.ui.screen.DanhSachSach
@@ -77,6 +78,14 @@ fun AppNavGraph() {
             // KHÔNG truyền onBackClick -> Ẩn nút Back
         }
 
+        //4. Trang khuyến mãi
+        composable("khuyenmai") {
+            KhuyenMai(
+                navController = navController
+            )
+        }
+
+
         // --- CÁC TRANG CON (CÓ NÚT BACK) ---
 
         // 4. Chi tiết sách
@@ -130,7 +139,7 @@ fun AppNavGraph() {
         }
         composable("thaydoimatkhau") {
             ManHinhThayDoiMatKhau (
-                onBackClick = { navController.popBackStack() } // Xử lý nút quay lại
+                navController = navController,onBackClick = { navController.popBackStack() } // Xử lý nút quay lại
             )
         }
         composable("chinhsuathongtin") {
