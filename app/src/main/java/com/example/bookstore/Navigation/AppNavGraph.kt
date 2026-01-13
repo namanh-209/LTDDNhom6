@@ -133,10 +133,14 @@ fun AppNavGraph() {
                 }
             )
         }
-        composable("giohang"){
+        composable("giohang") {
             GioHang(
                 navController = navController,
-                onBackClick = { navController.popBackStack() } // TRUYỀN HÀM BACK
+                onBackClick = { navController.popBackStack() },
+                onSachClick = { sach ->
+                    selectedSach = sach
+                    navController.navigate("detail")
+                }
             )
         }
         composable("thaydoimatkhau") {
