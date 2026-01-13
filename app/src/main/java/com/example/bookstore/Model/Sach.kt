@@ -14,5 +14,8 @@ data class Sach(
     val TenTacGia: String?,
     val TenTheLoai: String?,
     val MaTheLoai: Int?,
-    val MoTa: String
+    val MoTa: String,
+    val DiemDanhGia: Double,
+    val SoLuongDaBan: Int ,
+    val NgayThem: String? = null
 )

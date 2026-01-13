@@ -43,7 +43,7 @@ fun KhuyenMai(navController: NavController) {
         onCartClick = { navController.navigate("giohang") },
         onSaleClick = {
             navController.navigate("khuyenmai") {
-                launchSingleTop = true
+
             }
         },
         onProfileClick = { navController.navigate("trangtaikhoan") }
