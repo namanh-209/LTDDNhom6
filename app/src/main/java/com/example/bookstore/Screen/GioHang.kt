@@ -45,7 +45,6 @@ import com.example.bookstore.Components.BienDungChung
 import com.example.bookstore.KhungGiaoDien
 import com.example.bookstore.Model.Sach
 import com.example.bookstore.Model.SachtrongGioHang
-import com.example.bookstore.Model.toSach
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.launch
 
@@ -145,7 +144,7 @@ fun GioHang(
                             items(danhSachSach) { sach ->
                                 GioHangItem(
                                     sach = sach,
-                                    onClick = { onSachClick(sach.toSach()) },
+                                    onClick = { },
                                     onTang = {
                                         xuLyTangGiam(
                                             sach = sach,

@@ -28,14 +28,15 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.bookstore.Api.RetrofitClient
-import com.example.bookstore.Components.BienDungChung
+import com.example.bookstore.Components.* // Import FilterCriteria, SortOption từ đây
 import com.example.bookstore.KhungGiaoDien
 import com.example.bookstore.Model.Sach
 import com.example.bookstore.Model.TheLoai
-import com.example.bookstore.ThanhTimKiem // Đảm bảo đã có file này
 import kotlinx.coroutines.launch
+import java.text.NumberFormat
+import java.util.Locale
 
-/* ===================== TAB THỂ LOẠI ===================== */
+/* ===================== TAB THỂ LOẠI (GIỮ NGUYÊN) ===================== */
 @Composable
 fun TabTheLoai(
     danhSach: List<TheLoai>,
@@ -75,15 +76,20 @@ fun TabItem(ten: String, isSelected: Boolean, onClick: () -> Unit) {
     )
 }
 
-/* ===================== ITEM SÁCH (Đã thêm onClick) ===================== */
+/* ===================== ITEM SÁCH (GIỮ NGUYÊN) ===================== */
 @Composable
 fun SachItem(
     sach: Sach,
-    isFavorite: Boolean, // <--- thêm trạng thái tim
+    isFavorite: Boolean,
     onAddCart: () -> Unit,
     onFavorite: () -> Unit,
     onClick: () -> Unit
 ) {
+    fun formatGia(gia: Double): String {
+        val formatter = NumberFormat.getInstance(Locale("vi", "VN"))
+        return "${formatter.format(gia)} VND"
+    }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -118,7 +124,7 @@ fun SachItem(
                     color = Color.Gray
                 )
                 Spacer(modifier = Modifier.height(8.dp))
-                Text(text = "${sach.GiaBan.toInt()} VND", color = Color.Red, style = MaterialTheme.typography.bodyMedium,fontSize = 16.sp)
+                Text(text = formatGia(sach.GiaBan), color = Color.Red, style = MaterialTheme.typography.bodyMedium, fontSize = 16.sp)
             }
 
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -143,8 +149,7 @@ fun SachItem(
     }
 }
 
-
-/* ===================== MÀN HÌNH CHÍNH (Đã sửa tìm kiếm & chuyển trang) ===================== */
+/* ===================== MÀN HÌNH CHÍNH (LOGIC LỌC ĐƯỢC THÊM VÀO ĐÂY) ===================== */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DanhSachSach(
@@ -153,15 +158,19 @@ fun DanhSachSach(
 ) {
     var tuKhoaTimKiem by remember { mutableStateOf("") }
     var selectedTheLoaiId by remember { mutableIntStateOf(0) }
+
+    // THÊM BIẾN NÀY ĐỂ LƯU TRẠNG THÁI LỌC
+    var currentFilter by remember { mutableStateOf<FilterCriteria?>(null) }
+
     val context = LocalContext.current
     var dsSachGoc by remember { mutableStateOf<List<Sach>>(emptyList()) }
     var dsTheLoai by remember { mutableStateOf<List<TheLoai>>(emptyList()) }
     var loading by remember { mutableStateOf(false) }
 
-    val favoriteStates = remember { mutableStateMapOf<Int, Boolean>() } // Lưu trạng thái tim
+    val favoriteStates = remember { mutableStateMapOf<Int, Boolean>() }
     val scope = rememberCoroutineScope()
 
-    // ================= Tải Thể Loại =================
+    // 1. Tải danh sách Thể Loại
     LaunchedEffect(Unit) {
         try {
             val res = RetrofitClient.api.layDanhSachTheLoai()
@@ -169,7 +178,7 @@ fun DanhSachSach(
         } catch (e: Exception) { Log.e("API", "Lỗi: ${e.message}") }
     }
 
-    // ================= Tải Sách theo Thể Loại =================
+    // 2. Tải Sách khi chọn Thể Loại (Giữ nguyên logic cũ)
     LaunchedEffect(selectedTheLoaiId) {
         scope.launch {
             loading = true
@@ -179,7 +188,6 @@ fun DanhSachSach(
                 } else {
                     RetrofitClient.api.laySachTheoTheLoai(selectedTheLoaiId).data ?: emptyList()
                 }
-                // Khởi tạo trạng thái tim
             } catch (e: Exception) {
                 dsSachGoc = emptyList()
             } finally {
@@ -188,13 +196,11 @@ fun DanhSachSach(
         }
     }
 
-    // ================= LOAD YÊU THÍCH (TIM) =================
+    // 3. Tải danh sách Yêu Thích
     LaunchedEffect(Unit) {
         try {
-            val res = RetrofitClient.api.layDanhSachYeuThich(
-                BienDungChung.userHienTai!!.MaNguoiDung
-            )
-
+            val userId = BienDungChung.userHienTai?.MaNguoiDung ?: return@LaunchedEffect
+            val res = RetrofitClient.api.layDanhSachYeuThich(userId)
             res.data?.forEach { sach ->
                 favoriteStates[sach.MaSach] = true
             }
@@ -203,10 +209,51 @@ fun DanhSachSach(
         }
     }
 
-    // ================= Lọc tìm kiếm (client-side) =================
-    val dsSachHienThi = remember(dsSachGoc, tuKhoaTimKiem) {
-        if (tuKhoaTimKiem.isBlank()) dsSachGoc
-        else dsSachGoc.filter { it.TenSach.contains(tuKhoaTimKiem, ignoreCase = true) }
+    // 4. LOGIC LỌC & TÌM KIẾM (ĐÃ SỬA GIỐNG TRANG CHỦ)
+    // Kết hợp cả: Từ khóa tìm kiếm + Bộ lọc nâng cao (Giá, Sort...)
+    val dsSachHienThi = remember(dsSachGoc, tuKhoaTimKiem, currentFilter) {
+        var ketQua = dsSachGoc
+
+        // a. Lọc theo từ khóa (Giữ nguyên logic cũ của bạn)
+        if (tuKhoaTimKiem.isNotBlank()) {
+            ketQua = ketQua.filter {
+                it.TenSach.contains(tuKhoaTimKiem, ignoreCase = true) ||
+                        (it.TenTacGia?.contains(tuKhoaTimKiem, ignoreCase = true) == true)
+            }
+        }
+
+        // b. Lọc theo Bộ lọc nâng cao (Thêm mới từ TrangChu)
+        currentFilter?.let { filter ->
+            // Hàm clean giá (chống lỗi crash khi nhập text vào ô số)
+            fun cleanPrice(input: String): Double {
+                if (input.isBlank()) return 0.0
+                return input.replace("[^\\d]".toRegex(), "").toDoubleOrNull() ?: 0.0
+            }
+
+            val minVal = cleanPrice(filter.minPrice)
+            val maxVal = if (filter.maxPrice.isBlank()) Double.MAX_VALUE else cleanPrice(filter.maxPrice)
+
+            // Lọc theo giá
+            if (filter.minPrice.isNotBlank() || filter.maxPrice.isNotBlank()) {
+                ketQua = ketQua.filter { it.GiaBan in minVal..maxVal }
+            }
+
+            // Lọc theo đánh giá
+            if (filter.minRating > 0) {
+                ketQua = ketQua.filter { it.DiemDanhGia >= filter.minRating }
+            }
+
+            // Sắp xếp
+            ketQua = when (filter.sortOption) {
+                SortOption.PRICE_ASC -> ketQua.sortedBy { it.GiaBan }
+                SortOption.PRICE_DESC -> ketQua.sortedByDescending { it.GiaBan }
+                SortOption.NEWEST -> ketQua.sortedByDescending { it.NgayThem ?: it.MaSach.toString() }
+                SortOption.BEST_SELLING -> ketQua.sortedByDescending { it.SoLuongDaBan }
+                else -> ketQua
+            }
+        }
+
+        ketQua
     }
 
     KhungGiaoDien(
@@ -214,25 +261,29 @@ fun DanhSachSach(
         onBackClick = null,
         onHomeClick = { navController.navigate("home") },
         onCategoryClick = { },
-        onCartClick = {navController.navigate("giohang") },
+        onCartClick = { navController.navigate("giohang") },
         onSaleClick = { navController.navigate("khuyenmai") },
         onProfileClick = { navController.navigate("trangtaikhoan") }
     ) { paddingValues ->
         Column(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
 
-            // Thanh tìm kiếm
+            // CẬP NHẬT THANH TÌM KIẾM: Thêm onApplyFilter
             ThanhTimKiem(
                 tuKhoa = tuKhoaTimKiem,
-                khiGoChu = { tuKhoaTimKiem = it }
+                khiGoChu = { tuKhoaTimKiem = it },
+                onApplyFilter = { criteria -> currentFilter = criteria } // Nhận kết quả lọc
             )
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Tab Thể Loại
             TabTheLoai(
                 danhSach = dsTheLoai,
                 selectedId = selectedTheLoaiId,
-                onSelect = { selectedTheLoaiId = it }
+                onSelect = {
+                    selectedTheLoaiId = it
+                    // Khi đổi thể loại, có thể muốn reset bộ lọc hoặc giữ nguyên tùy bạn
+                    // currentFilter = null
+                }
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -253,9 +304,13 @@ fun DanhSachSach(
                         items(dsSachHienThi) { sach ->
                             SachItem(
                                 sach = sach,
-                                isFavorite = favoriteStates[sach.MaSach] ?: false, // <-- truyền trạng thái tim
+                                isFavorite = favoriteStates[sach.MaSach] ?: false,
                                 onAddCart = {
                                     scope.launch {
+                                        if(BienDungChung.userHienTai == null) {
+                                            Toast.makeText(context, "Vui lòng đăng nhập!", Toast.LENGTH_SHORT).show()
+                                            return@launch
+                                        }
                                         try {
                                             RetrofitClient.api.capNhatGioHang(
                                                 CapNhatGioHangRequest(
@@ -265,14 +320,17 @@ fun DanhSachSach(
                                                 )
                                             )
                                             Toast.makeText(context, "Đã thêm vào giỏ hàng!", Toast.LENGTH_SHORT).show()
-                                        } catch (e: Exception) { }
+                                        } catch (e: Exception) {
+                                            Toast.makeText(context, "Lỗi thêm giỏ hàng", Toast.LENGTH_SHORT).show()
+                                        }
                                     }
                                 },
                                 onFavorite = {
-                                    // Toggle trạng thái tim đỏ
-                                    favoriteStates[sach.MaSach] = !(favoriteStates[sach.MaSach] ?: false)
+                                    if(BienDungChung.userHienTai == null) return@SachItem
 
-                                    // Gọi API toggle nếu muốn
+                                    val currentState = favoriteStates[sach.MaSach] ?: false
+                                    favoriteStates[sach.MaSach] = !currentState // Update UI ngay lập tức
+
                                     scope.launch {
                                         try {
                                             RetrofitClient.api.toggleYeuThich(
@@ -281,7 +339,9 @@ fun DanhSachSach(
                                                     MaSach = sach.MaSach
                                                 )
                                             )
-                                        } catch (_: Exception) { }
+                                        } catch (e: Exception) {
+                                            // Revert nếu lỗi API (tùy chọn)
+                                        }
                                     }
                                 },
                                 onClick = { onSachClick(sach) }
