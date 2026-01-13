@@ -136,9 +136,12 @@ fun AppNavGraph() {
             GioHang(
                 navController = navController,
                 onBackClick = { navController.popBackStack() },
+                onSachClick = { sach ->
+                    selectedSach = sach
+                    navController.navigate("detail")
+                }
             )
         }
-
         composable("thaydoimatkhau") {
             ManHinhThayDoiMatKhau (
                 navController = navController,onBackClick = { navController.popBackStack() } // Xử lý nút quay lại

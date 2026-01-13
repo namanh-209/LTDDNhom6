@@ -4,7 +4,6 @@ package com.example.bookstore.Screen
 
 
 import CapNhatGioHangRequest
-import XoaGioHangRequest
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -16,7 +15,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -47,6 +45,7 @@ import com.example.bookstore.Components.BienDungChung
 import com.example.bookstore.KhungGiaoDien
 import com.example.bookstore.Model.Sach
 import com.example.bookstore.Model.SachtrongGioHang
+import com.example.bookstore.Model.toSach
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.launch
 
@@ -57,8 +56,7 @@ import kotlinx.coroutines.launch
 fun GioHang(
     navController: NavHostController,
     onBackClick: (() -> Unit)? = null,
-
-
+    onSachClick: (Sach) -> Unit
 ) {
     var danhSachSach by remember { mutableStateOf<List<SachtrongGioHang>>(emptyList()) }
     var dangTai by remember { mutableStateOf(true) }
@@ -123,8 +121,7 @@ fun GioHang(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(padding)
-                ) {
-                    //Kiểm tra
+                ) {//Kiểm tra
                     if (danhSachSach.isEmpty()) {
                         Box(
                             modifier = Modifier
@@ -139,7 +136,6 @@ fun GioHang(
                             )
                         }
                     }
-
                     if (danhSachSach.isNotEmpty()){
                         LazyColumn(
                             modifier = Modifier
@@ -149,7 +145,7 @@ fun GioHang(
                             items(danhSachSach) { sach ->
                                 GioHangItem(
                                     sach = sach,
-
+                                    onClick = { onSachClick(sach.toSach()) },
                                     onTang = {
                                         xuLyTangGiam(
                                             sach = sach,
@@ -201,6 +197,7 @@ fun GioHang(
                                     fontSize = 18.sp
                                 )
                             }
+
                             //ko thể thanh toán là isEmpty
                             val coTheThanhToan = danhSachSach.isNotEmpty()
                             //Giỏ hàng trống -> nút mờ, không bấm được
@@ -230,11 +227,13 @@ fun GioHangItem(
     sach: SachtrongGioHang,
     onTang: () -> Unit,
     onGiam: () -> Unit,
-    onXoa:()-> Unit
+    onXoa:()-> Unit,
+    onClick: () -> Unit,
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .clickable{onClick()}
             .background(Color(0xFFEFEFEF), RoundedCornerShape(12.dp))
             .padding(12.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -243,8 +242,7 @@ fun GioHangItem(
         AsyncImage(
             model = sach.AnhBia,
             contentDescription = null,
-            modifier = Modifier
-                .size(70.dp)
+            modifier = Modifier.size(70.dp)
         )
 
         Column(
