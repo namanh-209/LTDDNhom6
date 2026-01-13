@@ -127,7 +127,7 @@ fun ManHinhChiTietSach(
                         )
                     }
 
-                    Spacer(modifier = Modifier.width(8.dp).height(24.dp).background(Color.Gray))
+                    Spacer(modifier = Modifier.width(2.dp).height(24.dp).background(Color.Gray))
 
                     // --- NÚT THÊM VÀO GIỎ HÀNG (XỬ LÝ LOGIC) ---
                     IconButton(onClick = {

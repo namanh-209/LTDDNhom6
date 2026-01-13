@@ -45,7 +45,9 @@ import coil.compose.AsyncImage
 import com.example.bookstore.Api.RetrofitClient
 import com.example.bookstore.Components.BienDungChung
 import com.example.bookstore.KhungGiaoDien
+import com.example.bookstore.Model.Sach
 import com.example.bookstore.Model.SachtrongGioHang
+import com.example.bookstore.Model.toSach
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.launch
 
@@ -55,7 +57,8 @@ import kotlinx.coroutines.launch
 @Composable
 fun GioHang(
     navController: NavHostController,
-    onBackClick: (() -> Unit)? = null
+    onBackClick: (() -> Unit)? = null,
+    onSachClick: (Sach) -> Unit
 ) {
     var danhSachSach by remember { mutableStateOf<List<SachtrongGioHang>>(emptyList()) }
     var dangTai by remember { mutableStateOf(true) }
@@ -129,6 +132,7 @@ fun GioHang(
                         items(danhSachSach) { sach ->
                             GioHangItem(
                                 sach = sach,
+                                onClick = { onSachClick(sach.toSach()) },
                                 onTang = {
                                     xuLyTangGiam(
                                         sach = sach,
@@ -203,11 +207,13 @@ fun GioHangItem(
     sach: SachtrongGioHang,
     onTang: () -> Unit,
     onGiam: () -> Unit,
-    onXoa:()-> Unit
+    onXoa:()-> Unit,
+    onClick: () -> Unit,
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .clickable{onClick()}
             .background(Color(0xFFEFEFEF), RoundedCornerShape(12.dp))
             .padding(12.dp),
         verticalAlignment = Alignment.CenterVertically
