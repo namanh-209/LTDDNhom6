@@ -45,6 +45,7 @@ import coil.compose.AsyncImage
 import com.example.bookstore.Api.RetrofitClient
 import com.example.bookstore.Components.BienDungChung
 import com.example.bookstore.KhungGiaoDien
+import com.example.bookstore.Model.Sach
 import com.example.bookstore.Model.SachtrongGioHang
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.launch
@@ -55,7 +56,9 @@ import kotlinx.coroutines.launch
 @Composable
 fun GioHang(
     navController: NavHostController,
-    onBackClick: (() -> Unit)? = null
+    onBackClick: (() -> Unit)? = null,
+
+
 ) {
     var danhSachSach by remember { mutableStateOf<List<SachtrongGioHang>>(emptyList()) }
     var dangTai by remember { mutableStateOf(true) }
@@ -121,41 +124,60 @@ fun GioHang(
                         .fillMaxSize()
                         .padding(padding)
                 ) {
-                    LazyColumn(
-                        modifier = Modifier
-                            .weight(1f)
-                            .padding(12.dp)
-                    ) {
-                        items(danhSachSach) { sach ->
-                            GioHangItem(
-                                sach = sach,
-                                onTang = {
-                                    xuLyTangGiam(
-                                        sach = sach,
-                                        soLuongThayDoi = 1,
-                                        capNhatDanhSach = { danhSachSach = it },
-                                        setLoi = { loi = it }
-                                    )
-                                },
-                                onGiam = {
-                                    if (sach.SoLuong > 1) {
+                    //Kiểm tra
+                    if (danhSachSach.isEmpty()) {
+                        Box(
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxWidth(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "Giỏ hàng của bạn đang trống",
+                                color = Color.Gray,
+                                fontSize = 16.sp
+                            )
+                        }
+                    }
+
+                    if (danhSachSach.isNotEmpty()){
+                        LazyColumn(
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(12.dp)
+                        ) {
+                            items(danhSachSach) { sach ->
+                                GioHangItem(
+                                    sach = sach,
+
+                                    onTang = {
                                         xuLyTangGiam(
                                             sach = sach,
-                                            soLuongThayDoi = -1,
+                                            soLuongThayDoi = 1,
+                                            capNhatDanhSach = { danhSachSach = it },
+                                            setLoi = { loi = it }
+                                        )
+                                    },
+                                    onGiam = {
+                                        if (sach.SoLuong > 1) {
+                                            xuLyTangGiam(
+                                                sach = sach,
+                                                soLuongThayDoi = -1,
+                                                capNhatDanhSach = { danhSachSach = it },
+                                                setLoi = { loi = it }
+                                            )
+                                        }
+                                    },
+                                    onXoa = {
+                                        xuLyXoaSanPham(
+                                            sach = sach,
                                             capNhatDanhSach = { danhSachSach = it },
                                             setLoi = { loi = it }
                                         )
                                     }
-                                },
-                                onXoa = {
-                                    xuLyXoaSanPham(
-                                        sach = sach,
-                                        capNhatDanhSach = { danhSachSach = it },
-                                        setLoi = { loi = it }
-                                    )
-                                }
-                            )
-                            Spacer(modifier = Modifier.height(10.dp))
+                                )
+                                Spacer(modifier = Modifier.height(10.dp))
+                            }
                         }
                     }
 
@@ -179,14 +201,19 @@ fun GioHang(
                                     fontSize = 18.sp
                                 )
                             }
-
-                            Button(onClick = {
-                                navController.currentBackStackEntry
-                                    ?.savedStateHandle
-                                    ?.set("gioHang", danhSachSach)
-
-                                navController.navigate("thanhtoan")
-                            }) {
+                            //ko thể thanh toán là isEmpty
+                            val coTheThanhToan = danhSachSach.isNotEmpty()
+                            //Giỏ hàng trống -> nút mờ, không bấm được
+                            //Có sản phẩm -> nút hoạt động bình thường
+                            Button(
+                                onClick = {
+                                    navController.currentBackStackEntry
+                                        ?.savedStateHandle
+                                        ?.set("gioHang", danhSachSach)
+                                    navController.navigate("thanhtoan")
+                                },
+                                enabled = coTheThanhToan
+                            ) {
                                 Text("Thanh toán")
                             }
                         }
@@ -216,7 +243,8 @@ fun GioHangItem(
         AsyncImage(
             model = sach.AnhBia,
             contentDescription = null,
-            modifier = Modifier.size(70.dp)
+            modifier = Modifier
+                .size(70.dp)
         )
 
         Column(
