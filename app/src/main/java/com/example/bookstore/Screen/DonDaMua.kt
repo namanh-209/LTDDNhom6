@@ -99,12 +99,12 @@ fun DonDaMua(navController: NavController, onBackClick: () -> Unit) {
             // B. Lọc danh sách theo Tab đang chọn
             // (Phải khớp với trạng thái trong Database: MoiDat, DangGiao, HoanThanh, DaHuy)
             val danhSachHienThi = when (selectedTab) {
-                0 -> danhSachFull.filter { it.TrangThai == "MoiDat" }
+                0 -> danhSachFull.filter { it.TrangThai == "DangXuLy" }
                 1 -> danhSachFull.filter { it.TrangThai == "DangGiao" }
                 2 -> danhSachFull.filter { it.TrangThai == "HoanThanh" }
                 // Chấp nhận mọi trạng thái có chứa chữ "Huy"
                 else -> danhSachFull.filter {
-                    it.TrangThai != "MoiDat" &&
+                    it.TrangThai != "DangXuLy" &&
                             it.TrangThai != "DangGiao" &&
                             it.TrangThai != "HoanThanh"
                 }
@@ -142,7 +142,7 @@ fun BookOrderItem(
 
     // Logic chọn màu sắc theo trạng thái
     val (mauSac, trangThaiText) = when (don.TrangThai) {
-        "MoiDat" -> Pair(Color(0xFFFFA000), "Chờ xác nhận")     // Cam
+        "DangXuLy" -> Pair(Color(0xFFFFA000), "Chờ xác nhận")     // Cam
         "DangGiao" -> Pair(Color(0xFF1976D2), "Đang giao")      // Xanh dương
         "HoanThanh" -> Pair(Color(0xFF388E3C), "Thành công")    // Xanh lá
         else -> Pair(Color(0xFFD32F2F), "Đã huỷ")               // Đỏ
