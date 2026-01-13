@@ -10,17 +10,4 @@ data class SachtrongGioHang(
     val SoLuong: Int
 )
 
-fun SachtrongGioHang.toSach(): Sach {
-    return Sach(
-        MaSach = MaSach,
-        TenSach = TenSach,
-        GiaBan = GiaBan.toDouble(),
-        GiaGoc = GiaBan.toDouble(), // tạm thời
-        AnhBia = AnhBia,
-        TenTacGia = TenTacGia,
-        TenTheLoai = null,
-        MaTheLoai = null,
-        MoTa = "Sách được thêm từ giỏ hàng"
-    )
-}
 

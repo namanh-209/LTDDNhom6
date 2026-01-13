@@ -204,7 +204,7 @@ fun ItemSach(sach: Sach, onClick: () -> Unit) {
         Spacer(modifier = Modifier.height(8.dp))
         Text(text = sach.TenSach, maxLines = 2, overflow = TextOverflow.Ellipsis, fontWeight = FontWeight.Medium, fontSize = 14.sp)
         // Sửa lại: Dùng trực tiếp sach.GiaBan (Double)
-        Text(text = formatTienTe(sach.GiaBan), color = Color(0xFF00C853), fontWeight = FontWeight.Bold, fontSize = 13.sp)
+        Text(text = formatTienTe(sach.GiaBan), color = Color.Red, fontWeight = FontWeight.Bold, fontSize = 13.sp)
     }
 }
 
@@ -228,7 +228,7 @@ fun ItemSachTimKiem(sach: Sach, onClick: () -> Unit) {
                 Text(text = sach.TenSach, fontWeight = FontWeight.Bold, fontSize = 16.sp, maxLines = 2, overflow = TextOverflow.Ellipsis)
                 Text(text = "Thể loại: ${sach.TenTheLoai ?: "Khác"}", fontSize = 12.sp, color = Color.Gray)
                 // Sửa lại: Dùng trực tiếp sach.GiaBan (Double)
-                Text(text = formatTienTe(sach.GiaBan), fontWeight = FontWeight.Bold, fontSize = 15.sp, color = Color.Black)
+                Text(text = formatTienTe(sach.GiaBan), fontWeight = FontWeight.Bold, fontSize = 15.sp, color = Color.Red)
             }
         }
     }
