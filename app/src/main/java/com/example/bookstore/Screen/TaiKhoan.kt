@@ -198,7 +198,7 @@ fun ActionRow(navController: NavController) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             // Gắn sự kiện click chuyển màn hình
-            ActionItem(Icons.Default.List, "Đơn hàng") { navController.navigate("dondamua") }
+            ActionItem(Icons.Default.Assignment, "Đơn hàng") { navController.navigate("dondamua") }
             ActionItem(Icons.Default.List, "Lịch sử") { }
             ActionItem(Icons.Default.ShoppingCart, "Giỏ hàng") { navController.navigate("giohang") }
             ActionItem(Icons.Default.Favorite, "Yêu thích") { navController.navigate("danhsachyeuthich") }
