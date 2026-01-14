@@ -21,13 +21,15 @@ import androidx.compose.ui.unit.sp
 import com.example.bookstore.Api.RetrofitClient
 import com.example.bookstore.Components.BienDungChung
 import com.example.bookstore.Model.DangNhap
+import com.example.bookstore.Model.User // Đảm bảo import model NguoiDung
 import com.example.bookstore.R
 import kotlinx.coroutines.launch
 
 @Composable
 fun LoginScreen(
     onRegisterClick: () -> Unit,
-    onLoginSuccess: () -> Unit
+    // THAY ĐỔI 1: Callback nhận vào một NguoiDung
+    onLoginSuccess: (User) -> Unit
 ) {
     var contactInput by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -39,7 +41,7 @@ fun LoginScreen(
         modifier = Modifier.fillMaxSize().padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Logo (Nếu lỗi ảnh thì tạm thời comment dòng Image lại)
+        // Logo
         Image(
             painter = painterResource(id = R.drawable.logo),
             contentDescription = "Logo",
@@ -90,13 +92,16 @@ fun LoginScreen(
                             val req = DangNhap(contact = contactInput, password = password)
                             val res = RetrofitClient.api.dangNhap(req)
 
-                            if (res.status == "success") {
-                                // Lưu thông tin User vào biến dùng chung
-                                BienDungChung.userHienTai = res.data
-                                Toast.makeText(context, "Xin chào ${res.data?.HoTen}", Toast.LENGTH_SHORT).show()
+                            if (res.status == "success" && res.data != null) {
+                                // Lấy user từ response
+                                val user = res.data
 
-                                // Gọi hàm chuyển màn hình
-                                onLoginSuccess()
+                                // Lưu thông tin User vào biến dùng chung
+                                BienDungChung.userHienTai = user
+                                Toast.makeText(context, "Xin chào ${user.HoTen}", Toast.LENGTH_SHORT).show() // Lưu ý: hoTen viết thường theo Model chuẩn camelCase
+
+                                // THAY ĐỔI 2: Truyền user ra ngoài để NavGraph điều hướng
+                                onLoginSuccess(user)
                             } else {
                                 Toast.makeText(context, res.message ?: "Lỗi đăng nhập", Toast.LENGTH_SHORT).show()
                             }

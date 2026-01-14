@@ -34,7 +34,6 @@ fun DanhGia(
 
     val scope = rememberCoroutineScope()
 
-    // ================== DIALOG THÀNH CÔNG ==================
     if (hienDialogThanhCong) {
         AlertDialog(
             onDismissRequest = {},
@@ -60,7 +59,6 @@ fun DanhGia(
         )
     }
 
-    // ================== GIAO DIỆN ==================
     KhungGiaoDien(
         tieuDe = "Đánh giá",
         onBackClick = onBackClick,
@@ -109,7 +107,7 @@ fun DanhGia(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // 📝 Nội dung
+
             OutlinedTextField(
                 value = noiDung,
                 onValueChange = { noiDung = it },
@@ -122,7 +120,6 @@ fun DanhGia(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // 📤 Nút gửi
             Button(
                 enabled = !dangGui,
                 onClick = {

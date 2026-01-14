@@ -23,6 +23,14 @@ import com.example.bookstore.Screen.ManHinhThayDoiMatKhau
 import com.example.bookstore.Screen.TaiKhoan
 import com.example.bookstore.ui.screen.DanhSachSach
 
+// === THÊM CÁC IMPORT NÀY ===
+import com.example.bookstore.Screen.QuanLyDonHangAdmin
+import com.example.bookstore.Screen.ChiTietDonHangAdmin // Màn hình chi tiết
+import com.example.bookstore.Model.DonHang // Model Đơn hàng
+import com.google.gson.Gson
+import java.net.URLDecoder
+import java.nio.charset.StandardCharsets
+
 @Composable
 fun AppNavGraph() {
     val navController = rememberNavController()
@@ -30,15 +38,21 @@ fun AppNavGraph() {
 
     NavHost(navController = navController, startDestination = "login") {
 
-        // --- LOGIN & REGISTER ---
         composable("login") {
             LoginScreen(
                 onRegisterClick = { navController.navigate("register") },
-                onLoginSuccess = {
-                    navController.navigate("giohang")
-                    navController.navigate("home") {
-                        popUpTo("login") {
-                            inclusive = true
+                onLoginSuccess = { user ->
+                    val vaiTro = user.VaiTro?.trim() ?: ""
+
+                    if (vaiTro.equals("admin", ignoreCase = true) || vaiTro.equals("quanly", ignoreCase = true)) {
+                        // Điều hướng sang Admin
+                        navController.navigate("admin_quanlydonhang") {
+                            popUpTo("login") { inclusive = true }
+                        }
+                    } else {
+                        // Điều hướng sang Khách hàng
+                        navController.navigate("home") {
+                            popUpTo("login") { inclusive = true }
                         }
                     }
                 }
@@ -53,13 +67,47 @@ fun AppNavGraph() {
         // 1. Trang chủ
         composable("home") {
             ManHinhTrangChu(
-                navController = navController, // Truyền navController để xử lý BottomBar
+                navController = navController,
                 onSachClick = { sach ->
                     selectedSach = sach
                     navController.navigate("detail")
                 }
             )
         }
+
+        // === KHU VỰC ADMIN (SỬA Ở ĐÂY) ===
+
+        // 1. Màn hình Danh sách đơn hàng
+        composable("admin_quanlydonhang") {
+            QuanLyDonHangAdmin(
+                navController = navController,
+                bamQuayLai = {
+                    navController.navigate("login") {
+                        popUpTo("admin_quanlydonhang") { inclusive = true }
+                    }
+                }
+            )
+        }
+
+        // 2. Màn hình Chi tiết đơn hàng (THÊM MỚI)
+        composable("admin_order_detail/{donHangJson}") { backStackEntry ->
+            // Lấy chuỗi JSON từ argument
+            val jsonEncoded = backStackEntry.arguments?.getString("donHangJson") ?: ""
+
+            // Giải mã URL (vì lúc gửi ta đã Encode)
+            val json = URLDecoder.decode(jsonEncoded, StandardCharsets.UTF_8.toString())
+
+            // Chuyển JSON thành Object DonHang
+            val donHang = Gson().fromJson(json, DonHang::class.java)
+
+            // Gọi màn hình chi tiết
+            ChiTietDonHangAdmin(
+                navController = navController,
+                donHang = donHang
+            )
+        }
+
+        // === KẾT THÚC KHU VỰC ADMIN ===
 
         // 2. Trang Danh mục
         composable("trangdanhsach") {
@@ -69,88 +117,81 @@ fun AppNavGraph() {
                     selectedSach = sach
                     navController.navigate("detail")
                 }
-                // KHÔNG truyền onBackClick -> Mặc định là null -> Ẩn nút Back
             )
         }
 
         // 3. Trang Tài khoản
         composable("trangtaikhoan") {
             TaiKhoan(navController = navController)
-            // KHÔNG truyền onBackClick -> Ẩn nút Back
         }
 
-        //4. Trang khuyến mãi
+        // 4. Trang khuyến mãi
         composable("khuyenmai") {
-            KhuyenMai(
-                navController = navController
-            )
+            KhuyenMai(navController = navController)
         }
 
+        // --- CÁC TRANG CON ---
 
-        // --- CÁC TRANG CON (CÓ NÚT BACK) ---
-
-        // 4. Chi tiết sách
         composable("detail") {
             if (selectedSach != null) {
                 ManHinhChiTietSach(
                     sach = selectedSach!!,
-                    onBackClick = { navController.popBackStack() } // TRUYỀN HÀM BACK
+                    onBackClick = { navController.popBackStack() }
                 )
             }
         }
 
-        // 5. Đơn đã mua
         composable("dondamua") {
             DonDaMua(
                 navController = navController,
-                onBackClick = { navController.popBackStack() } // TRUYỀN HÀM BACK
+                onBackClick = { navController.popBackStack() }
             )
         }
 
-        //Caidat
         composable("caidat") {
             CaiDat(
                 navController = navController,
-                onBackClick = { navController.popBackStack() } // TRUYỀN HÀM BACK
+                onBackClick = { navController.popBackStack() }
             )
         }
 
         composable("danhsachyeuthich") {
             DanhSachYeuThichScreen(
                 navController = navController,
-                onBackClick = { navController.navigate("trangtaikhoan") }, // quay lại màn trước
-                onAddCart = { sach ->
-                    // TODO: xử lý thêm giỏ hàng
-                },
-                onRemoveFavorite = { sach ->
-                    // TODO: xử lý khi bỏ yêu thích nếu cần
-                },
+                onBackClick = { navController.navigate("trangtaikhoan") },
+                onAddCart = { sach -> },
+                onRemoveFavorite = { sach -> },
                 onSachClick = { sach ->
-                    // Điều hướng sang màn hình chi tiết sách
                     selectedSach = sach
                     navController.navigate("detail")
                 }
             )
         }
-        composable("giohang"){
+
+        composable("giohang") {
             GioHang(
                 navController = navController,
-                onBackClick = { navController.popBackStack() } // TRUYỀN HÀM BACK
-            )
-        }
-        composable("thaydoimatkhau") {
-            ManHinhThayDoiMatKhau (
-                navController = navController,onBackClick = { navController.popBackStack() } // Xử lý nút quay lại
-            )
-        }
-        composable("chinhsuathongtin") {
-            ChinhSuaThongTin(
-                onBackClick = { navController.popBackStack() } // Xử lý nút quay lại
+                onBackClick = { navController.popBackStack() },
+                onSachClick = { sach ->
+                    selectedSach = sach
+                    navController.navigate("detail")
+                }
             )
         }
 
-        //trang danh gia
-        // 8. Trang đánh giá
+        composable("thaydoimatkhau") {
+            ManHinhThayDoiMatKhau (
+                navController = navController,
+                onBackClick = { navController.popBackStack() }
+            )
+        }
+
+        composable("chinhsuathongtin") {
+            ChinhSuaThongTin(
+                onBackClick = { navController.popBackStack() }
+            )
+        }
+
         composable("danhgia/{maSach}/{maDonHang}") { backStackEntry ->
             DanhGia(
                 navController = navController,
@@ -160,13 +201,11 @@ fun AppNavGraph() {
             )
         }
 
-        //THANH TOÁN
         composable("thanhtoan"){
-            val gioHang =
-                navController.previousBackStackEntry
-                    ?.savedStateHandle
-                    ?.get<List<SachtrongGioHang>>("gioHang")
-                    ?: emptyList()
+            val gioHang = navController.previousBackStackEntry
+                ?.savedStateHandle
+                ?.get<List<SachtrongGioHang>>("gioHang")
+                ?: emptyList()
 
 //            ManHinhThanhToan(
 //                navController=navController,
@@ -174,6 +213,5 @@ fun AppNavGraph() {
 //                BamQuayLai = { navController.popBackStack() }
 //            )
         }
-
     }
 }
