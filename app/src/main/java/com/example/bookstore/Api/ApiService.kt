@@ -112,12 +112,10 @@ interface ApiService {
     suspend fun layDanhSachDanhGia(@Path("bookId") bookId: Int): ApiResponse<List<DanhGia>>
 
 
-    //Lấy địa chỉ
     @GET("api/diachi/{maNguoiDung}")
-    suspend fun layDanhSachDiaChi(
+    suspend fun layDiaChi(
         @Path("maNguoiDung") maNguoiDung: Int
-    ): ApiResponse<List<DiaChi>>
-
+    ): ApiResponse<DiaChi>
 
     //tạo đơn hàng
     @POST("api/donhang")

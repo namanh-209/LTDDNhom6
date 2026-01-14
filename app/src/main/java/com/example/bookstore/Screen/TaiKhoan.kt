@@ -30,33 +30,22 @@ import com.example.bookstore.Components.BienDungChung
 import com.example.bookstore.KhungGiaoDien
 import com.example.bookstore.Model.DiaChi
 import com.example.bookstore.Model.User
-import kotlinx.coroutines.launch
 
 @Composable
 fun TaiKhoan(
     navController: NavController,
 ) {
-    // User hiện tại
     val nguoiDung = BienDungChung.userHienTai
-
-    // Địa chỉ hiển thị (KHÔNG còn mặc định)
     var diaChiHienThi by remember { mutableStateOf<DiaChi?>(null) }
-    val scope = rememberCoroutineScope()
 
-    // Gọi API lấy địa chỉ
     LaunchedEffect(Unit) {
-        scope.launch {
-            try {
-                val userId = nguoiDung?.MaNguoiDung ?: return@launch
-                val response = RetrofitClient.api.layDanhSachDiaChi(userId)
-
-                // Chỉ lấy địa chỉ đầu tiên nếu có
-                if (!response.data.isNullOrEmpty()) {
-                    diaChiHienThi = response.data.first()
-                }
-            } catch (e: Exception) {
-                Log.e("TaiKhoan", "Lỗi lấy địa chỉ: ${e.message}")
-            }
+        try {
+            val userId = nguoiDung?.MaNguoiDung ?: return@LaunchedEffect
+            val response = RetrofitClient.api.layDiaChi(userId)
+            diaChiHienThi = response.data
+        } catch (e: Exception) {
+            Log.e("TaiKhoan", "Lỗi lấy địa chỉ: ${e.message}")
+            diaChiHienThi = null
         }
     }
 
@@ -219,26 +208,33 @@ fun ThongTinCaNhan(nguoiDung: User?) {
     ) {
         Column(Modifier.padding(16.dp)) {
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text("Thông tin cá nhân", fontWeight = FontWeight.Bold)
-                Text("Cập nhật", color = Color.Red, fontSize = 14.sp)
-            }
+            Text(
+                "Thông tin cá nhân",
+                fontWeight = FontWeight.Bold,
+                fontSize = 20.sp
+            )
 
             Spacer(Modifier.height(12.dp))
 
-            InfoLine("Họ và tên:", nguoiDung?.HoTen)
-            InfoLine("Số điện thoại:", nguoiDung?.SoDienThoai)
-            InfoLine("Email:", nguoiDung?.Email ?: "---")
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .border(1.dp, Color.LightGray, RoundedCornerShape(12.dp))
+                    .padding(12.dp)
+            ) {
+                Column {
+                    InfoLine("Họ và tên:", nguoiDung?.HoTen)
+                    InfoLine("Số điện thoại:", nguoiDung?.SoDienThoai)
+                    InfoLine("Email:", nguoiDung?.Email ?: "---")
 
-            val gioiTinhText = when (nguoiDung?.GioiTinh) {
-                "Nam" -> "Nam"
-                "Nu" -> "Nữ"
-                else -> "Khác"
+                    val gioiTinhText = when (nguoiDung?.GioiTinh) {
+                        "Nam" -> "Nam"
+                        "Nu" -> "Nữ"
+                        else -> "Khác"
+                    }
+                    InfoLine("Giới tính:", gioiTinhText)
+                }
             }
-            InfoLine("Giới tính:", gioiTinhText)
         }
     }
 }
@@ -261,7 +257,12 @@ fun ThongTinNhanHang(diaChi: DiaChi?) {
         colors = CardDefaults.cardColors(containerColor = Color.White)
     ) {
         Column(Modifier.padding(16.dp)) {
-            Text("Thông tin nhận hàng", fontWeight = FontWeight.Bold)
+
+            Text(
+                "Thông tin nhận hàng",
+                fontWeight = FontWeight.Bold,
+                fontSize = 20.sp
+            )
 
             Spacer(Modifier.height(12.dp))
 
@@ -274,6 +275,7 @@ fun ThongTinNhanHang(diaChi: DiaChi?) {
                 ) {
                     Column {
                         Text(diaChi.TenNguoiNhan, fontWeight = FontWeight.Bold)
+                        Spacer(Modifier.height(4.dp))
                         Text(diaChi.SDTNguoiNhan, color = Color.Gray, fontSize = 14.sp)
                         Spacer(Modifier.height(4.dp))
                         Text(diaChi.DiaChiChiTiet, fontSize = 15.sp)
