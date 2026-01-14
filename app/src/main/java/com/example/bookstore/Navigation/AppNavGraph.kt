@@ -9,6 +9,7 @@ import androidx.compose.runtime.setValue
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.bookstore.Model.DonHang
 import com.example.bookstore.Screen.LoginScreen
 import com.example.bookstore.Screen.RegisterScreen
 import com.example.bookstore.Model.Sach
@@ -26,7 +27,7 @@ import com.example.bookstore.ui.screen.DanhSachSach
 // === THÊM CÁC IMPORT NÀY ===
 import com.example.bookstore.Screen.QuanLyDonHangAdmin
 import com.example.bookstore.Screen.ChiTietDonHangAdmin // Màn hình chi tiết
-import com.example.bookstore.Model.DonHang // Model Đơn hàng
+
 import com.google.gson.Gson
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets

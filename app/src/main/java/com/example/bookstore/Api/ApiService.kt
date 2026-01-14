@@ -1,6 +1,8 @@
 package com.example.bookstore.Api
 
 import CapNhatGioHangRequest
+import CapNhatTrangThaiRequest
+
 import MChiTietDonHangAdmin
 import YeuThichRequest
 import com.example.bookstore.Model.ApiResponse
@@ -10,6 +12,7 @@ import com.example.bookstore.Model.DanhGia
 import com.example.bookstore.Model.DiaChi
 import com.example.bookstore.Model.DoiMatKhau
 import com.example.bookstore.Model.DonHang
+
 import com.example.bookstore.Model.DonHangGui
 import com.example.bookstore.Model.DonHangSach
 import com.example.bookstore.Model.KhuyenMai
@@ -129,20 +132,22 @@ interface ApiService {
     suspend fun layDanhSachDonHang(): ApiResponse<List<DonHang>>
 
     // 2. Cập nhật trạng thái
-    @FormUrlEncoded
-    @POST("api/admin/capnhattrangthai") // Đã bỏ .php
+    @POST("api/admin/capnhattrangthai")
     suspend fun capNhatTrangThai(
-        @Field("ma_don_hang") maDonHang: Int,
-        @Field("trang_thai") trangThaiMoi: String
+        @Body request: CapNhatTrangThaiRequest
     ): ApiResponse<Any>
 
 
 
-
     // SỬA LẠI THÀNH:
-    @GET("api/donhang/chitiet")
-    suspend fun layChiTietDonHang(@Query("maDonHang") maDonHang: Int): ApiResponse<List<MChiTietDonHangAdmin>>
+    // ... các code cũ ...
+
+    // SỬA LẠI ĐOẠN NÀY:
+    // Dùng @Path và thêm {maDonHang} vào đường dẫn để khớp với Node.js
+    @GET("api/donhang/chitiet/{maDonHang}")
+    suspend fun layChiTietDonHang(@Path("maDonHang") maDonHang: Int): ApiResponse<List<MChiTietDonHangAdmin>>
 }
+
 
 
 
