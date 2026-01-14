@@ -18,6 +18,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -28,34 +29,30 @@ import com.example.bookstore.Api.RetrofitClient
 import com.example.bookstore.Components.BienDungChung
 import com.example.bookstore.KhungGiaoDien
 import com.example.bookstore.Model.DiaChi
-import com.example.bookstore.Model.User // Đổi NguoiDung thành User cho khớp hệ thống
+import com.example.bookstore.Model.User
 import kotlinx.coroutines.launch
 
 @Composable
 fun TaiKhoan(
     navController: NavController,
 ) {
-    // 1. Lấy thông tin User từ Biến dùng chung (Đã lưu khi đăng nhập)
+    // User hiện tại
     val nguoiDung = BienDungChung.userHienTai
 
-    // 2. State để lưu địa chỉ mặc định (Lấy từ API)
-    var diaChiMacDinh by remember { mutableStateOf<DiaChi?>(null) }
+    // Địa chỉ hiển thị (KHÔNG còn mặc định)
+    var diaChiHienThi by remember { mutableStateOf<DiaChi?>(null) }
     val scope = rememberCoroutineScope()
 
-    // 3. Gọi API lấy địa chỉ khi màn hình mở
+    // Gọi API lấy địa chỉ
     LaunchedEffect(Unit) {
         scope.launch {
             try {
                 val userId = nguoiDung?.MaNguoiDung ?: return@launch
+                val response = RetrofitClient.api.layDanhSachDiaChi(userId)
 
-                // Gọi API lấy danh sách địa chỉ
-                val response = RetrofitClient.api.layDiaChi(userId)
-
-                // Lọc lấy địa chỉ mặc định
-                if (response.data != null && response.data.isNotEmpty()) {
-                    val listDiaChi = response.data
-                    // Tìm cái nào MacDinh == 1 (hoặc true), nếu không có lấy cái đầu tiên
-                    diaChiMacDinh = listDiaChi.find { it.MacDinh == 1 } ?: listDiaChi.first()
+                // Chỉ lấy địa chỉ đầu tiên nếu có
+                if (!response.data.isNullOrEmpty()) {
+                    diaChiHienThi = response.data.first()
                 }
             } catch (e: Exception) {
                 Log.e("TaiKhoan", "Lỗi lấy địa chỉ: ${e.message}")
@@ -63,13 +60,15 @@ fun TaiKhoan(
         }
     }
 
-    KhungGiaoDien(tieuDe = "Tài khoản",
-        onBackClick = null, // TRANG CHÍNH -> KHÔNG BACK
+    KhungGiaoDien(
+        tieuDe = "Tài khoản",
+        onBackClick = null,
         onHomeClick = { navController.navigate("home") },
         onCategoryClick = { navController.navigate("trangdanhsach") },
-        onCartClick = { navController.navigate("giohang")},
+        onCartClick = { navController.navigate("giohang") },
         onSaleClick = { navController.navigate("khuyenmai") },
-        onProfileClick = { /* Đang ở Tài khoản */ }) { paddingValues ->
+        onProfileClick = { }
+    ) { paddingValues ->
         LazyColumn(
             modifier = Modifier
                 .padding(paddingValues)
@@ -78,7 +77,6 @@ fun TaiKhoan(
             contentPadding = PaddingValues(16.dp)
         ) {
 
-            // Truyền dữ liệu vào các thành phần con
             item { HeaderNguoiDung(nguoiDung) }
 
             item {
@@ -93,16 +91,15 @@ fun TaiKhoan(
 
             item {
                 Spacer(Modifier.height(16.dp))
-                ThongTinNhanHang(diaChiMacDinh)
+                ThongTinNhanHang(diaChiHienThi)
             }
 
-            // Thêm nút Đăng xuất ở cuối cho đầy đủ chức năng
             item {
                 Spacer(Modifier.height(24.dp))
                 Button(
                     onClick = {
-                        BienDungChung.userHienTai = null // Xóa session
-                        navController.navigate("login") { // Về màn login
+                        BienDungChung.userHienTai = null
+                        navController.navigate("login") {
                             popUpTo(0) { inclusive = true }
                         }
                     },
@@ -116,6 +113,8 @@ fun TaiKhoan(
     }
 }
 
+/* ---------------- HEADER NGƯỜI DÙNG ---------------- */
+
 @Composable
 fun HeaderNguoiDung(nguoiDung: User?) {
     Row(
@@ -125,42 +124,31 @@ fun HeaderNguoiDung(nguoiDung: User?) {
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-
         Box(
             modifier = Modifier
                 .size(70.dp)
                 .background(Color(0xFFE0E0E0), CircleShape),
             contentAlignment = Alignment.Center
         ) {
-            // Nếu có ảnh đại diện thì hiện ảnh, không thì hiện icon
-            // Nếu có ảnh đại diện thì hiện ảnh, không thì hiện icon
-            Box(
-                modifier = Modifier
-                    .size(70.dp)
-                    .background(Color(0xFFE0E0E0), CircleShape),
-                contentAlignment = Alignment.Center
-            ) {
-                if (!nguoiDung?.AnhDaiDien.isNullOrBlank()) {
-                    AsyncImage(
-                        model = ImageRequest.Builder(LocalContext.current)
-                            .data(nguoiDung!!.AnhDaiDien)
-                            .crossfade(true)
-                            .build(),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(70.dp)
-                            .clip(CircleShape)
-                    )
-                } else {
-                    Icon(
-                        Icons.Default.Person,
-                        null,
-                        tint = Color.LightGray,
-                        modifier = Modifier.size(36.dp)
-                    )
-                }
+            if (!nguoiDung?.AnhDaiDien.isNullOrBlank()) {
+                AsyncImage(
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(nguoiDung!!.AnhDaiDien)
+                        .crossfade(true)
+                        .build(),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(70.dp)
+                        .clip(CircleShape)
+                )
+            } else {
+                Icon(
+                    Icons.Default.Person,
+                    null,
+                    tint = Color.LightGray,
+                    modifier = Modifier.size(36.dp)
+                )
             }
-
         }
 
         Spacer(Modifier.width(12.dp))
@@ -175,15 +163,15 @@ fun HeaderNguoiDung(nguoiDung: User?) {
             Text(
                 text = nguoiDung?.SoDienThoai
                     ?.let {
-                        if (it.length >= 7)
-                            it.replaceRange(3, 7, "****")
-                        else it
+                        if (it.length >= 7) it.replaceRange(3, 7, "****") else it
                     } ?: "Chưa đăng nhập",
                 color = Color.Gray
             )
         }
     }
 }
+
+/* ---------------- ACTION ROW ---------------- */
 
 @Composable
 fun ActionRow(navController: NavController) {
@@ -197,7 +185,6 @@ fun ActionRow(navController: NavController) {
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Gắn sự kiện click chuyển màn hình
             ActionItem(Icons.Default.Assignment, "Đơn hàng") { navController.navigate("dondamua") }
             ActionItem(Icons.Default.List, "Lịch sử") { }
             ActionItem(Icons.Default.ShoppingCart, "Giỏ hàng") { navController.navigate("giohang") }
@@ -221,6 +208,8 @@ fun RowScope.ActionItem(icon: ImageVector, title: String, onClick: () -> Unit) {
     }
 }
 
+/* ---------------- THÔNG TIN CÁ NHÂN ---------------- */
+
 @Composable
 fun ThongTinCaNhan(nguoiDung: User?) {
     Card(
@@ -240,13 +229,14 @@ fun ThongTinCaNhan(nguoiDung: User?) {
 
             Spacer(Modifier.height(12.dp))
 
-            // Hiển thị dữ liệu thật
             InfoLine("Họ và tên:", nguoiDung?.HoTen)
             InfoLine("Số điện thoại:", nguoiDung?.SoDienThoai)
             InfoLine("Email:", nguoiDung?.Email ?: "---")
 
-            val gioiTinhText = when(nguoiDung?.GioiTinh) {
-                "Nam" -> "Nam"; "Nu" -> "Nữ"; else -> "Khác"
+            val gioiTinhText = when (nguoiDung?.GioiTinh) {
+                "Nam" -> "Nam"
+                "Nu" -> "Nữ"
+                else -> "Khác"
             }
             InfoLine("Giới tính:", gioiTinhText)
         }
@@ -260,6 +250,8 @@ fun InfoLine(label: String, value: String?) {
         Text(value ?: "", fontWeight = FontWeight.Medium)
     }
 }
+
+/* ---------------- THÔNG TIN NHẬN HÀNG ---------------- */
 
 @Composable
 fun ThongTinNhanHang(diaChi: DiaChi?) {
@@ -289,9 +281,9 @@ fun ThongTinNhanHang(diaChi: DiaChi?) {
                 }
             } else {
                 Text(
-                    "Chưa có địa chỉ mặc định",
+                    "Chưa có địa chỉ nhận hàng",
                     color = Color.Gray,
-                    fontStyle = androidx.compose.ui.text.font.FontStyle.Italic
+                    fontStyle = FontStyle.Italic
                 )
             }
         }

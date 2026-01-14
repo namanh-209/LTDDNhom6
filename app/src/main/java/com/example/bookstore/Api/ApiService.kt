@@ -50,8 +50,6 @@ interface ApiService {
     @GET("api/donhang/sach/{userId}")
     suspend fun laySachDaMua(@Path("userId") userId: Int): ApiResponse<List<DonHangSach>>
 
-    @GET("api/diachi/{userId}")
-    suspend fun layDiaChi(@Path("userId") userId: Int): ApiResponse<List<DiaChi>>
     @GET("api/theloai")
     suspend fun layDanhSachTheLoai(): ApiResponse<List<TheLoai>>
 
@@ -110,12 +108,12 @@ interface ApiService {
     @GET("api/danhgia/{bookId}")
     suspend fun layDanhSachDanhGia(@Path("bookId") bookId: Int): ApiResponse<List<DanhGia>>
 
-    //API trang thanh toán
+
     //Lấy địa chỉ
     @GET("api/diachi/{maNguoiDung}")
     suspend fun layDanhSachDiaChi(
         @Path("maNguoiDung") maNguoiDung: Int
-    ): List<DiaChi>
+    ): ApiResponse<List<DiaChi>>
 
 
     //tạo đơn hàng

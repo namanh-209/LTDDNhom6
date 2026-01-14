@@ -168,11 +168,11 @@ fun AppNavGraph() {
                     ?.get<List<SachtrongGioHang>>("gioHang")
                     ?: emptyList()
 
-            ManHinhThanhToan(
-                navController=navController,
-                danhSachSanPham = gioHang,
-                BamQuayLai = { navController.popBackStack() }
-            )
+//            ManHinhThanhToan(
+//                navController=navController,
+//                danhSachSanPham = gioHang,
+//                BamQuayLai = { navController.popBackStack() }
+//            )
         }
 
     }
