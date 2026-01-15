@@ -49,9 +49,8 @@ class MainActivity : ComponentActivity() {
         //  ChinhSuaThongTin()
 //            ManHinhThayDoiMatKhau()
             //gọi trang login & đăng kí
-AppNavGraph()
+        AppNavGraph()
 //            DonDaMua()
-
         }
     }
 }

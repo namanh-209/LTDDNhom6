@@ -58,6 +58,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.bookstore.Api.RetrofitClient
+import com.example.bookstore.Components.BienDungChung
 import com.example.bookstore.Model.DiaChi
 import com.example.bookstore.Model.KhuyenMai
 import com.example.bookstore.Model.PhuongThucVanChuyen
@@ -74,6 +75,8 @@ fun ManHinhThanhToan(
     BamQuayLai: () -> Unit
 ) {
 //KHAI BAO BIẾN LIÊN QUAN
+
+
     var phuongThucThanhToan by remember { mutableStateOf("TienMat") }
 
     val tongTienSanPham = danhSachSanPham.sumOf {
@@ -202,7 +205,6 @@ fun ManHinhThanhToan(
         ) {
 
             DiaChiNhanHang(
-                maNguoiDung = 1,
                 khiChonDiaChi = { diaChiDangChon = it }
             )
 
@@ -266,27 +268,26 @@ fun ManHinhThanhToan(
 //Lấy điịa chỉ
 @Composable
 fun DiaChiNhanHang(
-    maNguoiDung: Int,
     khiChonDiaChi: (DiaChi) -> Unit
 ) {
+    val user = BienDungChung.userHienTai
     var danhSachDiaChi by remember { mutableStateOf<List<DiaChi>>(emptyList()) }
     var dangTai by remember { mutableStateOf(true) }
+    var loi by remember { mutableStateOf("") }
 
-    LaunchedEffect(maNguoiDung) {
+    LaunchedEffect(Unit) {
         try {
-            danhSachDiaChi = RetrofitClient.api.layDanhSachDiaChi(maNguoiDung)
-            dangTai = false
-
-            val diaChiMacDinh = danhSachDiaChi.find { it.MacDinh == 1 }
-            if (diaChiMacDinh != null) {
-                khiChonDiaChi(diaChiMacDinh)
+            val res = RetrofitClient.api.layDanhSachDiaChi(maNguoiDung = 1)
+            if (res.status == "success") {
+                danhSachDiaChi = res.data ?: emptyList()
+                val diaChiMacDinh = danhSachDiaChi.find { it.MacDinh == 1 }
+                diaChiMacDinh?.let { khiChonDiaChi(it) }
             }
+            dangTai = false
         } catch (e: Exception) {
             dangTai = false
         }
     }
-
-    val diaChiMacDinh = danhSachDiaChi.find { it.MacDinh == 1 }
 
     Column(
         modifier = Modifier
@@ -296,17 +297,22 @@ fun DiaChiNhanHang(
     ) {
         when {
             dangTai -> Text("Đang tải địa chỉ...")
-            diaChiMacDinh != null -> {
+            loi.isNotEmpty() -> Text(loi, color = Color.Red)
+            danhSachDiaChi.isEmpty() -> Text("Chưa có địa chỉ giao hàng")
+            else -> {
+                val dc = danhSachDiaChi.find { it.MacDinh == 1 }
+                    ?: danhSachDiaChi.first()
+
                 Text(
-                    "${diaChiMacDinh.TenNguoiNhan} | ${diaChiMacDinh.SDTNguoiNhan}",
+                    "${dc.TenNguoiNhan} | ${dc.SDTNguoiNhan}",
                     fontWeight = FontWeight.Bold
                 )
-                Text(diaChiMacDinh.DiaChiChiTiet)
+                Text(dc.DiaChiChiTiet)
             }
-            else -> Text("Chưa có địa chỉ mặc định")
         }
     }
 }
+
 
 
 

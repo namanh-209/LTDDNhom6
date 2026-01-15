@@ -199,7 +199,7 @@ fun ActionRow(navController: NavController) {
         ) {
             // Gắn sự kiện click chuyển màn hình
             ActionItem(Icons.Default.Assignment, "Đơn hàng") { navController.navigate("dondamua") }
-            ActionItem(Icons.Default.List, "Lịch sử") { }
+            ActionItem(Icons.Default.List, "Lịch sử") { navController.navigate("lichsumuahang")}
             ActionItem(Icons.Default.ShoppingCart, "Giỏ hàng") { navController.navigate("giohang") }
             ActionItem(Icons.Default.Favorite, "Yêu thích") { navController.navigate("danhsachyeuthich") }
             ActionItem(Icons.Default.Settings, "Cài đặt") { navController.navigate("caidat") }

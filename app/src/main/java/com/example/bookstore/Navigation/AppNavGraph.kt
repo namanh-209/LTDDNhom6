@@ -27,6 +27,8 @@ import com.example.bookstore.ui.screen.DanhSachSach
 import com.example.bookstore.Screen.QuanLyDonHangAdmin
 import com.example.bookstore.Screen.ChiTietDonHangAdmin // Màn hình chi tiết
 import com.example.bookstore.Model.DonHang // Model Đơn hàng
+import com.example.bookstore.Model.LichSuDonHang
+import com.example.bookstore.Screen.ManHinhLichSuMuaHang
 import com.google.gson.Gson
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
@@ -136,10 +138,12 @@ fun AppNavGraph() {
             if (selectedSach != null) {
                 ManHinhChiTietSach(
                     sach = selectedSach!!,
+                    navController = navController,
                     onBackClick = { navController.popBackStack() }
                 )
             }
         }
+
 
         composable("dondamua") {
             DonDaMua(
@@ -211,6 +215,13 @@ fun AppNavGraph() {
                 navController=navController,
                 danhSachSanPham = gioHang,
                 BamQuayLai = { navController.popBackStack() }
+            )
+        }
+
+        composable("lichsumuahang"){
+            ManHinhLichSuMuaHang(
+                navController=navController,
+                onBackClick = { navController.popBackStack()  }
             )
         }
     }

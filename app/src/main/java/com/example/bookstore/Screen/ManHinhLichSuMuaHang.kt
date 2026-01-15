@@ -1,0 +1,211 @@
+package com.example.bookstore.Screen
+
+
+import android.util.Log
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import coil.compose.AsyncImage
+import com.example.bookstore.Api.RetrofitClient
+import com.example.bookstore.KhungGiaoDien
+import com.example.bookstore.Model.LichSuDonHang
+import com.example.bookstore.Components.BienDungChung
+
+
+@Composable
+fun ManHinhLichSuMuaHang(
+    navController: NavController,
+    onBackClick: (() -> Unit)? = null,
+) {
+    var danhSachDon: List<LichSuDonHang> by remember { mutableStateOf<List<LichSuDonHang>>(emptyList()) }
+    var dangTai by remember { mutableStateOf(true) }
+
+    LaunchedEffect(Unit) {
+        try {
+            val userId = BienDungChung.userHienTai?.MaNguoiDung
+                ?: return@LaunchedEffect
+
+            val res = RetrofitClient.api.getLichSuMuaHang(userId = userId)
+            if (res.status == "success") {
+                danhSachDon = res.data ?: emptyList()
+            }
+        } catch (e: Exception) {
+            Log.e("API", e.message ?: "Lỗi API")
+        } finally {
+            dangTai = false
+        }
+    }
+
+
+    KhungGiaoDien(
+        tieuDe = "Lịch sử mua hàng",
+        onBackClick = onBackClick,
+        onHomeClick = { navController.navigate("home") },
+        onCategoryClick = { navController.navigate("trangdanhsach") },
+        onCartClick = { navController.navigate("giohang") },
+        onSaleClick = { navController.navigate("khuyenmai") },
+        onProfileClick = { navController.navigate("trangtaikhoan") }
+    ) { paddingValues ->
+
+        if (dangTai) {
+            Text("Đang tải...", modifier = Modifier.padding(paddingValues))
+        } else if (danhSachDon.isEmpty()) {
+            Column(
+                modifier = Modifier
+                    .padding(paddingValues)
+                    .fillMaxWidth(),
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    "Bạn chưa có đơn hàng nào",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Medium
+                )
+            }
+        } else {
+            LazyColumn(
+                modifier = Modifier
+                    .padding(paddingValues)
+                    .fillMaxWidth()
+            ) {
+                items(danhSachDon) { don ->
+                    ItemDonHang(navController,don)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun ItemDonHang(navController: NavController,
+                don: LichSuDonHang) {
+    Card(
+        modifier = Modifier
+            .padding(vertical = 6.dp)
+            .fillMaxWidth(),
+        shape = RoundedCornerShape(10.dp),
+        elevation = CardDefaults.cardElevation(4.dp)
+    ) {
+        Column(modifier = Modifier.padding(12.dp)) {
+            //trạng thái đơn hàng
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End
+            ) {
+                val mauTrangThai = when (don.TrangThai) {
+                    "Hoàn thành" -> Color(0xFF2E7D32)   // xanh lá
+                    "Đang giao" -> Color(0xFFF2994A)   // cam dịu
+                    "Đã hủy" -> Color.Gray
+                    else -> Color.Black
+                }
+
+                Text(
+                    text = don.TrangThai,
+                    color = mauTrangThai,
+                    fontSize = 11.sp
+                )
+
+            }
+
+            Spacer(modifier = Modifier.height(6.dp))
+
+            Row {
+                AsyncImage(
+                    model = don.AnhBia,
+                    contentDescription = null,
+                    modifier = Modifier.size(80.dp)
+                )
+
+                Spacer(modifier = Modifier.width(12.dp))
+
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(don.TenSach, fontWeight = FontWeight.Bold)
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text("x${don.SoLuong}")
+                        Text(
+                            "${don.GiaBan} VND",
+                            color = Color(0xFFFF5722),
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(6.dp))
+
+            Text(
+                "Tổng số tiền (${don.SoLuong} sản phẩm): ${don.GiaBan * don.SoLuong} VND",
+                fontWeight = FontWeight.Medium
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End
+            ) {
+               // if (don.TrangThai == "Hoàn thành") {
+                    Button(
+                        onClick = { },
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray)
+                    ) {
+                        Text("Trả hàng / Hoàn tiền", color = Color.Black)
+                    }
+                //}
+
+
+                Spacer(modifier = Modifier.width(8.dp))
+
+                Button(
+                    onClick = {
+                        navController.navigate("danhgia/${don.MaDonHang}")
+                    },
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFFF2994A)
+                    )
+                ) {
+                    Text("Đánh giá", color = Color.White)
+                }
+
+            }
+        }
+    }
+}
+
+
+
+

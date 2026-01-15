@@ -28,17 +28,21 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.bookstore.Api.RetrofitClient
 import com.example.bookstore.Components.BienDungChung
 import com.example.bookstore.Model.DanhGia
 import com.example.bookstore.Model.Sach
+import com.example.bookstore.Model.SachtrongGioHang
+import com.example.bookstore.Model.User
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ManHinhChiTietSach(
     sach: Sach,
+    navController: NavController,
     onBackClick: () -> Unit
 ) {
     val context = LocalContext.current
@@ -160,24 +164,36 @@ fun ManHinhChiTietSach(
 
                     Spacer(modifier = Modifier.width(16.dp))
 
-                    // Nút Mua (Giữ nguyên hoặc xử lý chuyển sang màn thanh toán)
+                    // Nút Mua ( chuyển sang màn thanh toán)// mới thêm
                     Button(
                         onClick = {
-                            // Logic mua ngay (thường là thêm vào giỏ rồi chuyển sang giỏ hàng)
                             if (user == null) {
                                 Toast.makeText(context, "Vui lòng đăng nhập!", Toast.LENGTH_SHORT).show()
-                            } else {
-                                scope.launch {
-                                    try {
-                                        RetrofitClient.api.capNhatGioHang(CapNhatGioHangRequest(user.MaNguoiDung, sach.MaSach, 1))
-                                        Toast.makeText(context, "Đã thêm vào giỏ, vui lòng kiểm tra!", Toast.LENGTH_SHORT).show()
-                                    } catch (e: Exception) {}
-                                }
+                                return@Button
                             }
+                            val muaNgay = listOf(
+                                SachtrongGioHang(
+                                    MaGioHang = 0,
+                                    MaSach = sach.MaSach,
+                                    TenSach = sach.TenSach,
+                                    TenTacGia = sach.TenTacGia ?: "Đang cập nhật",
+                                    GiaBan = sach.GiaBan.toInt(),
+                                    SoLuong = 1,
+                                    AnhBia = sach.AnhBia
+                                )
+                            )
+
+                            navController.currentBackStackEntry
+                                ?.savedStateHandle
+                                ?.set("gioHang", muaNgay)
+
+                            navController.navigate("thanhtoan")
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1976D2)),
                         shape = RoundedCornerShape(4.dp),
-                        modifier = Modifier.weight(1f).height(48.dp)
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(48.dp)
                     ) {
                         Text("Mua ngay", fontSize = 18.sp, fontWeight = FontWeight.Bold)
                     }
