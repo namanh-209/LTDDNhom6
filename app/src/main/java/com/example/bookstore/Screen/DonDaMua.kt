@@ -236,23 +236,23 @@ fun BookOrderItem(
                     ) {
                         Button(
                             onClick = {
-                                scope.launch {
-                                    try {
-                                        RetrofitClient.api.capNhatGioHang(
-                                            CapNhatGioHangRequest(
-                                                MaNguoiDung = BienDungChung.userHienTai!!.MaNguoiDung,
-                                                MaSach = don.MaSach,
-                                                SoLuong = 1
-                                            )
-                                        )
-                                        scope.launch {
-                                            snackbarHostState.showSnackbar("${don.TenSach} đã được thêm vào giỏ hàng")
-                                        }
-                                        // Chuyển sang trang giỏ hàng
-                                        navController.navigate("giohang")
+                                val muaNgay = listOf(
+                                    SachtrongGioHang(
+                                        MaGioHang = 0,
+                                        MaSach = don.MaSach,
+                                        TenSach = don.TenSach,
+                                        TenTacGia = don.TenTacGia ?: "Đang cập nhật",
+                                        GiaBan = don.GiaBan.toInt(),
+                                        SoLuong = 1,
+                                        AnhBia = don.AnhBia
+                                    )
+                                )
 
-                                    } catch (e: Exception) { }
-                                }
+                                navController.currentBackStackEntry
+                                    ?.savedStateHandle
+                                    ?.set("gioHang", muaNgay)
+
+                                navController.navigate("thanhtoan")
 
 
 

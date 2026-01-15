@@ -60,7 +60,10 @@ import com.example.bookstore.Model.DiaChi
 import com.example.bookstore.Model.KhuyenMai
 import com.example.bookstore.Model.PhuongThucVanChuyen
 import com.example.bookstore.Model.SachtrongGioHang
+import com.example.bookstore.Screen.formatGia
 import com.example.bookstore.Utils.datDonHang
+import java.text.NumberFormat
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -215,11 +218,12 @@ fun ManHinhThanhToan(
             if (KhuyenMaiDaChon != null) {
                 Text(
                     "Phí vận chuyển: Miễn phí",
+
                     color = Color.Green,
                     fontWeight = FontWeight.Bold
                 )
             } else {
-                Text("Phí vận chuyển: ${vanChuyenDangChon.phi} VNĐ")
+                Text("Phí vận chuyển: ${formatGia(vanChuyenDangChon.phi)} ")
             }
             Spacer(modifier = Modifier.height(10.dp))
             ChiTietThanhToan(
@@ -231,7 +235,6 @@ fun ManHinhThanhToan(
         }
     }
 }
-
 // CÁC THÀNH PHẦN CÓ TRONG TRANG THANH TOÁN
 // Lấy địa chỉ
 @Composable
