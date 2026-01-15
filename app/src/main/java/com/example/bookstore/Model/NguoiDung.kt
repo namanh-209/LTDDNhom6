@@ -21,5 +21,5 @@ data class User(
     val VaiTro: String?,
     val NgaySinh: String?,
     val GioiTinh: String?,  // Thêm dấu ?
-
+    val DiaChi: String?
 )

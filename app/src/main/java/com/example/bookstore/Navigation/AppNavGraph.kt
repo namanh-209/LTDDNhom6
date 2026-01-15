@@ -189,6 +189,7 @@ fun AppNavGraph() {
 
         composable("chinhsuathongtin") {
             ChinhSuaThongTin(
+                navController = navController,
                 onBackClick = { navController.popBackStack() }
             )
         }

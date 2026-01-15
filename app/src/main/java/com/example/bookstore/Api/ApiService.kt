@@ -1,6 +1,7 @@
 package com.example.bookstore.Api
 
 import CapNhatGioHangRequest
+import CapNhatThongTinRequest
 import CapNhatTrangThaiRequest
 
 import MChiTietDonHangAdmin
@@ -146,6 +147,12 @@ interface ApiService {
     // Dùng @Path và thêm {maDonHang} vào đường dẫn để khớp với Node.js
     @GET("api/donhang/chitiet/{maDonHang}")
     suspend fun layChiTietDonHang(@Path("maDonHang") maDonHang: Int): ApiResponse<List<MChiTietDonHangAdmin>>
+
+    // Thêm vào interface ApiService
+    @POST("api/nguoidung/update")
+    suspend fun capNhatThongTin(
+        @Body request: CapNhatThongTinRequest
+    ): ApiResponse<User> // Server trả về data user mới cập nhật
 }
 
 
