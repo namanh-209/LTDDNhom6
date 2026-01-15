@@ -207,15 +207,18 @@ fun AppNavGraph() {
 
         composable("thanhtoan") {
             // 1. Lấy dữ liệu giỏ hàng từ màn hình trước gửi sang
-            val gioHang = navController.previousBackStackEntry
-                ?.savedStateHandle
-                ?.get<List<SachtrongGioHang>>("gioHang")
-                ?: emptyList()
-
+//            val gioHang = navController.previousBackStackEntry
+//                ?.savedStateHandle
+//                ?.get<List<SachtrongGioHang>>("gioHang")
+//                ?: emptyList()
+            val sanPhamMuaLai =
+                navController.previousBackStackEntry
+                    ?.savedStateHandle
+                    ?.get<List<SachtrongGioHang>>("mua_lai_san_pham")
             // 2. Gọi màn hình thanh toán
             ManHinhThanhToan(
                 navController = navController,
-                danhSachSanPham = gioHang,
+                danhSachSanPham =sanPhamMuaLai ?: emptyList(),
                 BamQuayLai = { navController.popBackStack() }
             )
         }

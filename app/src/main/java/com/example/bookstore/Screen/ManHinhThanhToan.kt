@@ -100,11 +100,13 @@ fun ManHinhThanhToan(
     }
 
     // Miễn ship khi có mã KM
-    val phiVanChuyenThucTe =
-        if (KhuyenMaiDaChon != null) 0
-        else vanChuyenDangChon.phi
+    val phiVanChuyenThucTe: Double =
+        if (KhuyenMaiDaChon != null) 0.0
+        else vanChuyenDangChon.phi.toDouble()
 
-    val tongTien = tongTienSanPham + phiVanChuyenThucTe
+    val tongTien =
+        tongTienSanPham + phiVanChuyenThucTe
+
 
     // Chi tiết thanh toán
     val phiVanChuyenGoc = vanChuyenDangChon.phi
@@ -140,7 +142,7 @@ fun ManHinhThanhToan(
         },
         bottomBar = {
             ThanhTongCongDatHang(
-                tongTien = tongTien,
+                tongTien =tongTien,
                 khiDatHang = {
                     if (diaChiDangChon == null) {
                         Toast.makeText(
@@ -224,10 +226,11 @@ fun ManHinhThanhToan(
             Spacer(modifier = Modifier.height(10.dp))
             ChiTietThanhToan(
                 tongTienSanPham = tongTienSanPham,
-                phiVanChuyen = phiVanChuyenGoc,
-                giamPhiShip = giamPhiVanChuyen,
+                phiVanChuyen = phiVanChuyenGoc.toDouble(),
+                giamPhiShip = giamPhiVanChuyen.toDouble(),
                 tongThanhToan = tongThanhToan
             )
+
         }
     }
 }
@@ -538,10 +541,10 @@ fun PTThanhToan(
 // CHI TIẾT THANH TOÁN
 @Composable
 fun ChiTietThanhToan(
-    tongTienSanPham: Int,
-    phiVanChuyen: Int,
-    giamPhiShip: Int,
-    tongThanhToan: Int
+    tongTienSanPham: Double,
+    phiVanChuyen: Double,
+    giamPhiShip: Double,
+    tongThanhToan: Double
 ) {
     Column(
         modifier = Modifier
@@ -551,7 +554,7 @@ fun ChiTietThanhToan(
     ) {
 
         Text(
-            "Chi tiết thanh toán",
+            text = "Chi tiết thanh toán",
             fontWeight = FontWeight.Bold,
             fontSize = 16.sp
         )
@@ -583,7 +586,7 @@ fun ChiTietThanhToan(
 @Composable
 fun DongTien(
     tieuDe: String,
-    soTien: Int,
+    soTien: Double,
     mau: Color = Color.Black,
     dam: Boolean = false
 ) {
@@ -602,7 +605,7 @@ fun DongTien(
 
 @Composable
 fun ThanhTongCongDatHang(
-    tongTien: Int,
+    tongTien: Double,
     khiDatHang: () -> Unit
 ) {
     Surface(
