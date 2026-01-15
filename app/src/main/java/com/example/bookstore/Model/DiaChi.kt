@@ -5,6 +5,5 @@ data class DiaChi(
     val MaNguoiDung: Int,
     val TenNguoiNhan: String,
     val SDTNguoiNhan: String,
-    val DiaChiChiTiet: String,
-    val MacDinh: Int
+    val DiaChiChiTiet: String
 )

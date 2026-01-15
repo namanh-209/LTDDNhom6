@@ -1,5 +1,7 @@
 package com.example.bookstore.Screen
 
+import CapNhatTrangThaiRequest
+
 import MChiTietDonHangAdmin
 import android.widget.Toast
 import androidx.compose.foundation.background
@@ -27,6 +29,7 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.bookstore.Api.RetrofitClient
 import com.example.bookstore.Model.DonHang
+
 
 import kotlinx.coroutines.launch
 import java.text.NumberFormat
@@ -88,15 +91,24 @@ fun ChiTietDonHangAdmin(
     fun xuLyCapNhatTrangThai(trangThaiMoiBackend: String, thongBao: String) {
         scope.launch {
             try {
-                RetrofitClient.api.capNhatTrangThai(donHang.maDonHang, trangThaiMoiBackend)
+                // 1. Tạo request
+                val request = CapNhatTrangThaiRequest(
+                    maDonHang = donHang.maDonHang,
+                    trangThai = trangThaiMoiBackend
+                )
+                // 2. Gọi API
+                RetrofitClient.api.capNhatTrangThai(request)
+
+                // 3. Thông báo thành công
                 Toast.makeText(context, thongBao, Toast.LENGTH_SHORT).show()
-                navController.popBackStack() // Quay về để refresh danh sách
+                trangThaiHienTai = trangThaiMoiBackend
+
+
             } catch (e: Exception) {
                 Toast.makeText(context, "Lỗi: ${e.message}", Toast.LENGTH_SHORT).show()
             }
         }
     }
-
     Scaffold(
         containerColor = Color(0xFFF5F5F5), // Nền xám nhạt chuẩn App
         topBar = {
@@ -222,9 +234,14 @@ fun ChiTietDonHangAdmin(
                     color = Color.Black
                 )
                 Spacer(Modifier.height(4.dp))
+                val diaChiHienThi = if (donHang.diaChiGiaoHang.isNullOrBlank()) {
+                    "Khách hàng chưa cập nhật địa chỉ cụ thể"
+                } else {
+                    donHang.diaChiGiaoHang
+                }
                 Text(
-                    text = donHang.diaChiGiaoHang ?: "Khách hàng chưa cập nhật địa chỉ cụ thể",
-                    color = Color.DarkGray,
+                    text = diaChiHienThi,
+                    color = if (donHang.diaChiGiaoHang.isNullOrBlank()) Color.Red else Color.DarkGray, // Tô đỏ nếu thiếu địa chỉ
                     fontSize = 14.sp,
                     lineHeight = 20.sp
                 )

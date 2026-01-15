@@ -18,5 +18,5 @@ data class DonHang(
 
     @SerializedName("trang_thai")
     val trangThai: String ,// Ví dụ: "Chờ xác nhận", "Đang giao",...
-    @SerializedName("DiaChiGiaoHang") val diaChiGiaoHang: String?
+    @SerializedName("dia_chi") val diaChiGiaoHang: String?
 ) : Serializable

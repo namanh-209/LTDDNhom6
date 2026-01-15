@@ -5,5 +5,7 @@ data class MChiTietDonHangAdmin(
     @SerializedName("TenSach") val tenSach: String,
     @SerializedName("AnhBia") val anhBia: String,
     @SerializedName("SoLuong") val soLuong: Int,
-    @SerializedName("GiaTien") val donGia: Double
+
+    // SỬA: Đổi "GiaTien" thành "DonGia" để khớp với database
+    @SerializedName("DonGia") val donGia: Double
 )
