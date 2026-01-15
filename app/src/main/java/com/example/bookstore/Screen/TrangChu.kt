@@ -169,7 +169,7 @@ fun ManHinhTrangChu(
 // --- HÀM FORMAT TIỀN (Giữ lại để hiển thị, không dùng để tính toán) ---
 fun formatTienTe(gia: Double): String {
     val formatter = NumberFormat.getInstance(Locale("vi", "VN"))
-    return "${formatter.format(gia)} đ"
+    return "${formatter.format(gia)} VND"
 }
 
 @Composable

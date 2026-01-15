@@ -41,14 +41,24 @@ fun TaiKhoan(
     LaunchedEffect(Unit) {
         try {
             val userId = nguoiDung?.MaNguoiDung ?: return@LaunchedEffect
-            val response = RetrofitClient.api.layDiaChi(userId)
-            diaChiHienThi = response.data
+
+            // 1. Gọi API lấy danh sách (thay vì layDiaChi cũ)
+            // Lưu ý: Đảm bảo trong ApiService bạn có hàm layDanhSachDiaChi trả về List<DiaChi>
+            // Nếu ApiService chỉ có layDiaChi, hãy đổi kiểu trả về của nó thành ApiResponse<List<DiaChi>>
+            val response = RetrofitClient.api.layDanhSachDiaChi(userId)
+
+            // 2. Xử lý dữ liệu danh sách trả về
+            if (response.status == "success" && !response.data.isNullOrEmpty()) {
+                // Lấy địa chỉ đầu tiên trong danh sách để hiển thị
+                diaChiHienThi = response.data.first()
+            } else {
+                diaChiHienThi = null
+            }
         } catch (e: Exception) {
             Log.e("TaiKhoan", "Lỗi lấy địa chỉ: ${e.message}")
             diaChiHienThi = null
         }
     }
-
     KhungGiaoDien(
         tieuDe = "Tài khoản",
         onBackClick = null,
