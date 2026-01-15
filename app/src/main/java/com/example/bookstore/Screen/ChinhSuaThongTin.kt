@@ -1,10 +1,14 @@
 package com.example.bookstore.Screen
 
 import CapNhatThongTinRequest
+import android.app.DatePickerDialog
+import android.widget.DatePicker
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -33,50 +37,55 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.bookstore.Api.RetrofitClient
 import com.example.bookstore.Components.BienDungChung
-import com.example.bookstore.KhungGiaoDien // Import KhungGiaoDien của bạn
+import com.example.bookstore.KhungGiaoDien
 import kotlinx.coroutines.launch
+import java.util.Calendar
 
 @Composable
-fun ChinhSuaThongTin(navController: NavController,
+fun ChinhSuaThongTin(
+    navController: NavController,
     onBackClick: () -> Unit
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val user = BienDungChung.userHienTai
 
-    // State dữ liệu
+    // --- PHẦN 1: THÔNG TIN TÀI KHOẢN ---
     var hoTen by remember { mutableStateOf(user?.HoTen ?: "") }
     var soDienThoai by remember { mutableStateOf(user?.SoDienThoai ?: "") }
     var email by remember { mutableStateOf(user?.Email ?: "") }
     var gioiTinh by remember { mutableStateOf(user?.GioiTinh ?: "Nu") }
+
+    // Xử lý ngày sinh: Nếu null thì để trống
     var ngaySinh by remember { mutableStateOf(user?.NgaySinh ?: "") }
+
+    // --- PHẦN 2: THÔNG TIN NGƯỜI NHẬN ---
+    var tenNguoiNhan by remember { mutableStateOf(user?.TenNguoiNhan ?: user?.HoTen ?: "") }
+    var sdtNguoiNhan by remember { mutableStateOf(user?.SDTNguoiNhan ?: user?.SoDienThoai ?: "") }
     var diaChi by remember { mutableStateOf(user?.DiaChi ?: "") }
 
     var dangXuLy by remember { mutableStateOf(false) }
 
-    // === SỬ DỤNG KHUNG GIAO DIỆN CHUẨN ===
     KhungGiaoDien(
         tieuDe = "Chỉnh sửa hồ sơ",
-        onBackClick = onBackClick, // TRANG CON -> CÓ BACK (được truyền từ AppNavGraph)
+        onBackClick = onBackClick,
         onHomeClick = { navController.navigate("home") },
         onCategoryClick = { navController.navigate("trangdanhsach") },
         onCartClick = { navController.navigate("giohang") },
         onSaleClick = { navController.navigate("khuyenmai") },
         onProfileClick = { navController.navigate("trangtaikhoan")}
-            ) { paddingValues ->
-
-        // Nội dung chính nằm trong padding của KhungGiaoDien
+    ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .background(Color(0xFFF5F7FA))
-                .padding(paddingValues) // Quan trọng: Tránh bị che bởi TopBar/BottomBar
+                .padding(paddingValues)
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(Modifier.height(20.dp))
 
-            // --- 1. ẢNH ĐẠI DIỆN ---
+            // --- ẢNH ĐẠI DIỆN ---
             Box(contentAlignment = Alignment.BottomEnd) {
                 if (!user?.AnhDaiDien.isNullOrBlank()) {
                     AsyncImage(
@@ -99,43 +108,37 @@ fun ChinhSuaThongTin(navController: NavController,
                 Box(
                     modifier = Modifier
                         .size(30.dp)
-                        .background(Color(0xFF0D71A3), CircleShape) // Dùng màu xanh chuẩn
+                        .background(Color(0xFF0D71A3), CircleShape)
                         .padding(6.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(Icons.Default.CameraAlt, contentDescription = null, tint = Color.White)
                 }
             }
-            Text(
-                "Thay đổi ảnh đại diện",
-                color = Color(0xFF0D71A3),
-                fontSize = 14.sp,
-                modifier = Modifier.padding(top = 8.dp)
-            )
+            Text("Thay đổi ảnh đại diện", color = Color(0xFF0D71A3), fontSize = 14.sp, modifier = Modifier.padding(top = 8.dp))
 
             Spacer(Modifier.height(24.dp))
 
-            // --- 2. FORM NHẬP LIỆU ---
+            // === CARD 1: THÔNG TIN TÀI KHOẢN ===
+            Text("THÔNG TIN TÀI KHOẢN", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.Gray, modifier = Modifier.padding(vertical = 8.dp))
             Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
                 colors = CardDefaults.cardColors(containerColor = Color.White),
-                elevation = CardDefaults.cardElevation(2.dp),
                 shape = RoundedCornerShape(12.dp)
             ) {
                 Column(Modifier.padding(16.dp)) {
-                    Text("Thông tin cá nhân", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.Black)
-                    Spacer(Modifier.height(16.dp))
-
-                    CustomTextField(value = hoTen, onValueChange = { hoTen = it }, label = "Họ và tên", icon = Icons.Default.Person)
-                    CustomTextField(value = soDienThoai, onValueChange = { soDienThoai = it }, label = "Số điện thoại", icon = Icons.Default.Phone, isNumber = true)
+                    CustomTextField(value = hoTen, onValueChange = { hoTen = it }, label = "Họ và tên (User)", icon = Icons.Default.Person)
+                    CustomTextField(value = soDienThoai, onValueChange = { soDienThoai = it }, label = "Số điện thoại đăng nhập", icon = Icons.Default.Phone, isNumber = true)
                     CustomTextField(value = email, onValueChange = { email = it }, label = "Email", icon = Icons.Default.Email)
-                    CustomTextField(value = diaChi, onValueChange = { diaChi = it }, label = "Địa chỉ nhận hàng", icon = Icons.Default.LocationOn)
-                    CustomTextField(value = ngaySinh, onValueChange = { ngaySinh = it }, label = "Ngày sinh (YYYY-MM-DD)", icon = Icons.Default.CalendarToday)
+
+                    // THAY THẾ: Dùng DatePickerField thay vì CustomTextField thường
+                    DatePickerField(
+                        value = ngaySinh,
+                        onDateSelected = { selectedDate -> ngaySinh = selectedDate },
+                        label = "Ngày sinh"
+                    )
 
                     Spacer(Modifier.height(12.dp))
-
                     Text("Giới tính", fontSize = 14.sp, color = Color.Gray)
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         RadioButton(selected = gioiTinh == "Nam", onClick = { gioiTinh = "Nam" }, colors = RadioButtonDefaults.colors(selectedColor = Color(0xFF0D71A3)))
@@ -147,10 +150,25 @@ fun ChinhSuaThongTin(navController: NavController,
                 }
             }
 
+            Spacer(Modifier.height(20.dp))
+
+            // === CARD 2: THÔNG TIN NHẬN HÀNG ===
+            Text("THÔNG TIN NHẬN HÀNG", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.Gray, modifier = Modifier.padding(vertical = 8.dp))
+            Card(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.White),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Column(Modifier.padding(16.dp)) {
+                    CustomTextField(value = tenNguoiNhan, onValueChange = { tenNguoiNhan = it }, label = "Tên người nhận", icon = Icons.Default.PersonPin)
+                    CustomTextField(value = sdtNguoiNhan, onValueChange = { sdtNguoiNhan = it }, label = "SĐT người nhận", icon = Icons.Default.ContactPhone, isNumber = true)
+                    CustomTextField(value = diaChi, onValueChange = { diaChi = it }, label = "Địa chỉ giao hàng", icon = Icons.Default.LocationOn)
+                }
+            }
+
             Spacer(Modifier.height(24.dp))
 
-            // --- 3. NÚT LƯU THÔNG TIN ---
-            // Đặt ở đây thay vì bottomBar của Scaffold cũ
+            // NÚT LƯU
             Button(
                 onClick = {
                     if (user == null) return@Button
@@ -163,7 +181,9 @@ fun ChinhSuaThongTin(navController: NavController,
                                 soDienThoai = soDienThoai,
                                 email = email,
                                 gioiTinh = gioiTinh,
-                                ngaySinh = ngaySinh,
+                                ngaySinh = ngaySinh, // Gửi ngày sinh chuẩn YYYY-MM-DD
+                                tenNguoiNhan = tenNguoiNhan,
+                                sdtNguoiNhan = sdtNguoiNhan,
                                 diaChi = diaChi
                             )
 
@@ -177,6 +197,8 @@ fun ChinhSuaThongTin(navController: NavController,
                                     Email = email,
                                     GioiTinh = gioiTinh,
                                     NgaySinh = ngaySinh,
+                                    TenNguoiNhan = tenNguoiNhan,
+                                    SDTNguoiNhan = sdtNguoiNhan,
                                     DiaChi = diaChi
                                 )
                                 onBackClick()
@@ -190,24 +212,83 @@ fun ChinhSuaThongTin(navController: NavController,
                         }
                     }
                 },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp)
-                    .height(50.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0D71A3)), // Màu xanh đồng bộ
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).height(50.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0D71A3)),
                 shape = RoundedCornerShape(10.dp),
                 enabled = !dangXuLy
             ) {
                 if (dangXuLy) CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
                 else Text("LƯU THAY ĐỔI", fontSize = 16.sp, fontWeight = FontWeight.Bold)
             }
-
-            Spacer(Modifier.height(30.dp)) // Khoảng trống dưới cùng
+            Spacer(Modifier.height(50.dp))
         }
     }
 }
 
-// Component ô nhập liệu (Đã cấu hình sửa lỗi gõ Tiếng Việt)
+// === COMPONENT CHỌN NGÀY (DATE PICKER) ===
+@Composable
+fun DatePickerField(
+    value: String,
+    onDateSelected: (String) -> Unit,
+    label: String
+) {
+    val context = LocalContext.current
+    val calendar = Calendar.getInstance()
+
+    // Cố gắng parse ngày hiện tại để set mặc định cho lịch
+    try {
+        if (value.isNotEmpty()) {
+            val parts = value.split("-")
+            if (parts.size == 3) {
+                calendar.set(parts[0].toInt(), parts[1].toInt() - 1, parts[2].toInt())
+            }
+        }
+    } catch (e: Exception) { /* Bỏ qua lỗi parse */ }
+
+    // Hộp thoại chọn ngày
+    val datePickerDialog = DatePickerDialog(
+        context,
+        { _, year, month, dayOfMonth ->
+            // Định dạng chuẩn YYYY-MM-DD cho Backend
+            val formattedDate = String.format("%d-%02d-%02d", year, month + 1, dayOfMonth)
+            onDateSelected(formattedDate)
+        },
+        calendar.get(Calendar.YEAR),
+        calendar.get(Calendar.MONTH),
+        calendar.get(Calendar.DAY_OF_MONTH)
+    )
+
+    // Ô nhập liệu dạng ReadOnly, bấm vào là hiện lịch
+    OutlinedTextField(
+        value = value,
+        onValueChange = {},
+        label = { Text(label) },
+        leadingIcon = { Icon(Icons.Default.CalendarToday, contentDescription = null, tint = Color(0xFF0D71A3)) },
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 6.dp),
+        singleLine = true,
+        readOnly = true, // Không cho gõ phím
+        shape = RoundedCornerShape(10.dp),
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedBorderColor = Color(0xFF0D71A3),
+            focusedLabelColor = Color(0xFF0D71A3),
+            cursorColor = Color(0xFF0D71A3)
+        ),
+        interactionSource = remember { MutableInteractionSource() }
+            .also { interactionSource ->
+                LaunchedEffect(interactionSource) {
+                    interactionSource.interactions.collect {
+                        if (it is PressInteraction.Release) {
+                            datePickerDialog.show() // Hiện lịch khi bấm vào
+                        }
+                    }
+                }
+            }
+    )
+}
+
+// Component ô nhập liệu thường
 @Composable
 fun CustomTextField(
     value: String,
@@ -226,14 +307,11 @@ fun CustomTextField(
             .padding(vertical = 6.dp),
         singleLine = true,
         shape = RoundedCornerShape(10.dp),
-
-        // Cấu hình bàn phím để hỗ trợ Tiếng Việt tốt hơn
         keyboardOptions = KeyboardOptions(
             capitalization = KeyboardCapitalization.Sentences,
             keyboardType = if (isNumber) KeyboardType.Phone else KeyboardType.Text,
             imeAction = ImeAction.Next
         ),
-
         colors = OutlinedTextFieldDefaults.colors(
             focusedBorderColor = Color(0xFF0D71A3),
             focusedLabelColor = Color(0xFF0D71A3),

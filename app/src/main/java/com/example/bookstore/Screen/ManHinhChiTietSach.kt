@@ -35,6 +35,8 @@ import com.example.bookstore.Model.DanhGia
 import com.example.bookstore.Model.Sach
 import com.example.bookstore.Model.SachtrongGioHang
 import kotlinx.coroutines.launch
+import java.text.NumberFormat
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -215,11 +217,15 @@ fun ManHinhChiTietSach(
                         modifier = Modifier.width(100.dp).height(150.dp), contentScale = ContentScale.Crop
                     )
                 }
+                fun formatGia(gia: Double): String {
+                    val formatter = NumberFormat.getInstance(Locale("vi", "VN"))
+                    return "${formatter.format(gia)} VND"
+                }
                 Spacer(modifier = Modifier.width(16.dp))
                 Column {
                     Text(sach.TenSach, fontSize = 20.sp, fontWeight = FontWeight.Bold, maxLines = 2, overflow = TextOverflow.Ellipsis)
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text("${sach.GiaBan.toInt()} đ", color = Color.Red, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                    Text("${formatGia(sach.GiaBan)} ", color = Color.Red, fontSize = 18.sp, fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.height(8.dp))
                     Text("Tác giả: ${sach.TenTacGia ?: "Đang cập nhật"}", fontSize = 14.sp)
 
