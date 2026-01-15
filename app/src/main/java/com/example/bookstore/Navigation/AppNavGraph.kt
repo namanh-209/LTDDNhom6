@@ -27,13 +27,7 @@ import com.example.bookstore.ui.screen.DanhSachSach
 // === THÊM CÁC IMPORT NÀY ===
 import com.example.bookstore.Screen.QuanLyDonHangAdmin
 import com.example.bookstore.Screen.ChiTietDonHangAdmin // Màn hình chi tiết
-<<<<<<< HEAD
-import com.example.bookstore.Model.DonHang // Model Đơn hàng
-import com.example.bookstore.Model.LichSuDonHang
 import com.example.bookstore.Screen.ManHinhLichSuMuaHang
-=======
-
->>>>>>> 5bd0042cb709372681b352da084eacfd9a9d67d3
 import com.google.gson.Gson
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
@@ -211,17 +205,19 @@ fun AppNavGraph() {
             )
         }
 
-        composable("thanhtoan"){
+        composable("thanhtoan") {
+            // 1. Lấy dữ liệu giỏ hàng từ màn hình trước gửi sang
             val gioHang = navController.previousBackStackEntry
                 ?.savedStateHandle
                 ?.get<List<SachtrongGioHang>>("gioHang")
                 ?: emptyList()
 
-//            ManHinhThanhToan(
-//                navController=navController,
-//                danhSachSanPham = gioHang,
-//                BamQuayLai = { navController.popBackStack() }
-//            )
+            // 2. Gọi màn hình thanh toán
+            ManHinhThanhToan(
+                navController = navController,
+                danhSachSanPham = gioHang,
+                BamQuayLai = { navController.popBackStack() }
+            )
         }
 
         composable("lichsumuahang"){
