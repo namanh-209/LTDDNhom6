@@ -226,7 +226,10 @@ fun ThongTinCaNhan(nguoiDung: User?) {
                     InfoLine("Họ và tên:", nguoiDung?.HoTen)
                     InfoLine("Số điện thoại:", nguoiDung?.SoDienThoai)
                     InfoLine("Email:", nguoiDung?.Email ?: "---")
-
+                    InfoLine(
+                         "Ngày sinh:",
+                         dinhDangNgay(nguoiDung?.NgaySinh) // Gọi hàm vừa viết
+                    )
                     val gioiTinhText = when (nguoiDung?.GioiTinh) {
                         "Nam" -> "Nam"
                         "Nu" -> "Nữ"
@@ -238,7 +241,26 @@ fun ThongTinCaNhan(nguoiDung: User?) {
         }
     }
 }
+// Hàm chuyển đổi thông minh: Chấp nhận cả "2000-01-01" và "2000-01-01T00:00:00.000Z"
+fun dinhDangNgay(ngay: String?): String {
+    if (ngay.isNullOrBlank() || ngay == "0000-00-00") return "---" //
 
+    try {
+        // 1. Nếu chuỗi có chữ 'T' (dạng ISO), cắt lấy phần trước chữ 'T' thôi
+        val ngaySach = if (ngay.contains("T")) ngay.split("T")[0] else ngay
+
+        // 2. Tách theo dấu gạch ngang "-"
+        val parts = ngaySach.split("-")
+
+        // 3. Nếu đủ 3 phần (Năm-Tháng-Ngày) thì đảo ngược lại
+        if (parts.size == 3) {
+            return "${parts[2]}/${parts[1]}/${parts[0]}"
+        }
+    } catch (e: Exception) {
+        return ngay // Lỗi thì trả về nguyên gốc
+    }
+    return ngay
+}
 @Composable
 fun InfoLine(label: String, value: String?) {
     Row(modifier = Modifier.padding(vertical = 4.dp)) {

@@ -15,11 +15,14 @@ data class RegisterResponse(
 data class User(
     val MaNguoiDung: Int,
     val HoTen: String,
-    val SoDienThoai: String, // Trong DB bạn để NOT NULL nên cái này ok
-    val Email: String?,      // Thêm dấu ? vì trong DB là DEFAULT NULL
-    val AnhDaiDien: String?, // Thêm dấu ?
+    val SoDienThoai: String,
+    val Email: String?,
+    val AnhDaiDien: String?,
     val VaiTro: String?,
     val NgaySinh: String?,
-    val GioiTinh: String?,  // Thêm dấu ?
-    val DiaChi: String?
+    val GioiTinh: String?,
+    val DiaChi: String?,
+    // Thêm 2 trường này để hứng dữ liệu từ API Login
+    val TenNguoiNhan: String?,
+    val SDTNguoiNhan: String?
 )
