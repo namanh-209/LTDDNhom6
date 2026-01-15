@@ -27,7 +27,13 @@ import com.example.bookstore.ui.screen.DanhSachSach
 // === THÊM CÁC IMPORT NÀY ===
 import com.example.bookstore.Screen.QuanLyDonHangAdmin
 import com.example.bookstore.Screen.ChiTietDonHangAdmin // Màn hình chi tiết
+<<<<<<< HEAD
+import com.example.bookstore.Model.DonHang // Model Đơn hàng
+import com.example.bookstore.Model.LichSuDonHang
+import com.example.bookstore.Screen.ManHinhLichSuMuaHang
+=======
 
+>>>>>>> 5bd0042cb709372681b352da084eacfd9a9d67d3
 import com.google.gson.Gson
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
@@ -137,10 +143,12 @@ fun AppNavGraph() {
             if (selectedSach != null) {
                 ManHinhChiTietSach(
                     sach = selectedSach!!,
+                    navController = navController,
                     onBackClick = { navController.popBackStack() }
                 )
             }
         }
+
 
         composable("dondamua") {
             DonDaMua(
@@ -214,6 +222,13 @@ fun AppNavGraph() {
 //                danhSachSanPham = gioHang,
 //                BamQuayLai = { navController.popBackStack() }
 //            )
+        }
+
+        composable("lichsumuahang"){
+            ManHinhLichSuMuaHang(
+                navController=navController,
+                onBackClick = { navController.popBackStack()  }
+            )
         }
     }
 }

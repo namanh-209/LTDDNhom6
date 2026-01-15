@@ -17,6 +17,7 @@ import com.example.bookstore.Model.DonHang
 import com.example.bookstore.Model.DonHangGui
 import com.example.bookstore.Model.DonHangSach
 import com.example.bookstore.Model.KhuyenMai
+import com.example.bookstore.Model.LichSuDonHang
 import com.example.bookstore.Model.PhanHoiApi
 import com.example.bookstore.Model.RegisterResponse
 import com.example.bookstore.Model.Sach // ✅ Nhớ import model Sach
@@ -81,6 +82,12 @@ interface ApiService {
         @Path("userId") userId: Int
     ): ApiResponse<List<SachtrongGioHang>>
 
+    ///có sửa nhưng không đáng kể
+    @GET("api/diachi/{maNguoiDung}")
+    suspend fun layDanhSachDiaChi(
+        @Path("maNguoiDung") maNguoiDung: Int
+    ): ApiResponse<List<DiaChi>>
+
 
     //cập nhật số lượng giỏ hàng
     @POST("api/giohang")
@@ -116,6 +123,7 @@ interface ApiService {
     suspend fun layDanhSachDanhGia(@Path("bookId") bookId: Int): ApiResponse<List<DanhGia>>
 
 
+
     @GET("api/diachi/{maNguoiDung}")
     suspend fun layDiaChi(
         @Path("maNguoiDung") maNguoiDung: Int
@@ -139,14 +147,18 @@ interface ApiService {
     ): ApiResponse<Any>
 
 
-
     // SỬA LẠI THÀNH:
-    // ... các code cũ ...
 
-    // SỬA LẠI ĐOẠN NÀY:
+    @GET("api/donhang/sach/{userId}")
+    suspend fun getLichSuMuaHang(
+        @Path("userId") userId: Int
+    ): ApiResponse<List<LichSuDonHang>>
+
+
     // Dùng @Path và thêm {maDonHang} vào đường dẫn để khớp với Node.js
     @GET("api/donhang/chitiet/{maDonHang}")
     suspend fun layChiTietDonHang(@Path("maDonHang") maDonHang: Int): ApiResponse<List<MChiTietDonHangAdmin>>
+
 
     // Thêm vào interface ApiService
     @POST("api/nguoidung/update")

@@ -51,7 +51,6 @@ class MainActivity : ComponentActivity() {
             //gọi trang login & đăng kí
         AppNavGraph()
 //            DonDaMua()
-
         }
     }
 }
