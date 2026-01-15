@@ -24,6 +24,8 @@ import com.example.bookstore.Components.BienDungChung
 import com.example.bookstore.KhungGiaoDien
 import com.example.bookstore.Model.Sach
 import kotlinx.coroutines.launch
+import java.text.NumberFormat
+import java.util.Locale
 
 /* ===================== ITEM SÁCH YÊU THÍCH ===================== */
 @Composable
@@ -33,6 +35,10 @@ fun SachItemYeuThich(
     onRemoveFavorite: () -> Unit,
     onClick: () -> Unit
 ) {
+    fun formatGia(gia: Double): String {
+        val formatter = NumberFormat.getInstance(Locale("vi", "VN"))
+        return "${formatter.format(gia)} VND"
+    }
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -67,7 +73,7 @@ fun SachItemYeuThich(
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = "${sach.GiaBan.toInt()} VND",
+                    text = "${formatGia(sach.GiaBan)}",
                     color = Color.Red,
                     fontSize = 16.sp
                 )

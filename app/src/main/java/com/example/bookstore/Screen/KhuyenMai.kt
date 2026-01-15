@@ -16,6 +16,8 @@ import com.example.bookstore.Api.RetrofitClient
 import com.example.bookstore.KhungGiaoDien
 import com.example.bookstore.Model.KhuyenMai
 import kotlinx.coroutines.launch
+import java.text.NumberFormat
+import java.util.Locale
 
 @Composable
 fun KhuyenMai(navController: NavController) {
@@ -74,6 +76,10 @@ fun KhuyenMai(navController: NavController) {
         }
     }
 }
+fun formatGia(gia: Double): String {
+    val formatter = NumberFormat.getInstance(Locale("vi", "VN"))
+    return "${formatter.format(gia)} VND"
+}
 @Composable
 fun ItemKhuyenMai(
     km: KhuyenMai,
@@ -100,14 +106,14 @@ fun ItemKhuyenMai(
                     Spacer(modifier = Modifier.height(4.dp))
 
                     Text(
-                        text = "Giảm ${km.GiaTriGiam.toInt()} VND",
+                        text = "Giảm ${formatGia(km.GiaTriGiam)}",
                         fontWeight = FontWeight.Bold
                     )
 
                     Spacer(modifier = Modifier.height(4.dp))
 
                     Text(
-                        text = "Đơn tối thiểu ${km.DonToiThieu?.toInt() ?: 0} VND",
+                        text = "Đơn tối thiểu ${formatGia(km.DonToiThieu ?: 0.0)}",
                         style = MaterialTheme.typography.bodySmall
                     )
 

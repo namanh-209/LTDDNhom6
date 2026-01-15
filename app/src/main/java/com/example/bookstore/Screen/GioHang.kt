@@ -47,8 +47,8 @@ import com.example.bookstore.Model.Sach
 import com.example.bookstore.Model.SachtrongGioHang
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.launch
-
-
+import java.text.NumberFormat
+import java.util.Locale
 
 
 @Composable
@@ -190,7 +190,7 @@ fun GioHang(
                             Column(modifier = Modifier.weight(1f)) {
                                 Text("Tổng tiền", color = Color.Gray)
                                 Text(
-                                    text = "${tongTien} VNĐ",
+                                    text = formatGia(tongTien),
                                     color = Color.Red,
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 18.sp
@@ -220,7 +220,10 @@ fun GioHang(
         }
     }
 }
-
+fun formatGia(gia: Int): String {
+    val formatter = NumberFormat.getInstance(Locale("vi", "VN"))
+    return "${formatter.format(gia)} VND"
+}
 @Composable
 fun GioHangItem(
     sach: SachtrongGioHang,
@@ -237,7 +240,6 @@ fun GioHangItem(
             .padding(12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-
         AsyncImage(
             model = sach.AnhBia,
             contentDescription = null,
@@ -253,7 +255,7 @@ fun GioHangItem(
             Spacer(modifier = Modifier.height(4.dp))
             Text("Tác giả: ${sach.TenTacGia}", color = Color.LightGray)
             Spacer(modifier = Modifier.height(8.dp))
-            Text("Giá: ${sach.GiaBan} VNĐ", color = Color.Red, fontSize = 16.sp)
+            Text("Giá: ${formatGia(sach.GiaBan)} ", color = Color.Red, fontSize = 16.sp)
         }
 
         Row(verticalAlignment = Alignment.CenterVertically) {

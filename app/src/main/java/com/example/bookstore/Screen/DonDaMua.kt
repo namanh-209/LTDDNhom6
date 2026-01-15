@@ -30,6 +30,8 @@ import com.example.bookstore.Model.SachtrongGioHang
 import com.example.bookstore.R
 import kotlinx.coroutines.launch
 import java.text.DecimalFormat
+import java.text.NumberFormat
+import java.util.Locale
 
 @Composable
 fun DonDaMua(navController: NavController, onBackClick: () -> Unit) {
@@ -160,6 +162,10 @@ fun BookOrderItem(
             modifier = Modifier.padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            fun formatGia(gia: Double): String {
+                val formatter = NumberFormat.getInstance(Locale("vi", "VN"))
+                return "${formatter.format(gia)} VND"
+            }
             // Ảnh bìa (Hình chữ nhật đứng tỷ lệ 2:3)
             AsyncImage(
                 model = don.AnhBia,
@@ -214,7 +220,7 @@ fun BookOrderItem(
 
                 // Giá tiền
                 Text(
-                    text = "${formatter.format(don.GiaBan)} đ",
+                    text = "${formatGia(don.GiaBan)} ",
                     style = MaterialTheme.typography.titleLarge,
                     color = Color(0xFFD32F2F), // Màu đỏ
                     fontWeight = FontWeight.Bold,
