@@ -2,7 +2,6 @@ package com.example.bookstore.Screen
 
 import CapNhatThongTinRequest
 import android.app.DatePickerDialog
-import android.widget.DatePicker
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -37,6 +36,7 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.bookstore.Api.RetrofitClient
 import com.example.bookstore.Components.BienDungChung
+import com.example.bookstore.Components.unAccent // Import hàm unAccent
 import com.example.bookstore.KhungGiaoDien
 import kotlinx.coroutines.launch
 import java.util.Calendar
@@ -50,16 +50,13 @@ fun ChinhSuaThongTin(
     val scope = rememberCoroutineScope()
     val user = BienDungChung.userHienTai
 
-    // --- PHẦN 1: THÔNG TIN TÀI KHOẢN ---
+    // State dữ liệu
     var hoTen by remember { mutableStateOf(user?.HoTen ?: "") }
     var soDienThoai by remember { mutableStateOf(user?.SoDienThoai ?: "") }
     var email by remember { mutableStateOf(user?.Email ?: "") }
     var gioiTinh by remember { mutableStateOf(user?.GioiTinh ?: "Nu") }
-
-    // Xử lý ngày sinh: Nếu null thì để trống
     var ngaySinh by remember { mutableStateOf(user?.NgaySinh ?: "") }
 
-    // --- PHẦN 2: THÔNG TIN NGƯỜI NHẬN ---
     var tenNguoiNhan by remember { mutableStateOf(user?.TenNguoiNhan ?: user?.HoTen ?: "") }
     var sdtNguoiNhan by remember { mutableStateOf(user?.SDTNguoiNhan ?: user?.SoDienThoai ?: "") }
     var diaChi by remember { mutableStateOf(user?.DiaChi ?: "") }
@@ -119,7 +116,7 @@ fun ChinhSuaThongTin(
 
             Spacer(Modifier.height(24.dp))
 
-            // === CARD 1: THÔNG TIN TÀI KHOẢN ===
+            // === THÔNG TIN TÀI KHOẢN ===
             Text("THÔNG TIN TÀI KHOẢN", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.Gray, modifier = Modifier.padding(vertical = 8.dp))
             Card(
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
@@ -128,10 +125,12 @@ fun ChinhSuaThongTin(
             ) {
                 Column(Modifier.padding(16.dp)) {
                     CustomTextField(value = hoTen, onValueChange = { hoTen = it }, label = "Họ và tên (User)", icon = Icons.Default.Person)
+
                     CustomTextField(value = soDienThoai, onValueChange = { soDienThoai = it }, label = "Số điện thoại đăng nhập", icon = Icons.Default.Phone, isNumber = true)
+
+                    // CHO PHÉP NHẬP DẤU BÌNH THƯỜNG (Sẽ bỏ dấu khi bấm Lưu)
                     CustomTextField(value = email, onValueChange = { email = it }, label = "Email", icon = Icons.Default.Email)
 
-                    // THAY THẾ: Dùng DatePickerField thay vì CustomTextField thường
                     DatePickerField(
                         value = ngaySinh,
                         onDateSelected = { selectedDate -> ngaySinh = selectedDate },
@@ -152,7 +151,7 @@ fun ChinhSuaThongTin(
 
             Spacer(Modifier.height(20.dp))
 
-            // === CARD 2: THÔNG TIN NHẬN HÀNG ===
+            // === THÔNG TIN NHẬN HÀNG ===
             Text("THÔNG TIN NHẬN HÀNG", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.Gray, modifier = Modifier.padding(vertical = 8.dp))
             Card(
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
@@ -168,20 +167,23 @@ fun ChinhSuaThongTin(
 
             Spacer(Modifier.height(24.dp))
 
-            // NÚT LƯU
+            // === NÚT LƯU THAY ĐỔI ===
             Button(
                 onClick = {
                     if (user == null) return@Button
                     scope.launch {
                         dangXuLy = true
                         try {
+                            // 🔥 QUAN TRỌNG: BỎ DẤU EMAIL TẠI ĐÂY (TRƯỚC KHI GỬI ĐI)
+                            val emailClean = unAccent(email)
+
                             val request = CapNhatThongTinRequest(
                                 maNguoiDung = user.MaNguoiDung,
                                 hoTen = hoTen,
                                 soDienThoai = soDienThoai,
-                                email = email,
+                                email = emailClean, // Gửi email đã xử lý
                                 gioiTinh = gioiTinh,
-                                ngaySinh = ngaySinh, // Gửi ngày sinh chuẩn YYYY-MM-DD
+                                ngaySinh = ngaySinh,
                                 tenNguoiNhan = tenNguoiNhan,
                                 sdtNguoiNhan = sdtNguoiNhan,
                                 diaChi = diaChi
@@ -194,7 +196,7 @@ fun ChinhSuaThongTin(
                                 BienDungChung.userHienTai = user.copy(
                                     HoTen = hoTen,
                                     SoDienThoai = soDienThoai,
-                                    Email = email,
+                                    Email = emailClean, // Cập nhật lại email không dấu vào app
                                     GioiTinh = gioiTinh,
                                     NgaySinh = ngaySinh,
                                     TenNguoiNhan = tenNguoiNhan,
@@ -225,70 +227,38 @@ fun ChinhSuaThongTin(
     }
 }
 
-// === COMPONENT CHỌN NGÀY (DATE PICKER) ===
+// === COMPONENT CHỌN NGÀY ===
 @Composable
-fun DatePickerField(
-    value: String,
-    onDateSelected: (String) -> Unit,
-    label: String
-) {
+fun DatePickerField(value: String, onDateSelected: (String) -> Unit, label: String) {
     val context = LocalContext.current
     val calendar = Calendar.getInstance()
-
-    // Cố gắng parse ngày hiện tại để set mặc định cho lịch
     try {
         if (value.isNotEmpty()) {
             val parts = value.split("-")
-            if (parts.size == 3) {
-                calendar.set(parts[0].toInt(), parts[1].toInt() - 1, parts[2].toInt())
-            }
+            if (parts.size == 3) calendar.set(parts[0].toInt(), parts[1].toInt() - 1, parts[2].toInt())
         }
-    } catch (e: Exception) { /* Bỏ qua lỗi parse */ }
+    } catch (e: Exception) { }
 
-    // Hộp thoại chọn ngày
     val datePickerDialog = DatePickerDialog(
-        context,
-        { _, year, month, dayOfMonth ->
-            // Định dạng chuẩn YYYY-MM-DD cho Backend
-            val formattedDate = String.format("%d-%02d-%02d", year, month + 1, dayOfMonth)
-            onDateSelected(formattedDate)
-        },
-        calendar.get(Calendar.YEAR),
-        calendar.get(Calendar.MONTH),
-        calendar.get(Calendar.DAY_OF_MONTH)
+        context, { _, y, m, d -> onDateSelected(String.format("%d-%02d-%02d", y, m + 1, d)) },
+        calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)
     )
 
-    // Ô nhập liệu dạng ReadOnly, bấm vào là hiện lịch
     OutlinedTextField(
-        value = value,
-        onValueChange = {},
-        label = { Text(label) },
-        leadingIcon = { Icon(Icons.Default.CalendarToday, contentDescription = null, tint = Color(0xFF0D71A3)) },
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 6.dp),
-        singleLine = true,
-        readOnly = true, // Không cho gõ phím
-        shape = RoundedCornerShape(10.dp),
+        value = value, onValueChange = {}, label = { Text(label) },
+        leadingIcon = { Icon(Icons.Default.CalendarToday, null, tint = Color(0xFF0D71A3)) },
+        modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp),
+        singleLine = true, readOnly = true, shape = RoundedCornerShape(10.dp),
         colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = Color(0xFF0D71A3),
-            focusedLabelColor = Color(0xFF0D71A3),
-            cursorColor = Color(0xFF0D71A3)
+            focusedBorderColor = Color(0xFF0D71A3), focusedLabelColor = Color(0xFF0D71A3)
         ),
-        interactionSource = remember { MutableInteractionSource() }
-            .also { interactionSource ->
-                LaunchedEffect(interactionSource) {
-                    interactionSource.interactions.collect {
-                        if (it is PressInteraction.Release) {
-                            datePickerDialog.show() // Hiện lịch khi bấm vào
-                        }
-                    }
-                }
-            }
+        interactionSource = remember { MutableInteractionSource() }.also { src ->
+            LaunchedEffect(src) { src.interactions.collect { if (it is PressInteraction.Release) datePickerDialog.show() } }
+        }
     )
 }
 
-// Component ô nhập liệu thường
+// === COMPONENT Ô NHẬP LIỆU (ĐÃ FIX LỖI GÕ) ===
 @Composable
 fun CustomTextField(
     value: String,
@@ -299,16 +269,14 @@ fun CustomTextField(
 ) {
     OutlinedTextField(
         value = value,
-        onValueChange = onValueChange,
+        onValueChange = onValueChange, // Không can thiệp sửa đổi text tại đây
         label = { Text(label) },
         leadingIcon = { Icon(icon, contentDescription = null, tint = Color(0xFF0D71A3)) },
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 6.dp),
+        modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp),
         singleLine = true,
         shape = RoundedCornerShape(10.dp),
         keyboardOptions = KeyboardOptions(
-            capitalization = KeyboardCapitalization.Sentences,
+            capitalization = KeyboardCapitalization.None,
             keyboardType = if (isNumber) KeyboardType.Phone else KeyboardType.Text,
             imeAction = ImeAction.Next
         ),

@@ -1,4 +1,4 @@
-package com.example.bookstore.Screen // Hoặc package com.example.bookstore.ui tùy cấu trúc của bạn
+package com.example.bookstore.Screen
 
 import CapNhatGioHangRequest
 import androidx.compose.foundation.Image
@@ -25,8 +25,6 @@ import com.example.bookstore.Api.RetrofitClient
 import com.example.bookstore.Components.BienDungChung
 import com.example.bookstore.KhungGiaoDien
 import com.example.bookstore.Model.DonHangSach
-import com.example.bookstore.Model.Sach
-import com.example.bookstore.Model.SachtrongGioHang
 import com.example.bookstore.R
 import kotlinx.coroutines.launch
 import java.text.DecimalFormat
@@ -66,7 +64,7 @@ fun DonDaMua(navController: NavController, onBackClick: () -> Unit) {
 
     // 4. Vẽ giao diện chính
     KhungGiaoDien(tieuDe = "Đơn đã mua",
-        onBackClick = onBackClick, // TRANG CON -> CÓ BACK (được truyền từ AppNavGraph)
+        onBackClick = onBackClick,
         onHomeClick = { navController.navigate("home") },
         onCategoryClick = { navController.navigate("trangdanhsach") },
         onCartClick = { navController.navigate("giohang") },
@@ -99,16 +97,13 @@ fun DonDaMua(navController: NavController, onBackClick: () -> Unit) {
             }
 
             // B. Lọc danh sách theo Tab đang chọn
-            // (Phải khớp với trạng thái trong Database: MoiDat, DangGiao, HoanThanh, DaHuy)
             val danhSachHienThi = when (selectedTab) {
-                0 -> danhSachFull.filter { it.TrangThai == "DangXuLy" }
+                0 -> danhSachFull.filter { it.TrangThai == "DangXuLy" || it.TrangThai == "MoiDat" } // Gộp cả Mới đặt vào Chờ xác nhận
                 1 -> danhSachFull.filter { it.TrangThai == "DangGiao" }
                 2 -> danhSachFull.filter { it.TrangThai == "HoanThanh" }
-                // Chấp nhận mọi trạng thái có chứa chữ "Huy"
+                // Chấp nhận mọi trạng thái có chứa chữ "Huy" hoặc "DaHuy"
                 else -> danhSachFull.filter {
-                    it.TrangThai != "DangXuLy" &&
-                            it.TrangThai != "DangGiao" &&
-                            it.TrangThai != "HoanThanh"
+                    it.TrangThai == "DaHuy" || it.TrangThai == "Huy"
                 }
             }
 
@@ -124,7 +119,7 @@ fun DonDaMua(navController: NavController, onBackClick: () -> Unit) {
                 ) {
                     items(danhSachHienThi) { donHang ->
                         // Gọi hàm vẽ từng cuốn sách
-                        BookOrderItem(don = donHang, formatter = decimalFormat,  navController = navController)
+                        BookOrderItem(don = donHang, navController = navController)
                     }
                 }
             }
@@ -138,19 +133,22 @@ fun DonDaMua(navController: NavController, onBackClick: () -> Unit) {
 @Composable
 fun BookOrderItem(
     don: DonHangSach,
-    formatter: DecimalFormat,
     navController: NavController,
 ) {
-
     // Logic chọn màu sắc theo trạng thái
     val (mauSac, trangThaiText) = when (don.TrangThai) {
-        "DangXuLy" -> Pair(Color(0xFFFFA000), "Chờ xác nhận")     // Cam
+        "DangXuLy", "MoiDat" -> Pair(Color(0xFFFFA000), "Chờ xác nhận")     // Cam
         "DangGiao" -> Pair(Color(0xFF1976D2), "Đang giao")      // Xanh dương
         "HoanThanh" -> Pair(Color(0xFF388E3C), "Thành công")    // Xanh lá
         else -> Pair(Color(0xFFD32F2F), "Đã huỷ")               // Đỏ
     }
+
     val scope = rememberCoroutineScope()
-    val snackbarHostState = remember { SnackbarHostState() }
+    // Hàm format tiền tệ cục bộ
+    fun formatGia(gia: Double): String {
+        val formatter = NumberFormat.getInstance(Locale("vi", "VN"))
+        return "${formatter.format(gia)} VND"
+    }
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -162,11 +160,7 @@ fun BookOrderItem(
             modifier = Modifier.padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            fun formatGia(gia: Double): String {
-                val formatter = NumberFormat.getInstance(Locale("vi", "VN"))
-                return "${formatter.format(gia)} VND"
-            }
-            // Ảnh bìa (Hình chữ nhật đứng tỷ lệ 2:3)
+            // Ảnh bìa
             AsyncImage(
                 model = don.AnhBia,
                 contentDescription = null,
@@ -220,7 +214,7 @@ fun BookOrderItem(
 
                 // Giá tiền
                 Text(
-                    text = "${formatGia(don.GiaBan)} ",
+                    text = formatGia(don.GiaBan),
                     style = MaterialTheme.typography.titleLarge,
                     color = Color(0xFFD32F2F), // Màu đỏ
                     fontWeight = FontWeight.Bold,
@@ -229,6 +223,9 @@ fun BookOrderItem(
 
                 Spacer(modifier = Modifier.width(12.dp))
 
+                // --- NÚT CHỨC NĂNG THEO TRẠNG THÁI ---
+
+                // 1. Trạng thái HOÀN THÀNH
                 if (don.TrangThai == "HoanThanh") {
                     Row(
                         modifier = Modifier.padding(top = 8.dp),
@@ -242,32 +239,25 @@ fun BookOrderItem(
                                             CapNhatGioHangRequest(
                                                 MaNguoiDung = BienDungChung.userHienTai!!.MaNguoiDung,
                                                 MaSach = don.MaSach,
-                                                SoLuong = 1
+                                                SoLuong = 1 // Mặc định mua lại 1 cuốn (giống tab Đã giao của bạn)
                                             )
                                         )
-                                        scope.launch {
-                                            snackbarHostState.showSnackbar("${don.TenSach} đã được thêm vào giỏ hàng")
-                                        }
                                         // Chuyển sang trang giỏ hàng
                                         navController.navigate("giohang")
-
-                                    } catch (e: Exception) { }
+                                    } catch (e: Exception) { e.printStackTrace() }
                                 }
-
-
-
-
                             },
                             colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray),
                             shape = RoundedCornerShape(10.dp),
                             modifier = Modifier.height(36.dp)
                         ) {
-                            Text(text = "Mua lại", color = Color.Black, fontSize = 14.sp) // Màu chữ nên đen để nhìn rõ trên nền sáng
+                            Text(text = "Mua lại", color = Color.Black, fontSize = 14.sp)
                         }
 
                         Button(
                             onClick = {
-                                navController.navigate("danhgia/${don.MaSach}/${don.MaDonHang}") },
+                                navController.navigate("danhgia/${don.MaSach}/${don.MaDonHang}")
+                            },
                             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF9800)),
                             shape = RoundedCornerShape(10.dp),
                             modifier = Modifier.height(36.dp)
@@ -277,14 +267,32 @@ fun BookOrderItem(
                     }
                 }
 
-                if (don.TrangThai == "DaHuy"){
-                    Button(
-                        onClick = { /* TODO: Xử lý nút Trả hàng/Hoàn tiền */ },
-                        colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray),
-                        shape = RoundedCornerShape(10.dp),
-                        modifier = Modifier.height(36.dp)
-                    ) {
-                        Text(text = "Mua lại", color = Color.Black, fontSize = 14.sp) // Màu chữ nên đen để nhìn rõ trên nền sáng
+                // 2. Trạng thái ĐÃ HỦY (ĐÃ SỬA: THÊM LOGIC MUA LẠI)
+                if (don.TrangThai == "DaHuy" || don.TrangThai == "Huy") {
+                    Row(modifier = Modifier.padding(top = 8.dp)) {
+                        Button(
+                            onClick = {
+                                // Logic Mua lại giống hệt Hoàn thành
+                                scope.launch {
+                                    try {
+                                        RetrofitClient.api.capNhatGioHang(
+                                            CapNhatGioHangRequest(
+                                                MaNguoiDung = BienDungChung.userHienTai!!.MaNguoiDung,
+                                                MaSach = don.MaSach,
+                                                SoLuong = 1
+                                            )
+                                        )
+                                        // Chuyển sang trang giỏ hàng
+                                        navController.navigate("giohang")
+                                    } catch (e: Exception) { e.printStackTrace() }
+                                }
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray),
+                            shape = RoundedCornerShape(10.dp),
+                            modifier = Modifier.height(36.dp)
+                        ) {
+                            Text(text = "Mua lại", color = Color.Black, fontSize = 14.sp)
+                        }
                     }
                 }
 
@@ -308,7 +316,6 @@ fun ManHinhTrong() {
                 contentDescription = null,
                 modifier = Modifier.size(120.dp),
                 alpha = 0.5f
-
             )
             Spacer(modifier = Modifier.height(16.dp))
             Text(
