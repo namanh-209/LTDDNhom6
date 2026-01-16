@@ -17,15 +17,15 @@ import com.example.bookstore.KhungGiaoDien
 import com.example.bookstore.Model.KhuyenMai
 import com.example.bookstore.formatTienTe
 import kotlinx.coroutines.launch
-import java.text.NumberFormat
-import java.util.Locale
 
 @Composable
 fun KhuyenMai(navController: NavController) {
 
     val scope = rememberCoroutineScope()
     var danhSach by remember { mutableStateOf<List<KhuyenMai>>(emptyList()) }
+    var dangTai by remember { mutableStateOf(true) }
 
+    // ===== LOAD DANH SÁCH KHUYẾN MÃI =====
     LaunchedEffect(Unit) {
         scope.launch {
             try {
@@ -35,6 +35,8 @@ fun KhuyenMai(navController: NavController) {
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
+            } finally {
+                dangTai = false
             }
         }
     }
@@ -44,104 +46,99 @@ fun KhuyenMai(navController: NavController) {
         onHomeClick = { navController.navigate("home") },
         onCategoryClick = { navController.navigate("trangdanhsach") },
         onCartClick = { navController.navigate("giohang") },
-        onSaleClick = {
-            navController.navigate("khuyenmai") {
-
-            }
-        },
+        onSaleClick = {},
         onProfileClick = { navController.navigate("trangtaikhoan") }
     ) { paddingValues ->
 
-        LazyColumn(
-            modifier = Modifier
-                .padding(paddingValues)
-                .padding(12.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            items(danhSach) { km ->
-                ItemKhuyenMai(
-                    km = km,
-                    onApplyClick = {
-                        //them khi có trang thanh toán
-                        navController.previousBackStackEntry
-                            ?.savedStateHandle
-                            ?.set("khuyenMaiDaChon", km)
+        if (dangTai) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
+            }
+        } else {
+            LazyColumn(
+                modifier = Modifier
+                    .padding(paddingValues)
+                    .padding(12.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                items(danhSach) { km ->
+                    ItemKhuyenMai(
+                        km = km,
+                        onDung = {
+                            // ✅ GỬI VỀ MÀN TRƯỚC (THANH TOÁN)
+                            navController.previousBackStackEntry
+                                ?.savedStateHandle
+                                ?.set("khuyenMaiDaChon", km)
 
-                        // Áp dụng xong → chuyển sang giỏ hàng
-                        navController.navigate("giohang") {
-                            launchSingleTop = true
+                            // QUAY LẠI THANH TOÁN
+                            navController.popBackStack()
                         }
-                    }
-                )
+                    )
+                }
             }
         }
     }
 }
+
 @Composable
 fun ItemKhuyenMai(
     km: KhuyenMai,
-    onApplyClick: () -> Unit
+    onDung: () -> Unit
 ) {
     Card(
-        shape = RoundedCornerShape(16.dp),
+        shape = RoundedCornerShape(14.dp),
         colors = CardDefaults.cardColors(containerColor = Color(0xFFE3F3FB)),
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
+            Text("Mã: ${km.MaCode}", fontWeight = FontWeight.Bold)
 
-                    Text(
-                        text = "Mã: ${km.MaCode}",
-                        fontWeight = FontWeight.Bold
-                    )
-
-                    Spacer(modifier = Modifier.height(4.dp))
-
-                    Text(
-                        text = "Giảm ${formatTienTe(km.GiaTriGiam)}",
-                        fontWeight = FontWeight.Bold
-                    )
-
-                    Spacer(modifier = Modifier.height(4.dp))
-
-                    Text(
-                        text = "Đơn tối thiểu ${formatTienTe(km.DonToiThieu ?: 0.0)}",
-                        style = MaterialTheme.typography.bodySmall
-                    )
-
-                    Spacer(modifier = Modifier.height(4.dp))
-
-                    Text(
-                        text = "Số lượt còn: ${km.SoLuong ?: "Không giới hạn"}",
-                        style = MaterialTheme.typography.bodySmall
-                    )
-                }
-
-                Button(
-                    onClick = onApplyClick,
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFFBFDCEA),
-                        contentColor = Color.Black
-                    )
-                ) {
-                    Text("Áp dụng")
-                }
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Divider(thickness = 1.dp, color = Color.Black)
-
-            Spacer(modifier = Modifier.height(6.dp))
+            Spacer(Modifier.height(6.dp))
 
             Text(
-                text = "Hạn sử dụng: ${km.NgayHetHan?.substring(0, 10) ?: "Không giới hạn"}",
+                "Giảm ${formatTienTe(km.GiaTriGiam)}",
+                fontWeight = FontWeight.Bold,
+                color = Color.Red
+            )
+
+            Spacer(Modifier.height(6.dp))
+
+            Text(
+                "Đơn tối thiểu: ${formatTienTe(km.DonToiThieu ?: 0.0)}",
+                style = MaterialTheme.typography.bodySmall
+            )
+
+            Spacer(Modifier.height(6.dp))
+
+            Text(
+                "Số lượt còn: ${km.SoLuong ?: "Không giới hạn"}",
+                style = MaterialTheme.typography.bodySmall
+            )
+
+            Spacer(Modifier.height(10.dp))
+
+            Button(
+                onClick = onDung,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(10.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFFBFDCEA),
+                    contentColor = Color.Black
+                )
+            ) {
+                Text("Dùng")
+            }
+
+            Spacer(Modifier.height(6.dp))
+
+            Text(
+                "Hạn dùng: ${km.NgayHetHan?.take(10) ?: "Không giới hạn"}",
                 style = MaterialTheme.typography.bodySmall
             )
         }
