@@ -18,5 +18,7 @@ data class DonHang(
 
     @SerializedName("trang_thai")
     val trangThai: String ,// Ví dụ: "Chờ xác nhận", "Đang giao",...
-    @SerializedName("dia_chi") val diaChiGiaoHang: String?
+    @SerializedName("dia_chi") val diaChiGiaoHang: String?,
+    @SerializedName("phi_van_chuyen") // Phải khớp với chữ "AS phi_van_chuyen" ở query trên
+    val phiVanChuyen: Double?,
 ) : Serializable

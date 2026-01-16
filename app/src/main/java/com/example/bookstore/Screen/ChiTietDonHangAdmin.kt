@@ -318,13 +318,41 @@ fun ChiTietDonHangAdmin(
             }
 
             // === 4. THANH TOÁN ===
+// === 4. THANH TOÁN (ĐÃ SỬA LOGIC) ===
             AdminSectionCard(title = "Chi tiết thanh toán", icon = Icons.Default.ReceiptLong) {
-                RowInfoLine("Tổng tiền hàng", formatter.format(donHang.tongTien)) // Giả sử tổng tiền hàng = tổng bill
-                RowInfoLine("Phí vận chuyển", "Miễn phí")
-                RowInfoLine("Giảm giá voucher", "-0 ₫")
+
+                // 1. TÍNH TỔNG TIỀN HÀNG GỐC (Sum từ danh sách sản phẩm)
+                // Lưu ý: Phải đợi danh sách sản phẩm load xong mới tính đúng
+                val tongTienHangGoc = if (danhSachSanPham.isNotEmpty()) {
+                    danhSachSanPham.sumOf { it.donGia * it.soLuong }
+                } else {
+                    0.0 // Hoặc hiển thị loading
+                }
+
+                // 2. LẤY PHÍ SHIP TỪ MODEL (Nếu null thì coi là 0)
+                val phiShip = donHang.phiVanChuyen ?: 0.0
+
+                // 3. TÍNH NGƯỢC RA VOUCHER
+                // Công thức: Voucher = (Tiền Hàng + Ship) - Tiền Khách Trả
+                // Ví dụ: (95k hàng + 16k ship) - 61k khách trả = 50k Voucher
+                val tienGiamGia = (tongTienHangGoc + phiShip - donHang.tongTien).coerceAtLeast(0.0)
+
+                // --- HIỂN THỊ UI ---
+                RowInfoLine("Tổng tiền hàng", formatter.format(tongTienHangGoc))
+                RowInfoLine("Phí vận chuyển", formatter.format(phiShip))
+
+                // Dòng Voucher (Màu đỏ)
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text("Giảm giá voucher", color = Color.Gray, fontSize = 14.sp)
+                    Text("-${formatter.format(tienGiamGia)}", color = Color.Red, fontSize = 14.sp)
+                }
 
                 Divider(Modifier.padding(vertical = 12.dp), color = Color(0xFFEEEEEE))
 
+                // Dòng Tổng tiền
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -335,7 +363,7 @@ fun ChiTietDonHangAdmin(
                         text = formatter.format(donHang.tongTien),
                         fontWeight = FontWeight.Bold,
                         fontSize = 18.sp,
-                        color = Color(0xFFE53935) // Màu đỏ cho giá tiền
+                        color = Color(0xFF0D71A3)
                     )
                 }
             }
