@@ -45,6 +45,7 @@ import com.example.bookstore.Components.BienDungChung
 import com.example.bookstore.KhungGiaoDien
 import com.example.bookstore.Model.Sach
 import com.example.bookstore.Model.SachtrongGioHang
+import com.example.bookstore.formatTienTe
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.launch
 import java.text.NumberFormat
@@ -190,7 +191,7 @@ fun GioHang(
                             Column(modifier = Modifier.weight(1f)) {
                                 Text("Tổng tiền", color = Color.Gray)
                                 Text(
-                                    text = formatGia(tongTien),
+                                    text = formatTienTe(tongTien),
                                     color = Color.Red,
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 18.sp
@@ -255,7 +256,7 @@ fun GioHangItem(
             Spacer(modifier = Modifier.height(4.dp))
             Text("Tác giả: ${sach.TenTacGia}", color = Color.LightGray)
             Spacer(modifier = Modifier.height(8.dp))
-            Text("Giá: ${formatGia(sach.GiaBan)} ", color = Color.Red, fontSize = 16.sp)
+            Text("Giá: ${formatTienTe(sach.GiaBan)} ", color = Color.Red, fontSize = 16.sp)
         }
 
         Row(verticalAlignment = Alignment.CenterVertically) {

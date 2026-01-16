@@ -28,6 +28,7 @@ import com.example.bookstore.ui.screen.DanhSachSach
 import com.example.bookstore.Screen.QuanLyDonHangAdmin
 import com.example.bookstore.Screen.ChiTietDonHangAdmin // Màn hình chi tiết
 import com.example.bookstore.Screen.ManHinhLichSuMuaHang
+import com.example.bookstore.Screen.ManHinhThanhToan
 import com.google.gson.Gson
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
@@ -205,18 +206,43 @@ fun AppNavGraph() {
             )
         }
 
+        // Trong AppNavGraph.kt
         composable("thanhtoan") {
-            // 1. Lấy dữ liệu giỏ hàng từ màn hình trước gửi sang
-            val gioHang = navController.previousBackStackEntry
-                ?.savedStateHandle
-                ?.get<List<SachtrongGioHang>>("gioHang")
-                ?: emptyList()
 
-            // 2. Gọi màn hình thanh toán
+            val savedStateHandle =
+                navController.previousBackStackEntry?.savedStateHandle
+
+            val nguonThanhToan =
+                savedStateHandle?.get<String>("nguon_thanh_toan")
+
+            val muaLai =
+                savedStateHandle?.get<List<SachtrongGioHang>>("mua_lai_san_pham")
+
+            val gioHang =
+                savedStateHandle?.get<List<SachtrongGioHang>>("gioHang")
+
+            val danhSachSanPham = when {
+                !muaLai.isNullOrEmpty() -> muaLai
+                !gioHang.isNullOrEmpty() -> gioHang
+                else -> emptyList()
+            }
+
             ManHinhThanhToan(
+                danhSachSanPham = danhSachSanPham,
                 navController = navController,
-                danhSachSanPham = gioHang,
-                BamQuayLai = { navController.popBackStack() }
+                BamQuayLai = {
+                    when (nguonThanhToan) {
+                        "giohang" -> navController.navigate("giohang") {
+                            popUpTo("giohang") { inclusive = true }
+                        }
+
+                        "mualai" -> navController.navigate("lichsumuahang") {
+                            popUpTo("lichsumuahang") { inclusive = true }
+                        }
+
+                        else -> navController.popBackStack()
+                    }
+                }
             )
         }
 

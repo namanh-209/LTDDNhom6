@@ -15,6 +15,7 @@ import com.example.bookstore.Model.DoiMatKhau
 import com.example.bookstore.Model.DonHang
 
 import com.example.bookstore.Model.DonHangGui
+
 import com.example.bookstore.Model.DonHangSach
 import com.example.bookstore.Model.KhuyenMai
 import com.example.bookstore.Model.LichSuDonHang
@@ -134,8 +135,6 @@ interface ApiService {
     fun taoDonHang(
         @Body donHang: DonHangGui
     ): Call<PhanHoiApi>
-
-
     // 1. Lấy danh sách đơn hàng
     @GET("api/admin/donhang") // Đã bỏ .php
     suspend fun layDanhSachDonHang(): ApiResponse<List<DonHang>>
@@ -165,6 +164,11 @@ interface ApiService {
     suspend fun capNhatThongTin(
         @Body request: CapNhatThongTinRequest
     ): ApiResponse<User> // Server trả về data user mới cập nhật
+// Trong ApiService.kt
+
+
+
+
 }
 
 

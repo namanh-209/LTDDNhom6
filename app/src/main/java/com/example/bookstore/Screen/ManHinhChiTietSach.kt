@@ -14,7 +14,6 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.ShoppingCart
-import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -35,7 +34,6 @@ import com.example.bookstore.Components.BienDungChung
 import com.example.bookstore.Model.DanhGia
 import com.example.bookstore.Model.Sach
 import com.example.bookstore.Model.SachtrongGioHang
-import com.example.bookstore.Model.User
 import kotlinx.coroutines.launch
 import java.text.NumberFormat
 import java.util.Locale
@@ -179,7 +177,7 @@ fun ManHinhChiTietSach(
                                     MaSach = sach.MaSach,
                                     TenSach = sach.TenSach,
                                     TenTacGia = sach.TenTacGia ?: "Đang cập nhật",
-                                    GiaBan = sach.GiaBan.toInt(),
+                                    GiaBan = sach.GiaBan,
                                     SoLuong = 1,
                                     AnhBia = sach.AnhBia
                                 )

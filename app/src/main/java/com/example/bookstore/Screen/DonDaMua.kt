@@ -231,7 +231,7 @@ fun BookOrderItem(
 
                 if (don.TrangThai == "HoanThanh") {
                     Row(
-                        modifier = Modifier.padding(top = 8.dp),
+                        modifier = Modifier.padding(top = 8.dp).fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         Button(
@@ -242,7 +242,7 @@ fun BookOrderItem(
                                         MaSach = don.MaSach,
                                         TenSach = don.TenSach,
                                         TenTacGia = don.TenTacGia ?: "Đang cập nhật",
-                                        GiaBan = don.GiaBan.toInt(),
+                                        GiaBan = don.GiaBan,
                                         SoLuong = 1,
                                         AnhBia = don.AnhBia
                                     )
@@ -253,16 +253,12 @@ fun BookOrderItem(
                                     ?.set("gioHang", muaNgay)
 
                                 navController.navigate("thanhtoan")
-
-
-
-
                             },
                             colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray),
                             shape = RoundedCornerShape(10.dp),
                             modifier = Modifier.height(36.dp)
                         ) {
-                            Text(text = "Mua lại", color = Color.Black, fontSize = 14.sp) // Màu chữ nên đen để nhìn rõ trên nền sáng
+                            Text(text = "Mua lại", color = Color.Black, fontSize = 11.sp) // Màu chữ nên đen để nhìn rõ trên nền sáng
                         }
 
                         Button(
@@ -272,7 +268,7 @@ fun BookOrderItem(
                             shape = RoundedCornerShape(10.dp),
                             modifier = Modifier.height(36.dp)
                         ) {
-                            Text(text = "Đánh giá", color = Color.White, fontSize = 14.sp)
+                            Text(text = "Đánh giá", color = Color.White, fontSize = 11.sp)
                         }
                     }
                 }

@@ -1,13 +1,14 @@
 package com.example.bookstore.Model
 
+import java.io.Serializable // 1. Thêm dòng này
+
+// 2. Thêm ": Serializable" vào sau tên class
 data class SachtrongGioHang(
+    val MaGioHang: Int,
     val MaSach: Int,
-    val MaGioHang:Int,
     val TenSach: String,
-    val TenTacGia: String,
-    val GiaBan: Int,
     val AnhBia: String,
-    val SoLuong: Int
-)
-
-
+    val GiaBan: Double,
+    val SoLuong: Int,
+    val TenTacGia: String
+) : Serializable
