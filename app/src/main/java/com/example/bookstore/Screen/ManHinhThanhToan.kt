@@ -1,5 +1,7 @@
 package com.example.bookstore.Screen
 
+import PhuongThucThanhToan
+import android.R
 import android.widget.Toast
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -26,6 +28,8 @@ import com.example.bookstore.Model.*
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.text.NumberFormat
+import java.util.Locale
 
 // ================= MODEL UI =================
 data class PhuongThucThanhToanUI(
@@ -33,6 +37,13 @@ data class PhuongThucThanhToanUI(
     val ten: String,
     val icon: androidx.compose.ui.graphics.vector.ImageVector
 )
+
+
+
+fun formatTienVND(value: Int): String {
+    val formatter = NumberFormat.getInstance(Locale("vi", "VN"))
+    return formatter.format(value) + " VNĐ"
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -64,8 +75,7 @@ fun ManHinhThanhToan(
 
     val danhSachVC = listOf(
         PhuongThucVanChuyen("Giao hàng tiết kiệm", 16000),
-        PhuongThucVanChuyen("Giao hàng nhanh", 30000),
-        PhuongThucVanChuyen("Hỏa tốc", 50000)
+        PhuongThucVanChuyen("Giao hàng nhanh", 30000)
     )
     var vanChuyenDangChon by remember { mutableStateOf(danhSachVC.first()) }
     val donToiThieu = khuyenMaiDaChon?.DonToiThieu ?: 0.0
@@ -179,7 +189,7 @@ fun ManHinhThanhToan(
             Modifier
                 .padding(padding)
                 .verticalScroll(rememberScrollState())
-                .background(Color(0xFFF5F5F5))
+                .background(Color.White)
         ) {
             DiaChiNhanHang { diaChiDangChon = it }
             SanPhamDonHang(danhSachSanPham)
@@ -220,11 +230,13 @@ fun DiaChiNhanHang(khiChon: (DiaChi) -> Unit) {
     Card(Modifier
         .fillMaxWidth()
         .padding(8.dp)) {
-        Column(Modifier.padding(12.dp)) {
+        Column(
+            Modifier.padding(12.dp)) {
             Text("Địa chỉ nhận hàng", fontWeight = FontWeight.Bold)
             if (ds.isNotEmpty()) {
                 Text(ds.first().TenNguoiNhan)
                 Text(ds.first().DiaChiChiTiet)
+                Text(ds.first().SDTNguoiNhan)
             }
         }
     }
@@ -243,7 +255,11 @@ fun SanPhamDonHang(ds: List<SachtrongGioHang>) {
                     Spacer(Modifier.width(8.dp))
                     Column {
                         Text(it.TenSach, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                        Text("${it.GiaBan.toInt()} VNĐ x${it.SoLuong}", color = Color.Red)
+                        Text(
+                            "${formatTienVND(it.GiaBan.toInt())} x${it.SoLuong}",
+                            color = Color.Red
+                        )
+
                     }
                 }
             }
@@ -258,7 +274,7 @@ fun MaKhuyenMai(km: KhuyenMai?, onChon: () -> Unit) {
         .padding(8.dp)) {
         Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
             Text(
-                km?.let { "Mã ${it.MaCode} (-${it.GiaTriGiam.toInt()}đ)" }
+                km?.let { "Mã ${it.MaCode} (-${formatTienVND(it.GiaTriGiam.toInt())})" }
                     ?: "Chọn mã khuyến mãi",
                 Modifier.weight(1f)
             )
@@ -289,41 +305,122 @@ fun PTVanChuyen(
     dangChon: PhuongThucVanChuyen,
     onChon: (PhuongThucVanChuyen) -> Unit
 ) {
-    Card(Modifier
-        .fillMaxWidth()
-        .padding(8.dp)) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp),
+        shape = RoundedCornerShape(12.dp)
+    ) {
         Column(Modifier.padding(12.dp)) {
-            Text("Vận chuyển", fontWeight = FontWeight.Bold)
-            ds.forEach {
-                Row(Modifier.clickable { onChon(it) }) {
-                    RadioButton(it == dangChon, onClick = { onChon(it) })
-                    Text("${it.ten} - ${it.phi}đ")
+
+            Text(
+                text = "Vận chuyển",
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+
+            ds.forEach { pt ->
+                val isSelected = pt == dangChon
+                val textColor =
+                    if (isSelected) Color(0xFF0D71A3) else Color.Black
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { onChon(pt) }
+                        .padding(horizontal = 8.dp, vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+
+                    RadioButton(
+                        selected = isSelected,
+                        onClick = { onChon(pt) }
+                    )
+
+                    Icon(
+                        imageVector = Icons.Default.LocalShipping,
+                        contentDescription = null,
+                        tint = textColor,
+                        modifier = Modifier
+                            .size(22.dp)
+                            .padding(end = 8.dp)
+                    )
+
+                    Text(
+                        text = pt.ten,
+                        modifier = Modifier.weight(1f),
+                        fontSize = 15.sp,
+                        color = textColor,
+                        fontWeight = if (isSelected)
+                            FontWeight.SemiBold
+                        else
+                            FontWeight.Normal
+                    )
+
+                    Text(
+                        text = formatTienVND(pt.phi),
+                        fontSize = 14.sp,
+                        color = textColor
+                    )
                 }
             }
         }
     }
 }
 
+
 @Composable
 fun PTThanhToan(dangChon: String, onChon: (String) -> Unit) {
     val ds = listOf(
-        PhuongThucThanhToanUI("TienMat", "COD", Icons.Default.Payments),
-        PhuongThucThanhToanUI("ChuyenKhoan", "Chuyển khoản", Icons.Default.AccountBalance)
+        PhuongThucThanhToan("TienMat", "Thanh toán khi nhận hàng", Icons.Default.Payments),
+        PhuongThucThanhToan("ChuyenKhoan", "Chuyển khoản ngân hàng", Icons.Default.AccountBalance),
+        PhuongThucThanhToan("ViDienTu", "Ví điện tử", Icons.Default.AccountBalanceWallet)
     )
-    Card(Modifier
-        .fillMaxWidth()
-        .padding(8.dp)) {
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp)
+    ) {
         Column(Modifier.padding(12.dp)) {
             Text("Thanh toán", fontWeight = FontWeight.Bold)
+
             ds.forEach {
-                Row(Modifier.clickable { onChon(it.ma) }) {
-                    RadioButton(it.ma == dangChon, onClick = { onChon(it.ma) })
-                    Text(it.ten)
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { onChon(it.ma) }
+                        .padding(vertical = 10.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+
+                    RadioButton(
+                        selected = it.ma == dangChon,
+                        onClick = { onChon(it.ma) }
+                    )
+
+                    Icon(
+                        imageVector = it.icon,
+                        contentDescription = null,
+                        tint = if (it.ma == dangChon)
+                            Color(0xFF0D71A3)
+                        else
+                            Color.LightGray,
+                        modifier = Modifier
+                            .size(28.dp)
+                            .padding(end = 8.dp)
+                    )
+
+                    Text(
+                        text = it.ten,
+                        fontSize = 18.sp
+                    )
                 }
             }
         }
     }
 }
+
 
 @Composable
 fun ChiTietThanhToan(tienHang: Int, ship: Int, giam: Int, tong: Int) {
@@ -345,7 +442,11 @@ fun ChiTietThanhToan(tienHang: Int, ship: Int, giam: Int, tong: Int) {
 fun DongTien(label: String, value: Int, color: Color = Color.Black, bold: Boolean = false) {
     Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween) {
         Text(label)
-        Text("$value đ", color = color, fontWeight = if (bold) FontWeight.Bold else FontWeight.Normal)
+        Text(
+            formatTienVND(value),
+            color = color,
+            fontWeight = if (bold) FontWeight.Bold else FontWeight.Normal
+        )
     }
 }
 
@@ -357,10 +458,26 @@ fun ThanhTongCongDatHang(tongTien: Int, dangXuLy: Boolean, onDatHang: () -> Unit
             .padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
                 Text("Tổng thanh toán")
-                Text("$tongTien đ", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                Text(
+                    formatTienVND(tongTien),
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold
+                )
+
             }
-            Button(onClick = onDatHang, enabled = !dangXuLy) {
-                Text(if (dangXuLy) "Đang xử lý..." else "Đặt hàng")
+            Button(
+                onClick = onDatHang,
+                enabled = !dangXuLy,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFFD32F2F),   // đỏ chính
+                    disabledContainerColor = Color(0xFFEF9A9A) // đỏ nhạt khi disable
+                ),
+                shape = RoundedCornerShape(12.dp)
+                ) {
+                Text(if (dangXuLy)
+                    "Đang xử lý..."
+                else "Đặt hàng",
+                    )
             }
         }
     }

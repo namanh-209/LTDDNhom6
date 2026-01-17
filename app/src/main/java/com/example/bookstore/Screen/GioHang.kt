@@ -22,6 +22,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -209,7 +210,12 @@ fun GioHang(
                                         ?.set("gioHang", danhSachSach)
                                     navController.navigate("thanhtoan")
                                 },
-                                enabled = coTheThanhToan
+                                enabled = coTheThanhToan,
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color(0xFFD32F2F),   // đỏ chính
+                                    disabledContainerColor = Color(0xFFEF9A9A) // đỏ nhạt khi disable
+                                ),
+                                shape = RoundedCornerShape(12.dp)
                             ) {
                                 Text("Thanh toán")
                             }
