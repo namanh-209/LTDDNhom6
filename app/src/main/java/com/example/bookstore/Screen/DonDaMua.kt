@@ -231,8 +231,10 @@ fun BookOrderItem(
 
                 if (don.TrangThai == "HoanThanh") {
                     Row(
-                        modifier = Modifier.padding(top = 8.dp).fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        modifier = Modifier
+                            .padding(top = 8.dp)
+                            .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
                         Button(
                             onClick = {
@@ -254,23 +256,45 @@ fun BookOrderItem(
 
                                 navController.navigate("thanhtoan")
                             },
-                            colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray),
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(42.dp), // 🔥 tăng chiều cao
                             shape = RoundedCornerShape(10.dp),
-                            modifier = Modifier.height(36.dp)
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color.LightGray
+                            ),
+                            contentPadding = PaddingValues(vertical = 6.dp) // 🔥 tránh cắt chữ
                         ) {
-                            Text(text = "Mua lại", color = Color.Black, fontSize = 11.sp) // Màu chữ nên đen để nhìn rõ trên nền sáng
+                            Text(
+                                text = "Mua lại",
+                                color = Color.Black,
+                                fontSize = 14.sp,
+                                maxLines = 1
+                            )
                         }
 
                         Button(
                             onClick = {
-                                navController.navigate("danhgia/${don.MaSach}/${don.MaDonHang}") },
-                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF9800)),
+                                navController.navigate("danhgia/${don.MaSach}/${don.MaDonHang}")
+                            },
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(42.dp),
                             shape = RoundedCornerShape(10.dp),
-                            modifier = Modifier.height(36.dp)
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color(0xFFFF9800)
+                            ),
+                            contentPadding = PaddingValues(vertical = 6.dp)
                         ) {
-                            Text(text = "Đánh giá", color = Color.White, fontSize = 11.sp)
+                            Text(
+                                text = "Đánh giá",
+                                color = Color.White,
+                                fontSize = 14.sp,
+                                maxLines = 1
+                            )
                         }
                     }
+
                 }
 
                 if (don.TrangThai == "DaHuy"){

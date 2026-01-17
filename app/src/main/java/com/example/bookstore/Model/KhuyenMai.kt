@@ -13,7 +13,7 @@ package com.example.bookstore.Model
 
 import java.io.Serializable
 
-data class KhuyenMai(
+data class   KhuyenMai(
     val MaKhuyenMai: Int,
     val MaCode: String,
     val GiaTriGiam: Double,

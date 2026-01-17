@@ -22,8 +22,17 @@ import kotlinx.coroutines.launch
 fun KhuyenMai(navController: NavController) {
 
     val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
+
     var danhSach by remember { mutableStateOf<List<KhuyenMai>>(emptyList()) }
     var dangTai by remember { mutableStateOf(true) }
+
+    // LẤY TỔNG TIỀN ĐÚNG – CÓ RECOMPOSITION
+    val tongTien by navController
+        .previousBackStackEntry!!
+        .savedStateHandle
+        .getStateFlow("tongTien", 0.0)
+        .collectAsState()
 
     // ===== LOAD DANH SÁCH KHUYẾN MÃI =====
     LaunchedEffect(Unit) {
@@ -34,7 +43,7 @@ fun KhuyenMai(navController: NavController) {
                     danhSach = res.data ?: emptyList()
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
+                snackbarHostState.showSnackbar("Lỗi tải khuyến mãi")
             } finally {
                 dangTai = false
             }
@@ -50,37 +59,40 @@ fun KhuyenMai(navController: NavController) {
         onProfileClick = { navController.navigate("trangtaikhoan") }
     ) { paddingValues ->
 
-        if (dangTai) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator()
-            }
-        } else {
-            LazyColumn(
-                modifier = Modifier
-                    .padding(paddingValues)
-                    .padding(12.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                items(danhSach) { km ->
-                    ItemKhuyenMai(
-                        km = km,
-                        onDung = {
-                            // ✅ GỬI VỀ MÀN TRƯỚC (THANH TOÁN)
-                            navController.previousBackStackEntry
-                                ?.savedStateHandle
-                                ?.set("khuyenMaiDaChon", km)
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+        ) {
 
-                            // QUAY LẠI THANH TOÁN
-                            navController.popBackStack()
-                        }
-                    )
+            if (dangTai) {
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+            } else {
+                LazyColumn(
+                    modifier = Modifier.padding(12.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    items(danhSach) { km ->
+                        ItemKhuyenMai(
+                            km = km,
+                            tongTien = tongTien,
+                            snackbarHostState = snackbarHostState,
+                            onDung = {
+                                navController.previousBackStackEntry
+                                    ?.savedStateHandle
+                                    ?.set("khuyenMaiDaChon", km)
+
+                                navController.popBackStack()
+                            }
+                        )
+                    }
                 }
             }
+
+            SnackbarHost(
+                snackbarHostState,
+                modifier = Modifier.align(Alignment.BottomCenter)
+            )
         }
     }
 }
@@ -88,11 +100,21 @@ fun KhuyenMai(navController: NavController) {
 @Composable
 fun ItemKhuyenMai(
     km: KhuyenMai,
+    tongTien: Double,
+    snackbarHostState: SnackbarHostState,
     onDung: () -> Unit
 ) {
+    val scope = rememberCoroutineScope()
+
+    // CHECK ĐIỀU KIỆN ĐÚNG
+    val duDieuKien = tongTien.toInt() >= (km.DonToiThieu ?: 0).toInt()
+    val conLuot = (km.SoLuong ?: 1) > 0
+
     Card(
         shape = RoundedCornerShape(14.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFE3F3FB)),
+        colors = CardDefaults.cardColors(
+            containerColor = if (duDieuKien) Color(0xFFE3F3FB) else Color(0xFFF0F0F0)
+        ),
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -110,7 +132,7 @@ fun ItemKhuyenMai(
             Spacer(Modifier.height(6.dp))
 
             Text(
-                "Đơn tối thiểu: ${formatTienTe(km.DonToiThieu ?: 0.0)}",
+                "Đơn tối thiểu: ${km.DonToiThieu ?: 0}",
                 style = MaterialTheme.typography.bodySmall
             )
 
@@ -124,12 +146,31 @@ fun ItemKhuyenMai(
             Spacer(Modifier.height(10.dp))
 
             Button(
-                onClick = onDung,
+                onClick = {
+                    if (!duDieuKien) {
+                        scope.launch {
+                            snackbarHostState.showSnackbar("Chưa đủ đơn tối thiểu")
+                        }
+                        return@Button
+                    }
+
+                    if (!conLuot) {
+                        scope.launch {
+                            snackbarHostState.showSnackbar("Khuyến mãi đã hết lượt")
+                        }
+                        return@Button
+                    }
+
+                    // CHỈ CHỌN – TRỪ LƯỢT Ở BACKEND SAU KHI ĐẶT HÀNG
+                    onDung()
+                },
+                enabled = duDieuKien && conLuot,
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(10.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFFBFDCEA),
-                    contentColor = Color.Black
+                    contentColor = Color.Black,
+                    disabledContainerColor = Color.LightGray
                 )
             ) {
                 Text("Dùng")

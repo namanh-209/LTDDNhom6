@@ -162,6 +162,12 @@ fun ManHinhThanhToan(
             DiaChiNhanHang { diaChiDangChon = it }
             SanPhamDonHang(danhSachSanPham)
             MaKhuyenMai(khuyenMaiDaChon) {
+
+                // TRUYỀN TỔNG TIỀN HÀNG (CHƯA SHIP, CHƯA GIẢM)
+                navController.currentBackStackEntry
+                    ?.savedStateHandle
+                    ?.set("tongTien", tongTienSanPham.toDouble())
+
                 navController.navigate("khuyenmai")
             }
             KhuVucGhiChuChoShop(ghiChu) { ghiChu = it }
