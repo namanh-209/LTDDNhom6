@@ -68,9 +68,28 @@ fun ManHinhThanhToan(
         PhuongThucVanChuyen("Hỏa tốc", 50000)
     )
     var vanChuyenDangChon by remember { mutableStateOf(danhSachVC.first()) }
+    val donToiThieu = khuyenMaiDaChon?.DonToiThieu ?: 0.0
+    val duDieuKien = tongTienSanPham >= donToiThieu
 
+    // Logic: Nếu đủ điều kiện mới lấy giá trị giảm, ngược lại là 0
+    val tienGiam = if (duDieuKien) {
+        khuyenMaiDaChon?.GiaTriGiam?.toInt() ?: 0
+    } else {
+        0
+    }
+
+    // Hiển thị thông báo nếu chọn mã nhưng không đủ điều kiện
+    LaunchedEffect(khuyenMaiDaChon) {
+        if (khuyenMaiDaChon != null && !duDieuKien) {
+            Toast.makeText(
+                context,
+                "Đơn hàng chưa đủ tối thiểu ${khuyenMaiDaChon!!.DonToiThieu.toString()}đ",
+                Toast.LENGTH_LONG
+            ).show()
+        }
+    }
     val phiVC = vanChuyenDangChon.phi
-    val tienGiam = khuyenMaiDaChon?.GiaTriGiam?.toInt() ?: 0
+//    val tienGiam = khuyenMaiDaChon?.GiaTriGiam?.toInt() ?: 0
     val tongThanhToan =
         (tongTienSanPham + phiVC - tienGiam).coerceAtLeast(0)
 
@@ -115,7 +134,10 @@ fun ManHinhThanhToan(
 
                 val donHang = DonHangGui(
                     MaNguoiDung = user.MaNguoiDung,
+
+                    // Đảm bảo dòng này lấy đúng ID của mã đã chọn (nếu null thì gửi null)
                     MaKhuyenMai = khuyenMaiDaChon?.MaKhuyenMai,
+
                     PhuongThucThanhToan = phuongThucThanhToan,
                     PhiVanChuyen = phiVC,
                     TongTien = tongThanhToan,
@@ -161,13 +183,12 @@ fun ManHinhThanhToan(
         ) {
             DiaChiNhanHang { diaChiDangChon = it }
             SanPhamDonHang(danhSachSanPham)
+            // Trong ManHinhThanhToan.kt
             MaKhuyenMai(khuyenMaiDaChon) {
+                // 1. Lưu tổng tiền hàng vào bộ nhớ tạm để màn hình kia đọc được
+                navController.currentBackStackEntry?.savedStateHandle?.set("tongTienGioHang", tongTienSanPham)
 
-                // TRUYỀN TỔNG TIỀN HÀNG (CHƯA SHIP, CHƯA GIẢM)
-                navController.currentBackStackEntry
-                    ?.savedStateHandle
-                    ?.set("tongTien", tongTienSanPham.toDouble())
-
+                // 2. Chuyển màn hình
                 navController.navigate("khuyenmai")
             }
             KhuVucGhiChuChoShop(ghiChu) { ghiChu = it }
@@ -196,7 +217,9 @@ fun DiaChiNhanHang(khiChon: (DiaChi) -> Unit) {
         }
     }
 
-    Card(Modifier.fillMaxWidth().padding(8.dp)) {
+    Card(Modifier
+        .fillMaxWidth()
+        .padding(8.dp)) {
         Column(Modifier.padding(12.dp)) {
             Text("Địa chỉ nhận hàng", fontWeight = FontWeight.Bold)
             if (ds.isNotEmpty()) {
@@ -209,7 +232,9 @@ fun DiaChiNhanHang(khiChon: (DiaChi) -> Unit) {
 
 @Composable
 fun SanPhamDonHang(ds: List<SachtrongGioHang>) {
-    Card(Modifier.fillMaxWidth().padding(8.dp)) {
+    Card(Modifier
+        .fillMaxWidth()
+        .padding(8.dp)) {
         Column(Modifier.padding(12.dp)) {
             Text("Sản phẩm", fontWeight = FontWeight.Bold)
             ds.forEach {
@@ -228,7 +253,9 @@ fun SanPhamDonHang(ds: List<SachtrongGioHang>) {
 
 @Composable
 fun MaKhuyenMai(km: KhuyenMai?, onChon: () -> Unit) {
-    Card(Modifier.fillMaxWidth().padding(8.dp)) {
+    Card(Modifier
+        .fillMaxWidth()
+        .padding(8.dp)) {
         Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
             Text(
                 km?.let { "Mã ${it.MaCode} (-${it.GiaTriGiam.toInt()}đ)" }
@@ -242,11 +269,15 @@ fun MaKhuyenMai(km: KhuyenMai?, onChon: () -> Unit) {
 
 @Composable
 fun KhuVucGhiChuChoShop(value: String, onChange: (String) -> Unit) {
-    Card(Modifier.fillMaxWidth().padding(8.dp)) {
+    Card(Modifier
+        .fillMaxWidth()
+        .padding(8.dp)) {
         OutlinedTextField(
             value = value,
             onValueChange = onChange,
-            modifier = Modifier.fillMaxWidth().padding(8.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
             placeholder = { Text("Ghi chú cho shop") }
         )
     }
@@ -258,7 +289,9 @@ fun PTVanChuyen(
     dangChon: PhuongThucVanChuyen,
     onChon: (PhuongThucVanChuyen) -> Unit
 ) {
-    Card(Modifier.fillMaxWidth().padding(8.dp)) {
+    Card(Modifier
+        .fillMaxWidth()
+        .padding(8.dp)) {
         Column(Modifier.padding(12.dp)) {
             Text("Vận chuyển", fontWeight = FontWeight.Bold)
             ds.forEach {
@@ -277,7 +310,9 @@ fun PTThanhToan(dangChon: String, onChon: (String) -> Unit) {
         PhuongThucThanhToanUI("TienMat", "COD", Icons.Default.Payments),
         PhuongThucThanhToanUI("ChuyenKhoan", "Chuyển khoản", Icons.Default.AccountBalance)
     )
-    Card(Modifier.fillMaxWidth().padding(8.dp)) {
+    Card(Modifier
+        .fillMaxWidth()
+        .padding(8.dp)) {
         Column(Modifier.padding(12.dp)) {
             Text("Thanh toán", fontWeight = FontWeight.Bold)
             ds.forEach {
@@ -292,7 +327,9 @@ fun PTThanhToan(dangChon: String, onChon: (String) -> Unit) {
 
 @Composable
 fun ChiTietThanhToan(tienHang: Int, ship: Int, giam: Int, tong: Int) {
-    Card(Modifier.fillMaxWidth().padding(8.dp)) {
+    Card(Modifier
+        .fillMaxWidth()
+        .padding(8.dp)) {
         Column(Modifier.padding(12.dp)) {
             Text("Chi tiết", fontWeight = FontWeight.Bold)
             DongTien("Tiền hàng", tienHang)
@@ -315,7 +352,9 @@ fun DongTien(label: String, value: Int, color: Color = Color.Black, bold: Boolea
 @Composable
 fun ThanhTongCongDatHang(tongTien: Int, dangXuLy: Boolean, onDatHang: () -> Unit) {
     Surface(shadowElevation = 8.dp) {
-        Row(Modifier.fillMaxWidth().padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+        Row(Modifier
+            .fillMaxWidth()
+            .padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
                 Text("Tổng thanh toán")
                 Text("$tongTien đ", fontSize = 20.sp, fontWeight = FontWeight.Bold)

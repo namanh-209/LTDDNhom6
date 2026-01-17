@@ -1,7 +1,6 @@
 package com.example.bookstore.Components
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -12,8 +11,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -29,6 +26,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.example.bookstore.R
+import java.text.Normalizer
+import java.util.regex.Pattern
+
+// --- HÀM BỎ DẤU TIẾNG VIỆT (DÙNG CHUNG TOÀN APP) ---
+// Gọi hàm này ở nút Lưu hoặc nút Tìm kiếm, KHÔNG gọi trong onValueChange
+fun unAccent(s: String): String {
+    val temp = Normalizer.normalize(s, Normalizer.Form.NFD)
+    val pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+")
+    return pattern.matcher(temp).replaceAll("").replace('đ', 'd').replace('Đ', 'D')
+}
 
 // --- DATA CLASS CHO BỘ LỌC ---
 data class FilterCriteria(
@@ -76,20 +83,23 @@ fun ThanhTimKiem(
             if (tuKhoa.isEmpty()) {
                 Text("Tìm kiếm sách...", color = Color.Gray, fontSize = 14.sp)
             }
+            // SỬA: onValueChange chỉ truyền dữ liệu, không xử lý logic bỏ dấu tại đây
             BasicTextField(
                 value = tuKhoa,
                 onValueChange = khiGoChu,
                 textStyle = TextStyle(color = Color.Black, fontSize = 15.sp),
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-                keyboardActions = KeyboardActions(onSearch = { focusManager.clearFocus() }),
+                keyboardActions = KeyboardActions(onSearch = {
+                    focusManager.clearFocus()
+                }),
                 modifier = Modifier.fillMaxWidth()
             )
         }
 
         IconButton(onClick = { showFilterDialog = true }) {
             Icon(
-                painter = painterResource(id = R.drawable.icon_loc),
+                painter = painterResource(id = R.drawable.icon_loc), // Đảm bảo icon này tồn tại
                 contentDescription = "Lọc",
                 tint = Color(0xFF6200EE),
                 modifier = Modifier.size(24.dp)
@@ -195,7 +205,6 @@ fun FilterDialog(
                         shape = RoundedCornerShape(12.dp)
                     )
                 }
-
 
                 Spacer(Modifier.height(24.dp))
 

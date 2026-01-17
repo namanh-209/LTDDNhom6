@@ -78,27 +78,7 @@ fun CaiDat(navController: NavController, onBackClick: () -> Unit) {
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            Box(
-                modifier = Modifier.fillMaxWidth(),
-                contentAlignment = Alignment.Center
-            ) {
-                Button(
-                    onClick = {
-                        // viết sự kiện đăng xuất
 
-                    },
-                    modifier = Modifier
-                        .width(170.dp)
-                        .height(40.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.LightGray,
-                        contentColor = Color.Black
-                    ),
-                    shape = RoundedCornerShape(6.dp)
-                ) {
-                    Text("Đăng xuất", fontWeight = FontWeight.Bold)
-                }
-            }
 
         }
     }

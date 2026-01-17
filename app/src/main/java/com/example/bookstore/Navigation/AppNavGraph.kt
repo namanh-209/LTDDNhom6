@@ -129,7 +129,8 @@ fun AppNavGraph() {
 
         // 4. Trang khuyến mãi
         composable("khuyenmai") {
-            KhuyenMai(navController = navController)
+            KhuyenMai(navController = navController,
+                onBackClick = { navController.popBackStack() })
         }
 
         // --- CÁC TRANG CON ---

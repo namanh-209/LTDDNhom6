@@ -159,7 +159,6 @@ interface ApiService {
     suspend fun layChiTietDonHang(@Path("maDonHang") maDonHang: Int): ApiResponse<List<MChiTietDonHangAdmin>>
 
 
-    // Thêm vào interface ApiService
     @POST("api/nguoidung/update")
     suspend fun capNhatThongTin(
         @Body request: CapNhatThongTinRequest
@@ -167,11 +166,18 @@ interface ApiService {
 // Trong ApiService.kt
 
 
-
+    // API Hủy đơn hàng (User tự hủy)
+    @retrofit2.http.PUT("api/donhang/huy/{maDonHang}")
+    suspend fun huyDonHang(
+        @Path("maDonHang") maDonHang: Int
+    ): retrofit2.Response<PhanHoiApi>
 
 
 
 }
+
+
+
 
 
 
