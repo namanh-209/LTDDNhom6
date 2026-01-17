@@ -180,21 +180,18 @@ fun DanhSachSach(
 
     // 2. Tải Sách khi chọn Thể Loại (Giữ nguyên logic cũ)
     LaunchedEffect(selectedTheLoaiId) {
-        scope.launch {
-            loading = true
-            try {
-                dsSachGoc = if (selectedTheLoaiId == 0) {
-                    RetrofitClient.api.layDanhSachSach().data ?: emptyList()
-                } else {
-                    RetrofitClient.api.laySachTheoTheLoai(selectedTheLoaiId).data ?: emptyList()
-                }
-            } catch (e: Exception) {
-                dsSachGoc = emptyList()
-            } finally {
-                loading = false
+        loading = true
+        try {
+            dsSachGoc = if (selectedTheLoaiId == 0) {
+                RetrofitClient.api.layDanhSachSach().data ?: emptyList()
+            } else {
+                RetrofitClient.api.laySachTheoTheLoai(selectedTheLoaiId).data ?: emptyList()
             }
+        } finally {
+            loading = false
         }
     }
+
 
     // 3. Tải danh sách Yêu Thích
     LaunchedEffect(Unit) {
@@ -344,7 +341,7 @@ fun DanhSachSach(
                                         }
                                     }
                                 },
-                                onClick = { onSachClick(sach) }
+                                onClick = {onSachClick(sach)}
                             )
                         }
                     }
