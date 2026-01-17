@@ -165,8 +165,8 @@ fun BookOrderItem(
                 model = don.AnhBia,
                 contentDescription = null,
                 modifier = Modifier
-                    .width(100.dp)
-                    .height(150.dp)
+                    .width(85.dp)
+                    .height(140.dp)
                     .clip(RoundedCornerShape(8.dp))
                     .background(Color.LightGray),
                 contentScale = ContentScale.Crop
@@ -248,8 +248,8 @@ fun BookOrderItem(
                                 }
                             },
                             colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray),
-                            shape = RoundedCornerShape(10.dp),
-                            modifier = Modifier.height(36.dp)
+                            shape = RoundedCornerShape(8.dp),
+                            modifier = Modifier.height(38.dp)
                         ) {
                             Text(text = "Mua lại", color = Color.Black, fontSize = 14.sp)
                         }
@@ -259,10 +259,10 @@ fun BookOrderItem(
                                 navController.navigate("danhgia/${don.MaSach}/${don.MaDonHang}")
                             },
                             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF9800)),
-                            shape = RoundedCornerShape(10.dp),
-                            modifier = Modifier.height(36.dp)
+                            shape = RoundedCornerShape(8.dp),
+                            modifier = Modifier.height(38.dp)
                         ) {
-                            Text(text = "Đánh giá", color = Color.White, fontSize = 14.sp)
+                            Text(text = "Đánh giá", color = Color.White, fontSize = 12.sp)
                         }
                     }
                 }
