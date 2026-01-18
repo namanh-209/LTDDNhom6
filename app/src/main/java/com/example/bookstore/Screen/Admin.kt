@@ -24,9 +24,9 @@ import androidx.navigation.NavController
 import com.example.bookstore.Api.RetrofitClient
 import com.example.bookstore.Model.DonHang
 
-import com.google.gson.Gson // Cần import Gson
-import java.net.URLEncoder // Cần import URLEncoder
-import java.nio.charset.StandardCharsets // Cần import StandardCharsets
+import com.google.gson.Gson
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 import java.text.NumberFormat
 import java.util.Locale
 
@@ -45,12 +45,15 @@ fun mapTrangThai(trangThai: String): String {
 @Composable
 fun QuanLyDonHangAdmin(
     navController: NavController,
-    bamQuayLai: () -> Unit
+    bamQuayLai: () -> Unit // Hàm này sẽ xử lý logout về màn login
 ) {
     var danhSachDonHang by remember { mutableStateOf<List<DonHang>>(emptyList()) }
     var dangTaiDuLieu by remember { mutableStateOf(true) }
 
-    // Biến Tab giữ nguyên
+    // [MỚI] Biến trạng thái hiện Dialog Đăng xuất
+    var hienThiDialogDangXuat by remember { mutableStateOf(false) }
+
+    // Biến Tab
     var tabDangChon by remember { mutableIntStateOf(0) }
     val danhSachTab = listOf(
         "Tất cả",
@@ -63,7 +66,6 @@ fun QuanLyDonHangAdmin(
     val context = LocalContext.current
 
     /* ===================== LOAD DATA ===================== */
-    // Dùng LaunchedEffect để load lại dữ liệu mỗi khi quay lại màn hình này
     LaunchedEffect(Unit) {
         try {
             val res = RetrofitClient.api.layDanhSachDonHang()
@@ -88,7 +90,32 @@ fun QuanLyDonHangAdmin(
         }
     }
 
-    /* ===================== UI ===================== */
+    /* ===================== DIALOG XÁC NHẬN ĐĂNG XUẤT (MỚI) ===================== */
+    if (hienThiDialogDangXuat) {
+        AlertDialog(
+            onDismissRequest = { hienThiDialogDangXuat = false },
+            title = { Text(text = "Đăng xuất", fontWeight = FontWeight.Bold) },
+            text = { Text("Bạn có chắc chắn muốn đăng xuất không?") },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        hienThiDialogDangXuat = false
+                        bamQuayLai() // Gọi hàm logout khi bấm Đồng ý
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFD32F2F)) // Màu đỏ
+                ) {
+                    Text("Đăng xuất")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { hienThiDialogDangXuat = false }) {
+                    Text("Hủy", color = Color.Gray)
+                }
+            }
+        )
+    }
+
+    /* ===================== UI CHÍNH ===================== */
     Scaffold(
         containerColor = Color(0xFFF5F7FA),
         topBar = {
@@ -97,8 +124,9 @@ fun QuanLyDonHangAdmin(
                     Text("Quản Lý Đơn Hàng", fontWeight = FontWeight.Bold, color = Color.White)
                 },
                 navigationIcon = {
-                    IconButton(onClick = bamQuayLai) {
-                        Icon(Icons.Default.Output, contentDescription = null, tint = Color.White)
+                    // [SỬA] Bấm nút này sẽ hiện Dialog chứ không thoát ngay
+                    IconButton(onClick = { hienThiDialogDangXuat = true }) {
+                        Icon(Icons.Default.Output, contentDescription = "Đăng xuất", tint = Color.White)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFF0D71A3))
@@ -111,7 +139,7 @@ fun QuanLyDonHangAdmin(
                 .padding(padding)
         ) {
 
-            /* ===================== TAB (Giữ nguyên) ===================== */
+            /* ===================== TAB ===================== */
             ScrollableTabRow(
                 selectedTabIndex = tabDangChon,
                 containerColor = Color.White,
@@ -157,7 +185,6 @@ fun QuanLyDonHangAdmin(
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         items(danhSachLoc) { donHang ->
-                            // SỬA Ở ĐÂY: Bấm vào thì chuyển trang
                             ItemDonHang(donHang) {
                                 val gson = Gson()
                                 val json = gson.toJson(donHang)
@@ -174,7 +201,7 @@ fun QuanLyDonHangAdmin(
     }
 }
 
-/* ===================== ITEM (Giữ nguyên giao diện) ===================== */
+/* ===================== ITEM ===================== */
 @Composable
 fun ItemDonHang(donHang: DonHang, onClick: () -> Unit) {
     val formatter = NumberFormat.getCurrencyInstance(Locale("vi", "VN"))
@@ -198,7 +225,8 @@ fun ItemDonHang(donHang: DonHang, onClick: () -> Unit) {
             .fillMaxWidth()
             .clickable { onClick() },
         shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(4.dp)
+        elevation = CardDefaults.cardElevation(4.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White) // Thêm màu nền trắng cho Card nổi bật
     ) {
         Column(
             modifier = Modifier.padding(16.dp),
@@ -226,37 +254,40 @@ fun ItemDonHang(donHang: DonHang, onClick: () -> Unit) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(icon, null, tint = mauChu, modifier = Modifier.size(14.dp))
                         Spacer(Modifier.width(4.dp))
-                        Text(trangThaiUI, color = mauChu, fontSize = 12.sp)
+                        Text(trangThaiUI, color = mauChu, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                     }
                 }
             }
 
-            Divider()
+            Divider(color = Color(0xFFEEEEEE))
 
             /* ===== THÔNG TIN NGƯỜI ĐẶT ===== */
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Default.Person, null, modifier = Modifier.size(16.dp))
+                Icon(Icons.Default.Person, null, modifier = Modifier.size(16.dp), tint = Color.Gray)
                 Spacer(Modifier.width(6.dp))
-                Text("Người đặt: ${donHang.tenNguoiMua}")
+                Text("Người đặt: ${donHang.tenNguoiMua}", fontSize = 14.sp)
             }
 
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Default.LocationOn, null, modifier = Modifier.size(16.dp))
+                Icon(Icons.Default.DateRange, null, modifier = Modifier.size(16.dp), tint = Color.Gray)
                 Spacer(Modifier.width(6.dp))
                 Text(
                     text = "Ngày đặt: ${donHang.ngayDat}",
-                    maxLines = 2
+                    fontSize = 14.sp
                 )
             }
 
-            Divider()
+            Divider(color = Color(0xFFEEEEEE))
 
             /* ===== TỔNG TIỀN ===== */
-            Text(
-                text = "Tổng tiền: ${formatter.format(donHang.tongTien)}",
-                color = Color.Red,
-                fontWeight = FontWeight.Bold
-            )
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                Text(
+                    text = "Tổng tiền: ${formatter.format(donHang.tongTien)}",
+                    color = Color(0xFFD32F2F), // Màu đỏ đậm
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 15.sp
+                )
+            }
         }
     }
 }

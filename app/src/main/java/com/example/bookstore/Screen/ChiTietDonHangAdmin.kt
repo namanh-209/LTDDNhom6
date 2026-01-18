@@ -1,10 +1,8 @@
 package com.example.bookstore.Screen
 
 import CapNhatTrangThaiRequest
-
 import MChiTietDonHangAdmin
 import android.widget.Toast
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -15,12 +13,12 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -29,20 +27,29 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.bookstore.Api.RetrofitClient
 import com.example.bookstore.Model.DonHang
-
-
 import kotlinx.coroutines.launch
 import java.text.NumberFormat
 import java.util.Locale
 
-// === HÀM MÀU SẮC TRẠNG THÁI (Chuẩn Material Design) ===
+// === HÀM MÀU SẮC TRẠNG THÁI ===
 fun getStatusColor(status: String): Color {
     return when (status.trim()) {
-        "HoanThanh" -> Color(0xFF4CAF50) // Green
-        "DaHuy", "Huy" -> Color(0xFFE53935) // Red
-        "DangGiao" -> Color(0xFF1976D2) // Blue
-        "MoiDat", "DangXuLy" -> Color(0xFFFF9800) // Orange
+        "HoanThanh" -> Color(0xFF4CAF50)
+        "DaHuy", "Huy" -> Color(0xFFE53935)
+        "DangGiao" -> Color(0xFF1976D2)
+        "MoiDat", "DangXuLy" -> Color(0xFFFF9800)
         else -> Color.Gray
+    }
+}
+
+// === HÀM ICON TRẠNG THÁI ===
+fun getStatusIcon(status: String): ImageVector {
+    return when (status.trim()) {
+        "HoanThanh" -> Icons.Default.CheckCircle
+        "DaHuy", "Huy" -> Icons.Default.Cancel
+        "DangGiao" -> Icons.Default.LocalShipping
+        "MoiDat", "DangXuLy" -> Icons.Default.PendingActions
+        else -> Icons.Default.Info
     }
 }
 
@@ -72,6 +79,7 @@ fun ChiTietDonHangAdmin(
     var danhSachSanPham by remember { mutableStateOf<List<MChiTietDonHangAdmin>>(emptyList()) }
     var dangTai by remember { mutableStateOf(true) }
     var trangThaiHienTai by remember { mutableStateOf(donHang.trangThai) }
+    var showCancelDialog by remember { mutableStateOf(false) }
 
     // Gọi API
     LaunchedEffect(donHang.maDonHang) {
@@ -91,35 +99,52 @@ fun ChiTietDonHangAdmin(
     fun xuLyCapNhatTrangThai(trangThaiMoiBackend: String, thongBao: String) {
         scope.launch {
             try {
-                // 1. Tạo request
-                val request = CapNhatTrangThaiRequest(
-                    maDonHang = donHang.maDonHang,
-                    trangThai = trangThaiMoiBackend
-                )
-                // 2. Gọi API
+                val request = CapNhatTrangThaiRequest(donHang.maDonHang, trangThaiMoiBackend)
                 RetrofitClient.api.capNhatTrangThai(request)
-
-                // 3. Thông báo thành công
                 Toast.makeText(context, thongBao, Toast.LENGTH_SHORT).show()
                 trangThaiHienTai = trangThaiMoiBackend
-
-
             } catch (e: Exception) {
                 Toast.makeText(context, "Lỗi: ${e.message}", Toast.LENGTH_SHORT).show()
             }
         }
     }
+
+    // Dialog Hủy
+    if (showCancelDialog) {
+        AlertDialog(
+            onDismissRequest = { showCancelDialog = false },
+            icon = { Icon(Icons.Default.Warning, contentDescription = null, tint = Color(0xFFE53935)) },
+            title = { Text(text = "Xác nhận hủy đơn", fontWeight = FontWeight.Bold) },
+            text = { Text("Bạn có chắc chắn muốn hủy đơn hàng này không?\nHành động này không thể hoàn tác.") },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        xuLyCapNhatTrangThai("DaHuy", "Đã hủy đơn hàng")
+                        showCancelDialog = false
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE53935))
+                ) {
+                    Icon(Icons.Default.DeleteForever, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(8.dp))
+                    Text("Hủy ngay")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showCancelDialog = false }) { Text("Thoát", color = Color.Gray) }
+            }
+        )
+    }
+
     Scaffold(
-        containerColor = Color(0xFFF5F5F5), // Nền xám nhạt chuẩn App
+        containerColor = Color(0xFFF5F5F5),
         topBar = {
             TopAppBar(
                 title = {
-                    Text(
-                        "Chi tiết đơn hàng",
-                        color = Color.White,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 18.sp
-                    )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Default.ReceiptLong, contentDescription = null, tint = Color.White)
+                        Spacer(Modifier.width(8.dp))
+                        Text("Chi tiết đơn hàng", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                    }
                 },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
@@ -131,134 +156,129 @@ fun ChiTietDonHangAdmin(
             )
         },
         bottomBar = {
-            // === BOTTOM BAR ACTION ===
-            Surface(
-                shadowElevation = 16.dp,
-                color = Color.White,
-                modifier = Modifier.fillMaxWidth()
-            ) {
+            Surface(shadowElevation = 16.dp, color = Color.White, modifier = Modifier.fillMaxWidth()) {
                 Row(
-                    modifier = Modifier
-                        .padding(horizontal = 16.dp, vertical = 12.dp)
-                        .fillMaxWidth()
-                        .navigationBarsPadding(), // Tránh bị che bởi thanh điều hướng điện thoại
+                    modifier = Modifier.padding(16.dp).fillMaxWidth().navigationBarsPadding(),
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     when (trangThaiHienTai.trim()) {
                         "MoiDat", "DangXuLy" -> {
                             Button(
-                                onClick = { xuLyCapNhatTrangThai("DaHuy", "Đã hủy đơn hàng") },
+                                onClick = { showCancelDialog = true },
                                 colors = ButtonDefaults.buttonColors(containerColor = Color.White, contentColor = Color(0xFFE53935)),
                                 border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE53935)),
-                                modifier = Modifier.weight(1f).height(48.dp),
+                                modifier = Modifier.weight(1f).height(50.dp),
                                 shape = RoundedCornerShape(8.dp)
                             ) {
+                                Icon(Icons.Default.Close, contentDescription = null)
+                                Spacer(Modifier.width(8.dp))
                                 Text("Hủy Đơn", fontWeight = FontWeight.Bold)
                             }
                             Button(
                                 onClick = { xuLyCapNhatTrangThai("DangGiao", "Đã xác nhận giao hàng") },
                                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0D71A3)),
-                                modifier = Modifier.weight(1f).height(48.dp),
+                                modifier = Modifier.weight(1f).height(50.dp),
                                 shape = RoundedCornerShape(8.dp)
                             ) {
-                                Text("Xác Nhận", fontWeight = FontWeight.Bold)
+                                Icon(Icons.Default.LocalShipping, contentDescription = null)
+                                Spacer(Modifier.width(8.dp))
+                                Text("Giao Hàng", fontWeight = FontWeight.Bold)
                             }
                         }
                         "DangGiao" -> {
                             Button(
                                 onClick = { xuLyCapNhatTrangThai("HoanThanh", "Đơn hàng hoàn thành") },
                                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)),
-                                modifier = Modifier.fillMaxWidth().height(48.dp),
+                                modifier = Modifier.fillMaxWidth().height(50.dp),
                                 shape = RoundedCornerShape(8.dp)
                             ) {
-                                Text("Xác Nhận Đã Giao Thành Công", fontWeight = FontWeight.Bold)
+                                Icon(Icons.Default.CheckCircle, contentDescription = null)
+                                Spacer(Modifier.width(8.dp))
+                                Text("Xác Nhận Đã Giao", fontWeight = FontWeight.Bold)
                             }
                         }
-                        else -> {
-                            // Không hiện nút gì nếu đã xong/hủy
-                            Spacer(Modifier.height(1.dp))
-                        }
+                        else -> Spacer(Modifier.height(1.dp))
                     }
                 }
             }
         }
     ) { padding ->
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .verticalScroll(scrollState)
-                .padding(12.dp),
+            modifier = Modifier.fillMaxSize().padding(padding).verticalScroll(scrollState).padding(12.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             // === 1. BANNER TRẠNG THÁI ===
             Card(
                 colors = CardDefaults.cardColors(containerColor = getStatusColor(trangThaiHienTai)),
-                shape = RoundedCornerShape(8.dp),
+                shape = RoundedCornerShape(12.dp),
                 elevation = CardDefaults.cardElevation(4.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Row(
-                    modifier = Modifier.padding(16.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        Icons.Default.LocalShipping,
-                        contentDescription = null,
-                        tint = Color.White,
-                        modifier = Modifier.size(28.dp)
-                    )
-                    Spacer(Modifier.width(12.dp))
+                Row(modifier = Modifier.padding(20.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Icon(getStatusIcon(trangThaiHienTai), contentDescription = null, tint = Color.White, modifier = Modifier.size(36.dp))
+                    Spacer(Modifier.width(16.dp))
                     Column {
-                        Text(
-                            text = "Đơn hàng ${getStatusText(trangThaiHienTai)}",
-                            color = Color.White,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 16.sp
-                        )
-                        Text(
-                            text = "Mã đơn: #${donHang.maDonHang} - ${donHang.ngayDat}",
-                            color = Color.White.copy(alpha = 0.9f),
-                            fontSize = 13.sp
-                        )
+                        Text(getStatusText(trangThaiHienTai), color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                        Spacer(Modifier.height(4.dp))
+                        Text("Mã đơn: #${donHang.maDonHang} • ${donHang.ngayDat}", color = Color.White.copy(alpha = 0.9f), fontSize = 14.sp)
                     }
                 }
             }
 
-            // === 2. ĐỊA CHỈ NHẬN HÀNG ===
-            AdminSectionCard(title = "Địa chỉ nhận hàng", icon = Icons.Default.LocationOn) {
-                Text(
-                    text = donHang.tenNguoiMua,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 15.sp,
-                    color = Color.Black
-                )
-                Spacer(Modifier.height(4.dp))
-                val diaChiHienThi = if (donHang.diaChiGiaoHang.isNullOrBlank()) {
-                    "Khách hàng chưa cập nhật địa chỉ cụ thể"
-                } else {
-                    donHang.diaChiGiaoHang
+            // === 2. THÔNG TIN NHẬN HÀNG (SỬA Ở ĐÂY) ===
+            AdminSectionCard(title = "Thông tin nhận hàng", icon = Icons.Default.LocationOn) {
+
+                // Tên người nhận
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Default.Person, null, tint = Color.Gray, modifier = Modifier.size(16.dp))
+                    Spacer(Modifier.width(8.dp))
+                    Text(donHang.tenNguoiMua, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.Black)
                 }
-                Text(
-                    text = diaChiHienThi,
-                    color = if (donHang.diaChiGiaoHang.isNullOrBlank()) Color.Red else Color.DarkGray, // Tô đỏ nếu thiếu địa chỉ
-                    fontSize = 14.sp,
-                    lineHeight = 20.sp
-                )
+
+                Spacer(Modifier.height(8.dp))
+
+                // [MỚI] Số điện thoại
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Default.Phone, null, tint = Color.Gray, modifier = Modifier.size(16.dp))
+                    Spacer(Modifier.width(8.dp))
+                    // Lưu ý: Đảm bảo Model DonHang có trường soDienThoai
+                    // Nếu Model bạn tên khác (vd: sdt), hãy sửa lại ở đây
+                    val sdt = if (donHang.SDT.isNullOrBlank()) "Không có SĐT" else donHang.SDT
+                    Text(sdt, fontSize = 15.sp, color = Color.Black)
+                }
+
+                Spacer(Modifier.height(8.dp))
+
+                // Địa chỉ
+                Row(verticalAlignment = Alignment.Top) {
+                    Icon(Icons.Default.Home, null, tint = Color.Gray, modifier = Modifier.size(16.dp))
+                    Spacer(Modifier.width(8.dp))
+                    val diaChi = if (donHang.diaChiGiaoHang.isNullOrBlank()) "Chưa cập nhật địa chỉ" else donHang.diaChiGiaoHang
+                    Text(diaChi, color = if (donHang.diaChiGiaoHang.isNullOrBlank()) Color.Red else Color.DarkGray, fontSize = 15.sp, lineHeight = 22.sp)
+                }
             }
 
-            // === 3. DANH SÁCH SẢN PHẨM ===
+            // === 3. GHI CHÚ ===
+            AdminSectionCard(title = "Ghi chú của khách", icon = Icons.Default.EditNote) {
+                if (donHang.GhiChu.isNullOrBlank()) {
+                    Text("Không có ghi chú", color = Color.Gray, fontSize = 14.sp, fontStyle = FontStyle.Italic)
+                } else {
+                    Text(donHang.GhiChu, color = Color.Black, fontSize = 15.sp, lineHeight = 22.sp)
+                }
+            }
+
+            // === 4. DANH SÁCH SẢN PHẨM ===
             Card(
                 colors = CardDefaults.cardColors(containerColor = Color.White),
-                shape = RoundedCornerShape(8.dp),
+                shape = RoundedCornerShape(12.dp),
                 elevation = CardDefaults.cardElevation(2.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Column(Modifier.padding(12.dp)) {
+                Column(Modifier.padding(16.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Default.ShoppingBag, null, tint = Color(0xFF0D71A3), modifier = Modifier.size(20.dp))
+                        Icon(Icons.Default.ShoppingBag, null, tint = Color(0xFF0D71A3), modifier = Modifier.size(24.dp))
                         Spacer(Modifier.width(8.dp))
-                        Text("Sản phẩm", fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                        Text("Sản phẩm", fontWeight = FontWeight.Bold, fontSize = 16.sp)
                     }
                     Divider(Modifier.padding(vertical = 12.dp), color = Color(0xFFEEEEEE))
 
@@ -268,129 +288,73 @@ fun ChiTietDonHangAdmin(
                         }
                     } else {
                         danhSachSanPham.forEachIndexed { index, sp ->
-                            Row(
-                                modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp),
-                                verticalAlignment = Alignment.Top
-                            ) {
-                                // Ảnh sản phẩm
+                            Row(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp), verticalAlignment = Alignment.Top) {
                                 Card(
                                     shape = RoundedCornerShape(6.dp),
-                                    border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFEEEEEE))
+                                    elevation = CardDefaults.cardElevation(4.dp),
+                                    modifier = Modifier.width(85.dp).height(120.dp)
                                 ) {
                                     AsyncImage(
-                                        model = sp.anhBia,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(70.dp),
-                                        contentScale = ContentScale.Crop
+                                        model = sp.anhBia, contentDescription = null,
+                                        modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Crop
                                     )
                                 }
-                                Spacer(Modifier.width(12.dp))
-                                // Thông tin
-                                Column(Modifier.weight(1f)) {
-                                    Text(
-                                        text = sp.tenSach,
-                                        maxLines = 2,
-                                        overflow = TextOverflow.Ellipsis,
-                                        fontSize = 14.sp,
-                                        fontWeight = FontWeight.Medium
-                                    )
-                                    Spacer(Modifier.height(4.dp))
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.SpaceBetween
-                                    ) {
-                                        Text(text = "x${sp.soLuong}", color = Color.Gray, fontSize = 13.sp)
-                                        Text(
-                                            text = formatter.format(sp.donGia),
-                                            fontWeight = FontWeight.Bold,
-                                            fontSize = 14.sp,
-                                            color = Color.Black
-                                        )
+                                Spacer(Modifier.width(16.dp))
+                                Column(Modifier.weight(1f).height(120.dp), verticalArrangement = Arrangement.SpaceBetween) {
+                                    Text(sp.tenSach, maxLines = 3, overflow = TextOverflow.Ellipsis, fontSize = 15.sp, fontWeight = FontWeight.Medium, lineHeight = 20.sp)
+                                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                                        Text("x${sp.soLuong}", color = Color.Gray, fontSize = 14.sp)
+                                        Text(formatter.format(sp.donGia), fontWeight = FontWeight.Bold, fontSize = 15.sp, color = Color(0xFFD32F2F))
                                     }
                                 }
                             }
-                            if (index < danhSachSanPham.size - 1) {
-                                Divider(color = Color(0xFFF5F5F5), thickness = 1.dp)
-                            }
+                            if (index < danhSachSanPham.size - 1) Divider(color = Color(0xFFF5F5F5), thickness = 1.dp)
                         }
                     }
                 }
             }
 
-            // === 4. THANH TOÁN ===
-// === 4. THANH TOÁN (ĐÃ SỬA LOGIC) ===
-            AdminSectionCard(title = "Chi tiết thanh toán", icon = Icons.Default.ReceiptLong) {
-
-                // 1. TÍNH TỔNG TIỀN HÀNG GỐC (Sum từ danh sách sản phẩm)
-                // Lưu ý: Phải đợi danh sách sản phẩm load xong mới tính đúng
-                val tongTienHangGoc = if (danhSachSanPham.isNotEmpty()) {
-                    danhSachSanPham.sumOf { it.donGia * it.soLuong }
-                } else {
-                    0.0 // Hoặc hiển thị loading
-                }
-
-                // 2. LẤY PHÍ SHIP TỪ MODEL (Nếu null thì coi là 0)
+            // === 5. THANH TOÁN ===
+            AdminSectionCard(title = "Thanh toán", icon = Icons.Default.Payments) {
+                val tongTienHangGoc = if (danhSachSanPham.isNotEmpty()) danhSachSanPham.sumOf { it.donGia * it.soLuong } else 0.0
                 val phiShip = donHang.phiVanChuyen ?: 0.0
-
-                // 3. TÍNH NGƯỢC RA VOUCHER
-                // Công thức: Voucher = (Tiền Hàng + Ship) - Tiền Khách Trả
-                // Ví dụ: (95k hàng + 16k ship) - 61k khách trả = 50k Voucher
                 val tienGiamGia = (tongTienHangGoc + phiShip - donHang.tongTien).coerceAtLeast(0.0)
 
-                // --- HIỂN THỊ UI ---
                 RowInfoLine("Tổng tiền hàng", formatter.format(tongTienHangGoc))
                 RowInfoLine("Phí vận chuyển", formatter.format(phiShip))
-
-                // Dòng Voucher (Màu đỏ)
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text("Giảm giá voucher", color = Color.Gray, fontSize = 14.sp)
+                Row(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp), horizontalArrangement = Arrangement.SpaceBetween) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Default.LocalOffer, null, tint = Color.Red, modifier = Modifier.size(14.dp))
+                        Spacer(Modifier.width(4.dp))
+                        Text("Voucher giảm giá", color = Color.Gray, fontSize = 14.sp)
+                    }
                     Text("-${formatter.format(tienGiamGia)}", color = Color.Red, fontSize = 14.sp)
                 }
-
                 Divider(Modifier.padding(vertical = 12.dp), color = Color(0xFFEEEEEE))
-
-                // Dòng Tổng tiền
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                     Text("Thành tiền", fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                    Text(
-                        text = formatter.format(donHang.tongTien),
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 18.sp,
-                        color = Color(0xFF0D71A3)
-                    )
+                    Text(formatter.format(donHang.tongTien), fontWeight = FontWeight.Bold, fontSize = 20.sp, color = Color(0xFF0D71A3))
                 }
             }
-
-            Spacer(Modifier.height(20.dp)) // Khoảng trống cuối cùng
+            Spacer(Modifier.height(20.dp))
         }
     }
 }
 
-// === COMPONENT CON ===
+// === HELPER COMPONENTS ===
 @Composable
-fun AdminSectionCard(
-    title: String,
-    icon: ImageVector,
-    content: @Composable ColumnScope.() -> Unit
-) {
+fun AdminSectionCard(title: String, icon: ImageVector, content: @Composable ColumnScope.() -> Unit) {
     Card(
         colors = CardDefaults.cardColors(containerColor = Color.White),
-        shape = RoundedCornerShape(8.dp),
+        shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.cardElevation(2.dp),
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(icon, contentDescription = null, tint = Color(0xFF0D71A3), modifier = Modifier.size(20.dp))
+                Icon(icon, contentDescription = null, tint = Color(0xFF0D71A3), modifier = Modifier.size(24.dp))
                 Spacer(Modifier.width(8.dp))
-                Text(title, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = Color.Black)
+                Text(title, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.Black)
             }
             Divider(Modifier.padding(vertical = 12.dp), color = Color(0xFFEEEEEE))
             content()
@@ -400,12 +364,7 @@ fun AdminSectionCard(
 
 @Composable
 fun RowInfoLine(label: String, value: String) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp),
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
+    Row(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp), horizontalArrangement = Arrangement.SpaceBetween) {
         Text(label, color = Color.Gray, fontSize = 14.sp)
         Text(value, color = Color.Black, fontSize = 14.sp)
     }

@@ -26,12 +26,14 @@ import com.example.bookstore.Model.SachtrongGioHang
 import com.example.bookstore.Model.TheLoai
 import com.example.bookstore.Model.User
 import retrofit2.Call
+import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -172,7 +174,8 @@ interface ApiService {
         @Path("maDonHang") maDonHang: Int
     ): retrofit2.Response<PhanHoiApi>
 
-
+//    @PUT("api/donhang/huy/{maDonHang}")
+//    suspend fun huyDonHang(@Path("maDonHang") maDonHang: Int): Response<PhanHoiApi>
 
 }
 

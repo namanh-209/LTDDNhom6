@@ -217,6 +217,7 @@ fun DiaChiNhanHang(khiChon: (DiaChi) -> Unit) {
     val user = BienDungChung.userHienTai
     var ds by remember { mutableStateOf<List<DiaChi>>(emptyList()) }
 
+    // Logic lấy dữ liệu giữ nguyên
     LaunchedEffect(Unit) {
         user?.let {
             val res = RetrofitClient.api.layDanhSachDiaChi(it.MaNguoiDung)
@@ -227,16 +228,89 @@ fun DiaChiNhanHang(khiChon: (DiaChi) -> Unit) {
         }
     }
 
-    Card(Modifier
-        .fillMaxWidth()
-        .padding(8.dp)) {
-        Column(
-            Modifier.padding(12.dp)) {
-            Text("Địa chỉ nhận hàng", fontWeight = FontWeight.Bold)
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp),
+        shape = RoundedCornerShape(8.dp), // Bo góc nhẹ
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(2.dp)
+    ) {
+        Column(Modifier.padding(16.dp)) {
+            // Tiêu đề
+            Text(
+                text = "Thông tin nhận hàng",
+                fontWeight = FontWeight.Bold,
+                fontSize = 16.sp,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+
+            Divider(color = Color(0xFFEEEEEE), thickness = 1.dp)
+            Spacer(modifier = Modifier.height(12.dp))
+
             if (ds.isNotEmpty()) {
-                Text(ds.first().TenNguoiNhan)
-                Text(ds.first().DiaChiChiTiet)
-                Text(ds.first().SDTNguoiNhan)
+                val diaChi = ds.first()
+
+                // 1. Dòng Tên (Icon Người)
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Person,
+                        contentDescription = null,
+                        tint = Color(0xFF0D71A3), // Màu xanh chủ đạo
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Text(
+                        text = diaChi.TenNguoiNhan,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 15.sp
+                    )
+                }
+
+                // 2. Dòng Số điện thoại (Icon Điện thoại)
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Phone,
+                        contentDescription = null,
+                        tint = Color(0xFF0D71A3),
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Text(
+                        text = diaChi.SDTNguoiNhan,
+                        fontSize = 15.sp,
+                        color = Color.Black
+                    )
+                }
+
+                // 3. Dòng Địa chỉ (Icon Vị trí)
+                Row(verticalAlignment = Alignment.Top) {
+                    Icon(
+                        imageVector = Icons.Default.LocationOn,
+                        contentDescription = null,
+                        tint = Color(0xFF0D71A3),
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Text(
+                        text = diaChi.DiaChiChiTiet,
+                        fontSize = 14.sp,
+                        color = Color.DarkGray,
+                        lineHeight = 20.sp // Giãn dòng cho dễ đọc nếu địa chỉ dài
+                    )
+                }
+            } else {
+                Text(
+                    "Chưa có địa chỉ. Vui lòng thêm địa chỉ mới!",
+                    color = Color.Red,
+                    fontSize = 14.sp
+                )
             }
         }
     }
@@ -424,28 +498,90 @@ fun PTThanhToan(dangChon: String, onChon: (String) -> Unit) {
 
 @Composable
 fun ChiTietThanhToan(tienHang: Int, ship: Int, giam: Int, tong: Int) {
-    Card(Modifier
-        .fillMaxWidth()
-        .padding(8.dp)) {
-        Column(Modifier.padding(12.dp)) {
-            Text("Chi tiết", fontWeight = FontWeight.Bold)
-            DongTien("Tiền hàng", tienHang)
-            DongTien("Phí ship", ship)
-            if (giam > 0) DongTien("Giảm giá", -giam, Color.Red)
-            Divider()
-            DongTien("Tổng", tong, Color(0xFF0D71A3), true)
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(2.dp)
+    ) {
+        Column(Modifier.padding(16.dp)) {
+            // Tiêu đề có icon
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = Icons.Default.ReceiptLong, // Icon hóa đơn
+                    contentDescription = null,
+                    tint = Color(0xFF0D71A3),
+                    modifier = Modifier.size(20.dp)
+                )
+                Spacer(Modifier.width(8.dp))
+                Text(
+                    "Chi tiết thanh toán",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 16.sp
+                )
+            }
+
+            Divider(
+                modifier = Modifier.padding(vertical = 12.dp),
+                color = Color(0xFFEEEEEE)
+            )
+
+            // Các dòng chi tiết (Dãn cách bằng padding trong hàm DongTien)
+            DongTien("Tổng tiền hàng", tienHang)
+            DongTien("Phí vận chuyển", ship)
+
+            if (giam > 0) {
+                DongTien("Voucher giảm giá", -giam, Color.Red)
+            }
+
+            // Đường kẻ đậm hơn chút trước khi chốt Tổng
+            Divider(
+                modifier = Modifier.padding(vertical = 12.dp),
+                color = Color.LightGray
+            )
+
+            // Dòng Tổng tiền (To và Nổi bật hẳn)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    "Tổng thanh toán",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 16.sp
+                )
+                Text(
+                    formatTienVND(tong),
+                    color = Color(0xFF0D71A3), // Màu xanh chủ đạo
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 20.sp // Cỡ chữ to
+                )
+            }
         }
     }
 }
 
 @Composable
-fun DongTien(label: String, value: Int, color: Color = Color.Black, bold: Boolean = false) {
-    Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween) {
-        Text(label)
+fun DongTien(label: String, value: Int, color: Color = Color.Black) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 6.dp), // Tăng khoảng cách giữa các dòng lên 6dp
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(
+            label,
+            color = Color.Gray, // Chữ tiêu đề màu xám cho dịu mắt
+            fontSize = 15.sp
+        )
         Text(
             formatTienVND(value),
             color = color,
-            fontWeight = if (bold) FontWeight.Bold else FontWeight.Normal
+            fontWeight = FontWeight.Medium, // Đậm vừa phải
+            fontSize = 15.sp
         )
     }
 }

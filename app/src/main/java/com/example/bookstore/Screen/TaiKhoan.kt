@@ -38,18 +38,14 @@ fun TaiKhoan(
     val nguoiDung = BienDungChung.userHienTai
     var diaChiHienThi by remember { mutableStateOf<DiaChi?>(null) }
 
+    // [MỚI] Biến trạng thái để hiện Dialog xác nhận
+    var showLogoutDialog by remember { mutableStateOf(false) }
+
     LaunchedEffect(Unit) {
         try {
             val userId = nguoiDung?.MaNguoiDung ?: return@LaunchedEffect
-
-            // 1. Gọi API lấy danh sách (thay vì layDiaChi cũ)
-            // Lưu ý: Đảm bảo trong ApiService bạn có hàm layDanhSachDiaChi trả về List<DiaChi>
-            // Nếu ApiService chỉ có layDiaChi, hãy đổi kiểu trả về của nó thành ApiResponse<List<DiaChi>>
             val response = RetrofitClient.api.layDanhSachDiaChi(userId)
-
-            // 2. Xử lý dữ liệu danh sách trả về
             if (response.status == "success" && !response.data.isNullOrEmpty()) {
-                // Lấy địa chỉ đầu tiên trong danh sách để hiển thị
                 diaChiHienThi = response.data.first()
             } else {
                 diaChiHienThi = null
@@ -59,6 +55,37 @@ fun TaiKhoan(
             diaChiHienThi = null
         }
     }
+
+    // [MỚI] Hộp thoại xác nhận Đăng xuất
+    if (showLogoutDialog) {
+        AlertDialog(
+            onDismissRequest = { showLogoutDialog = false },
+            title = { Text(text = "Đăng xuất", fontWeight = FontWeight.Bold) },
+            text = { Text("Bạn có chắc chắn muốn đăng xuất không?") },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        // Thực hiện đăng xuất
+                        BienDungChung.userHienTai = null
+                        navController.navigate("login") {
+                            popUpTo(0) { inclusive = true }
+                        }
+                        showLogoutDialog = false
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFD32F2F)) // Màu đỏ
+                ) {
+                    Text("Đồng ý")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showLogoutDialog = false }) {
+                    Text("Hủy", color = Color.Gray)
+                }
+            },
+            containerColor = Color.White
+        )
+    }
+
     KhungGiaoDien(
         tieuDe = "Tài khoản",
         onBackClick = null,
@@ -97,10 +124,8 @@ fun TaiKhoan(
                 Spacer(Modifier.height(24.dp))
                 Button(
                     onClick = {
-                        BienDungChung.userHienTai = null
-                        navController.navigate("login") {
-                            popUpTo(0) { inclusive = true }
-                        }
+                        // [SỬA] Thay vì đăng xuất ngay, chỉ bật Dialog lên
+                        showLogoutDialog = true
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = Color.White),
                     modifier = Modifier.fillMaxWidth()
@@ -237,8 +262,8 @@ fun ThongTinCaNhan(nguoiDung: User?) {
                     InfoLine("Số điện thoại:", nguoiDung?.SoDienThoai)
                     InfoLine("Email:", nguoiDung?.Email ?: "---")
                     InfoLine(
-                         "Ngày sinh:",
-                         dinhDangNgay(nguoiDung?.NgaySinh) // Gọi hàm vừa viết
+                        "Ngày sinh:",
+                        dinhDangNgay(nguoiDung?.NgaySinh)
                     )
                     val gioiTinhText = when (nguoiDung?.GioiTinh) {
                         "Nam" -> "Nam"
@@ -251,26 +276,22 @@ fun ThongTinCaNhan(nguoiDung: User?) {
         }
     }
 }
-// Hàm chuyển đổi thông minh: Chấp nhận cả "2000-01-01" và "2000-01-01T00:00:00.000Z"
+
 fun dinhDangNgay(ngay: String?): String {
-    if (ngay.isNullOrBlank() || ngay == "0000-00-00") return "---" //
+    if (ngay.isNullOrBlank() || ngay == "0000-00-00") return "---"
 
     try {
-        // 1. Nếu chuỗi có chữ 'T' (dạng ISO), cắt lấy phần trước chữ 'T' thôi
         val ngaySach = if (ngay.contains("T")) ngay.split("T")[0] else ngay
-
-        // 2. Tách theo dấu gạch ngang "-"
         val parts = ngaySach.split("-")
-
-        // 3. Nếu đủ 3 phần (Năm-Tháng-Ngày) thì đảo ngược lại
         if (parts.size == 3) {
             return "${parts[2]}/${parts[1]}/${parts[0]}"
         }
     } catch (e: Exception) {
-        return ngay // Lỗi thì trả về nguyên gốc
+        return ngay
     }
     return ngay
 }
+
 @Composable
 fun InfoLine(label: String, value: String?) {
     Row(modifier = Modifier.padding(vertical = 4.dp)) {
@@ -306,11 +327,9 @@ fun ThongTinNhanHang(diaChi: DiaChi?) {
                         .padding(12.dp)
                 ) {
                     Column {
-                        Text(diaChi.TenNguoiNhan, fontWeight = FontWeight.Bold)
-                        Spacer(Modifier.height(4.dp))
-                        Text(diaChi.SDTNguoiNhan, color = Color.Gray, fontSize = 14.sp)
-                        Spacer(Modifier.height(4.dp))
-                        Text(diaChi.DiaChiChiTiet, fontSize = 15.sp)
+                        InfoLine("Họ và tên:", diaChi.TenNguoiNhan)
+                        InfoLine("Số điện thoại:", diaChi.SDTNguoiNhan)
+                        InfoLine("Địa chỉ:", diaChi.DiaChiChiTiet)
                     }
                 }
             } else {

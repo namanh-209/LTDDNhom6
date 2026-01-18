@@ -36,7 +36,7 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.bookstore.Api.RetrofitClient
 import com.example.bookstore.Components.BienDungChung
-import com.example.bookstore.Components.unAccent // Import hàm unAccent
+import com.example.bookstore.Components.unAccent
 import com.example.bookstore.KhungGiaoDien
 import kotlinx.coroutines.launch
 import java.util.Calendar
@@ -128,7 +128,6 @@ fun ChinhSuaThongTin(
 
                     CustomTextField(value = soDienThoai, onValueChange = { soDienThoai = it }, label = "Số điện thoại đăng nhập", icon = Icons.Default.Phone, isNumber = true)
 
-                    // CHO PHÉP NHẬP DẤU BÌNH THƯỜNG (Sẽ bỏ dấu khi bấm Lưu)
                     CustomTextField(value = email, onValueChange = { email = it }, label = "Email", icon = Icons.Default.Email)
 
                     DatePickerField(
@@ -171,17 +170,44 @@ fun ChinhSuaThongTin(
             Button(
                 onClick = {
                     if (user == null) return@Button
+
+                    // 1. Validate Thông tin tài khoản
+                    if (hoTen.isBlank()) {
+                        Toast.makeText(context, "Họ tên không được để trống!", Toast.LENGTH_SHORT).show()
+                        return@Button
+                    }
+                    if (soDienThoai.isBlank()) {
+                        Toast.makeText(context, "Số điện thoại không được để trống!", Toast.LENGTH_SHORT).show()
+                        return@Button
+                    }
+                    if (soDienThoai.length != 10 || !soDienThoai.all { it.isDigit() }) {
+                        Toast.makeText(context, "Số điện thoại đăng nhập phải đủ 10 số!", Toast.LENGTH_SHORT).show()
+                        return@Button
+                    }
+                    if (email.isNotBlank() && !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                        Toast.makeText(context, "Email không đúng định dạng!", Toast.LENGTH_SHORT).show()
+                        return@Button
+                    }
+
+                    // 2. Validate Thông tin nhận hàng (Nếu có nhập)
+                    if (sdtNguoiNhan.isNotBlank()) {
+                        if (sdtNguoiNhan.length != 10 || !sdtNguoiNhan.all { it.isDigit() }) {
+                            Toast.makeText(context, "SĐT người nhận phải đủ 10 số!", Toast.LENGTH_SHORT).show()
+                            return@Button
+                        }
+                    }
+
+                    // --- NẾU HỢP LỆ THÌ MỚI GỌI API ---
                     scope.launch {
                         dangXuLy = true
                         try {
-                            // 🔥 QUAN TRỌNG: BỎ DẤU EMAIL TẠI ĐÂY (TRƯỚC KHI GỬI ĐI)
                             val emailClean = unAccent(email)
 
                             val request = CapNhatThongTinRequest(
                                 maNguoiDung = user.MaNguoiDung,
                                 hoTen = hoTen,
                                 soDienThoai = soDienThoai,
-                                email = emailClean, // Gửi email đã xử lý
+                                email = emailClean,
                                 gioiTinh = gioiTinh,
                                 ngaySinh = ngaySinh,
                                 tenNguoiNhan = tenNguoiNhan,
@@ -196,7 +222,7 @@ fun ChinhSuaThongTin(
                                 BienDungChung.userHienTai = user.copy(
                                     HoTen = hoTen,
                                     SoDienThoai = soDienThoai,
-                                    Email = emailClean, // Cập nhật lại email không dấu vào app
+                                    Email = emailClean,
                                     GioiTinh = gioiTinh,
                                     NgaySinh = ngaySinh,
                                     TenNguoiNhan = tenNguoiNhan,
@@ -227,7 +253,7 @@ fun ChinhSuaThongTin(
     }
 }
 
-// === COMPONENT CHỌN NGÀY ===
+// === CÁC COMPONENT CON (GIỮ NGUYÊN) ===
 @Composable
 fun DatePickerField(value: String, onDateSelected: (String) -> Unit, label: String) {
     val context = LocalContext.current
@@ -258,7 +284,6 @@ fun DatePickerField(value: String, onDateSelected: (String) -> Unit, label: Stri
     )
 }
 
-// === COMPONENT Ô NHẬP LIỆU (ĐÃ FIX LỖI GÕ) ===
 @Composable
 fun CustomTextField(
     value: String,
@@ -269,7 +294,7 @@ fun CustomTextField(
 ) {
     OutlinedTextField(
         value = value,
-        onValueChange = onValueChange, // Không can thiệp sửa đổi text tại đây
+        onValueChange = onValueChange,
         label = { Text(label) },
         leadingIcon = { Icon(icon, contentDescription = null, tint = Color(0xFF0D71A3)) },
         modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp),

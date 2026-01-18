@@ -6,9 +6,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.bookstore.Model.DonHang
 import com.example.bookstore.Screen.LoginScreen
 import com.example.bookstore.Screen.RegisterScreen
@@ -24,9 +26,10 @@ import com.example.bookstore.Screen.ManHinhThayDoiMatKhau
 import com.example.bookstore.Screen.TaiKhoan
 import com.example.bookstore.ui.screen.DanhSachSach
 
-// === THÊM CÁC IMPORT NÀY ===
+// Import các màn hình quản lý đơn hàng
 import com.example.bookstore.Screen.QuanLyDonHangAdmin
-import com.example.bookstore.Screen.ChiTietDonHangAdmin // Màn hình chi tiết
+import com.example.bookstore.Screen.ChiTietDonHangAdmin
+import com.example.bookstore.Screen.ChiTietDonHangDat
 import com.example.bookstore.Screen.ManHinhLichSuMuaHang
 import com.example.bookstore.Screen.ManHinhThanhToan
 import com.google.gson.Gson
@@ -40,19 +43,17 @@ fun AppNavGraph() {
 
     NavHost(navController = navController, startDestination = "login") {
 
+        // --- ĐĂNG NHẬP & ĐĂNG KÝ ---
         composable("login") {
             LoginScreen(
                 onRegisterClick = { navController.navigate("register") },
                 onLoginSuccess = { user ->
                     val vaiTro = user.VaiTro?.trim() ?: ""
-
                     if (vaiTro.equals("admin", ignoreCase = true) || vaiTro.equals("quanly", ignoreCase = true)) {
-                        // Điều hướng sang Admin
                         navController.navigate("admin_quanlydonhang") {
                             popUpTo("login") { inclusive = true }
                         }
                     } else {
-                        // Điều hướng sang Khách hàng
                         navController.navigate("home") {
                             popUpTo("login") { inclusive = true }
                         }
@@ -64,9 +65,7 @@ fun AppNavGraph() {
             RegisterScreen(onLoginClick = { navController.popBackStack() })
         }
 
-        // --- CÁC TRANG CHÍNH (TRANG LỚN - KHÔNG CÓ BACK) ---
-
-        // 1. Trang chủ
+        // --- TRANG CHỦ & CÁC TRANG CHÍNH ---
         composable("home") {
             ManHinhTrangChu(
                 navController = navController,
@@ -77,41 +76,6 @@ fun AppNavGraph() {
             )
         }
 
-        // === KHU VỰC ADMIN (SỬA Ở ĐÂY) ===
-
-        // 1. Màn hình Danh sách đơn hàng
-        composable("admin_quanlydonhang") {
-            QuanLyDonHangAdmin(
-                navController = navController,
-                bamQuayLai = {
-                    navController.navigate("login") {
-                        popUpTo("admin_quanlydonhang") { inclusive = true }
-                    }
-                }
-            )
-        }
-
-        // 2. Màn hình Chi tiết đơn hàng (THÊM MỚI)
-        composable("admin_order_detail/{donHangJson}") { backStackEntry ->
-            // Lấy chuỗi JSON từ argument
-            val jsonEncoded = backStackEntry.arguments?.getString("donHangJson") ?: ""
-
-            // Giải mã URL (vì lúc gửi ta đã Encode)
-            val json = URLDecoder.decode(jsonEncoded, StandardCharsets.UTF_8.toString())
-
-            // Chuyển JSON thành Object DonHang
-            val donHang = Gson().fromJson(json, DonHang::class.java)
-
-            // Gọi màn hình chi tiết
-            ChiTietDonHangAdmin(
-                navController = navController,
-                donHang = donHang
-            )
-        }
-
-        // === KẾT THÚC KHU VỰC ADMIN ===
-
-        // 2. Trang Danh mục
         composable("trangdanhsach") {
             DanhSachSach(
                 navController = navController,
@@ -122,18 +86,32 @@ fun AppNavGraph() {
             )
         }
 
-        // 3. Trang Tài khoản
         composable("trangtaikhoan") {
             TaiKhoan(navController = navController)
         }
 
-        // 4. Trang khuyến mãi
         composable("khuyenmai") {
-            KhuyenMai(navController = navController,
-                onBackClick = { navController.popBackStack() })
+            KhuyenMai(navController = navController, onBackClick = { navController.popBackStack() })
         }
 
-        // --- CÁC TRANG CON ---
+        // --- KHU VỰC ADMIN ---
+        composable("admin_quanlydonhang") {
+            QuanLyDonHangAdmin(
+                navController = navController,
+                bamQuayLai = {
+                    navController.navigate("login") { popUpTo("admin_quanlydonhang") { inclusive = true } }
+                }
+            )
+        }
+
+        composable("admin_order_detail/{donHangJson}") { backStackEntry ->
+            val jsonEncoded = backStackEntry.arguments?.getString("donHangJson") ?: ""
+            val json = URLDecoder.decode(jsonEncoded, StandardCharsets.UTF_8.toString())
+            val donHang = Gson().fromJson(json, DonHang::class.java)
+            ChiTietDonHangAdmin(navController = navController, donHang = donHang)
+        }
+
+        // --- CÁC TRANG CHỨC NĂNG (USER) ---
 
         composable("detail") {
             if (selectedSach != null) {
@@ -145,7 +123,7 @@ fun AppNavGraph() {
             }
         }
 
-
+        // === ĐÂY LÀ ĐOẠN BẠN CẦN THÊM ĐỂ HẾT VĂNG APP ===
         composable("dondamua") {
             DonDaMua(
                 navController = navController,
@@ -153,19 +131,36 @@ fun AppNavGraph() {
             )
         }
 
-        composable("caidat") {
-            CaiDat(
+        composable("lichsumuahang"){
+            ManHinhLichSuMuaHang(
                 navController = navController,
                 onBackClick = { navController.popBackStack() }
             )
+        }
+
+        // Màn hình chi tiết đơn hàng (User)
+        composable(
+            route = "chitietdonhang/{maDonHang}/{trangThai}",
+            arguments = listOf(
+                navArgument("maDonHang") { type = NavType.IntType },
+                navArgument("trangThai") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val maDonHang = backStackEntry.arguments?.getInt("maDonHang") ?: 0
+            val trangThai = backStackEntry.arguments?.getString("trangThai") ?: ""
+            ChiTietDonHangDat(navController, maDonHang, trangThai)
+        }
+
+        // --- CÁC TRANG KHÁC ---
+        composable("caidat") {
+            CaiDat(navController = navController, onBackClick = { navController.popBackStack() })
         }
 
         composable("danhsachyeuthich") {
             DanhSachYeuThichScreen(
                 navController = navController,
                 onBackClick = { navController.navigate("trangtaikhoan") },
-                onAddCart = { sach -> },
-                onRemoveFavorite = { sach -> },
+                onAddCart = { }, onRemoveFavorite = { },
                 onSachClick = { sach ->
                     selectedSach = sach
                     navController.navigate("detail")
@@ -185,17 +180,11 @@ fun AppNavGraph() {
         }
 
         composable("thaydoimatkhau") {
-            ManHinhThayDoiMatKhau (
-                navController = navController,
-                onBackClick = { navController.popBackStack() }
-            )
+            ManHinhThayDoiMatKhau(navController = navController, onBackClick = { navController.popBackStack() })
         }
 
         composable("chinhsuathongtin") {
-            ChinhSuaThongTin(
-                navController = navController,
-                onBackClick = { navController.popBackStack() }
-            )
+            ChinhSuaThongTin(navController = navController, onBackClick = { navController.popBackStack() })
         }
 
         composable("danhgia/{maSach}/{maDonHang}") { backStackEntry ->
@@ -207,21 +196,11 @@ fun AppNavGraph() {
             )
         }
 
-        // Trong AppNavGraph.kt
         composable("thanhtoan") {
-
-            val savedStateHandle =
-                navController.previousBackStackEntry?.savedStateHandle
-
-            val nguonThanhToan =
-                savedStateHandle?.get<String>("nguon_thanh_toan")
-
-            val muaLai =
-                savedStateHandle?.get<List<SachtrongGioHang>>("mua_lai_san_pham")
-
-            val gioHang =
-                savedStateHandle?.get<List<SachtrongGioHang>>("gioHang")
-
+            val savedStateHandle = navController.previousBackStackEntry?.savedStateHandle
+            val nguonThanhToan = savedStateHandle?.get<String>("nguon_thanh_toan")
+            val muaLai = savedStateHandle?.get<List<SachtrongGioHang>>("mua_lai_san_pham")
+            val gioHang = savedStateHandle?.get<List<SachtrongGioHang>>("gioHang")
             val danhSachSanPham = when {
                 !muaLai.isNullOrEmpty() -> muaLai
                 !gioHang.isNullOrEmpty() -> gioHang
@@ -233,24 +212,11 @@ fun AppNavGraph() {
                 navController = navController,
                 BamQuayLai = {
                     when (nguonThanhToan) {
-                        "giohang" -> navController.navigate("giohang") {
-                            popUpTo("giohang") { inclusive = true }
-                        }
-
-                        "mualai" -> navController.navigate("lichsumuahang") {
-                            popUpTo("lichsumuahang") { inclusive = true }
-                        }
-
+                        "giohang" -> navController.navigate("giohang") { popUpTo("giohang") { inclusive = true } }
+                        "mualai" -> navController.navigate("dondamua") { popUpTo("dondamua") { inclusive = true } } // Sửa lại về DonDaMua
                         else -> navController.popBackStack()
                     }
                 }
-            )
-        }
-
-        composable("lichsumuahang"){
-            ManHinhLichSuMuaHang(
-                navController=navController,
-                onBackClick = { navController.popBackStack()  }
             )
         }
     }

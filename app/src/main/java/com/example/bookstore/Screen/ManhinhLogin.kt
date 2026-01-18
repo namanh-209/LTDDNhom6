@@ -5,9 +5,12 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -15,24 +18,27 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.bookstore.Api.RetrofitClient
 import com.example.bookstore.Components.BienDungChung
 import com.example.bookstore.Model.DangNhap
-import com.example.bookstore.Model.User // Đảm bảo import model NguoiDung
+import com.example.bookstore.Model.User
 import com.example.bookstore.R
 import kotlinx.coroutines.launch
 
 @Composable
 fun LoginScreen(
     onRegisterClick: () -> Unit,
-    // THAY ĐỔI 1: Callback nhận vào một NguoiDung
     onLoginSuccess: (User) -> Unit
 ) {
     var contactInput by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var passwordVisible by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -76,6 +82,14 @@ fun LoginScreen(
             onValueChange = { password = it },
             label = { Text("Nhập mật khẩu") },
             leadingIcon = { Icon(imageVector = Icons.Default.Lock, contentDescription = null) },
+            visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+            trailingIcon = {
+                val image = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
+                IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                    Icon(imageVector = image, contentDescription = "Toggle Password Visibility")
+                }
+            },
             shape = RoundedCornerShape(16.dp),
             modifier = Modifier.fillMaxWidth()
         )
@@ -84,30 +98,48 @@ fun LoginScreen(
 
         Button(
             onClick = {
+                // --- BẮT ĐẦU KIỂM TRA ĐIỀU KIỆN ---
+
+                // 1. Kiểm tra để trống
                 if (contactInput.isBlank() || password.isBlank()) {
-                    Toast.makeText(context, "Nhập thiếu thông tin!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "Vui lòng nhập đầy đủ thông tin!", Toast.LENGTH_SHORT).show()
+                    return@Button
+                }
+
+                // 2. Kiểm tra định dạng Email hoặc Số điện thoại
+                val isNumber = contactInput.all { it.isDigit() } // Kiểm tra xem có phải toàn số không
+
+                if (isNumber) {
+                    // ==> NẾU LÀ SỐ ĐIỆN THOẠI
+                    if (contactInput.length != 10) {
+                        Toast.makeText(context, "Số điện thoại phải bao gồm đúng 10 chữ số!", Toast.LENGTH_SHORT).show()
+                        return@Button
+                    }
                 } else {
-                    scope.launch {
-                        try {
-                            val req = DangNhap(contact = contactInput, password = password)
-                            val res = RetrofitClient.api.dangNhap(req)
+                    // ==> NẾU LÀ EMAIL (Không phải toàn số)
+                    val isEmailValid = android.util.Patterns.EMAIL_ADDRESS.matcher(contactInput).matches()
+                    if (!isEmailValid) {
+                        Toast.makeText(context, "Email không đúng định dạng (ví dụ: abc@gmail.com)!", Toast.LENGTH_SHORT).show()
+                        return@Button
+                    }
+                }
 
-                            if (res.status == "success" && res.data != null) {
-                                // Lấy user từ response
-                                val user = res.data
+                // --- NẾU THỎA MÃN HẾT THÌ MỚI GỌI API ---
+                scope.launch {
+                    try {
+                        val req = DangNhap(contact = contactInput, password = password)
+                        val res = RetrofitClient.api.dangNhap(req)
 
-                                // Lưu thông tin User vào biến dùng chung
-                                BienDungChung.userHienTai = user
-                                Toast.makeText(context, "Xin chào ${user.HoTen}", Toast.LENGTH_SHORT).show() // Lưu ý: hoTen viết thường theo Model chuẩn camelCase
-
-                                // THAY ĐỔI 2: Truyền user ra ngoài để NavGraph điều hướng
-                                onLoginSuccess(user)
-                            } else {
-                                Toast.makeText(context, res.message ?: "Lỗi đăng nhập", Toast.LENGTH_SHORT).show()
-                            }
-                        } catch (e: Exception) {
-                            Toast.makeText(context, "Lỗi mạng: ${e.message}", Toast.LENGTH_SHORT).show()
+                        if (res.status == "success" && res.data != null) {
+                            val user = res.data
+                            BienDungChung.userHienTai = user
+                            Toast.makeText(context, "Xin chào ${user.HoTen}", Toast.LENGTH_SHORT).show()
+                            onLoginSuccess(user)
+                        } else {
+                            Toast.makeText(context, res.message ?: "Tài khoản hoặc mật khẩu không đúng", Toast.LENGTH_SHORT).show()
                         }
+                    } catch (e: Exception) {
+                        Toast.makeText(context, "Lỗi kết nối: ${e.message}", Toast.LENGTH_SHORT).show()
                     }
                 }
             },
