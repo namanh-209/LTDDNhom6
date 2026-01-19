@@ -233,7 +233,7 @@ fun DiaChiNhanHang(khiChon: (DiaChi) -> Unit) {
             .fillMaxWidth()
             .padding(8.dp),
         shape = RoundedCornerShape(8.dp), // Bo góc nhẹ
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFF2F2F2)),
         elevation = CardDefaults.cardElevation(2.dp)
     ) {
         Column(Modifier.padding(16.dp)) {
@@ -320,8 +320,11 @@ fun DiaChiNhanHang(khiChon: (DiaChi) -> Unit) {
 fun SanPhamDonHang(ds: List<SachtrongGioHang>) {
     Card(Modifier
         .fillMaxWidth()
-        .padding(8.dp)) {
-        Column(Modifier.padding(12.dp)) {
+        .padding(8.dp),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFF2F2F2))
+    ) {
+        Column(Modifier.padding(12.dp))
+        {
             Text("Sản phẩm", fontWeight = FontWeight.Bold)
             ds.forEach {
                 Row(Modifier.padding(vertical = 6.dp)) {
@@ -345,7 +348,9 @@ fun SanPhamDonHang(ds: List<SachtrongGioHang>) {
 fun MaKhuyenMai(km: KhuyenMai?, onChon: () -> Unit) {
     Card(Modifier
         .fillMaxWidth()
-        .padding(8.dp)) {
+        .padding(8.dp),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFF2F2F2))
+    ) {
         Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
             Text(
                 km?.let { "Mã ${it.MaCode} (-${formatTienVND(it.GiaTriGiam.toInt())})" }
@@ -361,7 +366,9 @@ fun MaKhuyenMai(km: KhuyenMai?, onChon: () -> Unit) {
 fun KhuVucGhiChuChoShop(value: String, onChange: (String) -> Unit) {
     Card(Modifier
         .fillMaxWidth()
-        .padding(8.dp)) {
+        .padding(8.dp),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFF2F2F2))
+    ) {
         OutlinedTextField(
             value = value,
             onValueChange = onChange,
@@ -383,7 +390,8 @@ fun PTVanChuyen(
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp),
-        shape = RoundedCornerShape(12.dp)
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFF2F2F2))
     ) {
         Column(Modifier.padding(12.dp)) {
 
@@ -454,7 +462,8 @@ fun PTThanhToan(dangChon: String, onChon: (String) -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp)
+            .padding(8.dp),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFF2F2F2))
     ) {
         Column(Modifier.padding(12.dp)) {
             Text("Thanh toán", fontWeight = FontWeight.Bold)
@@ -503,7 +512,7 @@ fun ChiTietThanhToan(tienHang: Int, ship: Int, giam: Int, tong: Int) {
             .fillMaxWidth()
             .padding(8.dp),
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFF2F2F2)),
         elevation = CardDefaults.cardElevation(2.dp)
     ) {
         Column(Modifier.padding(16.dp)) {
@@ -588,7 +597,7 @@ fun DongTien(label: String, value: Int, color: Color = Color.Black) {
 
 @Composable
 fun ThanhTongCongDatHang(tongTien: Int, dangXuLy: Boolean, onDatHang: () -> Unit) {
-    Surface(shadowElevation = 8.dp) {
+    Surface(shadowElevation = 8.dp, color = Color.LightGray  ) {
         Row(Modifier
             .fillMaxWidth()
             .padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
