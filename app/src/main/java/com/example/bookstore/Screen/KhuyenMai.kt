@@ -84,7 +84,7 @@ fun KhuyenMai(navController: NavController,onBackClick: () -> Unit) {
                                 ?.set("khuyenMaiDaChon", km)
 
                             // QUAY LẠI THANH TOÁN
-                            navController.popBackStack()
+                            navController.navigate("giohang")
                         }
                     )
                 }
