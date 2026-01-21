@@ -178,7 +178,7 @@ fun GioHang(
                         }
                     }
 
-                    // ===== THANH TOÁN =====
+                    // Thanh toán
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -201,8 +201,8 @@ fun GioHang(
 
                             //ko thể thanh toán là isEmpty
                             val coTheThanhToan = danhSachSach.isNotEmpty()
-                            //Giỏ hàng trống -> nút mờ, không bấm được
-                            //Có sản phẩm -> nút hoạt động bình thường
+                            //Giỏ hàng trống thì nút mờ, không bấm được
+                            //Có sản phẩm thì nút hoạt động bình thường
                             Button(
                                 onClick = {
                                     navController.currentBackStackEntry
@@ -212,8 +212,8 @@ fun GioHang(
                                 },
                                 enabled = coTheThanhToan,
                                 colors = ButtonDefaults.buttonColors(
-                                    containerColor = Color(0xFFD32F2F),   // đỏ chính
-                                    disabledContainerColor = Color(0xFFEF9A9A) // đỏ nhạt khi disable
+                                    containerColor = Color(0xFFD32F2F),
+                                    disabledContainerColor = Color(0xFFEF9A9A)
                                 ),
                                 shape = RoundedCornerShape(12.dp)
                             ) {

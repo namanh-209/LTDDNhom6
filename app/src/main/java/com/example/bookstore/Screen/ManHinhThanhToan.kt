@@ -31,7 +31,7 @@ import retrofit2.Response
 import java.text.NumberFormat
 import java.util.Locale
 
-// ================= MODEL UI =================
+
 data class PhuongThucThanhToanUI(
     val ma: String,
     val ten: String,
@@ -60,7 +60,7 @@ fun ManHinhThanhToan(
     var ghiChu by remember { mutableStateOf("") }
     var dangXuLy by remember { mutableStateOf(false) }
 
-    // ===== NHẬN KHUYẾN MÃI (ĐÚNG CÁCH) =====
+    //Nhận khuyến mãi
     val savedStateHandle =
         navController.currentBackStackEntry?.savedStateHandle
 
@@ -68,7 +68,7 @@ fun ManHinhThanhToan(
         ?.getStateFlow<KhuyenMai?>("khuyenMaiDaChon", null)
         ?.collectAsState() ?: remember { mutableStateOf(null) }
 
-    // ===== TÍNH TIỀN =====
+    //Tính tiền
     val tongTienSanPham = danhSachSanPham.sumOf {
         it.GiaBan.toInt() * it.SoLuong
     }
@@ -81,14 +81,14 @@ fun ManHinhThanhToan(
     val donToiThieu = khuyenMaiDaChon?.DonToiThieu ?: 0.0
     val duDieuKien = tongTienSanPham >= donToiThieu
 
-    // Logic: Nếu đủ điều kiện mới lấy giá trị giảm, ngược lại là 0
+    //Kiểm tra đủ đkien mới lấy số tiền giảm
     val tienGiam = if (duDieuKien) {
         khuyenMaiDaChon?.GiaTriGiam?.toInt() ?: 0
     } else {
         0
     }
 
-    // Hiển thị thông báo nếu chọn mã nhưng không đủ điều kiện
+    // Thông báo nếu chọn mã nhưng không đủ điều kiện
     LaunchedEffect(khuyenMaiDaChon) {
         if (khuyenMaiDaChon != null && !duDieuKien) {
             Toast.makeText(
@@ -99,7 +99,6 @@ fun ManHinhThanhToan(
         }
     }
     val phiVC = vanChuyenDangChon.phi
-//    val tienGiam = khuyenMaiDaChon?.GiaTriGiam?.toInt() ?: 0
     val tongThanhToan =
         (tongTienSanPham + phiVC - tienGiam).coerceAtLeast(0)
 
@@ -145,7 +144,6 @@ fun ManHinhThanhToan(
                 val donHang = DonHangGui(
                     MaNguoiDung = user.MaNguoiDung,
 
-                    // Đảm bảo dòng này lấy đúng ID của mã đã chọn (nếu null thì gửi null)
                     MaKhuyenMai = khuyenMaiDaChon?.MaKhuyenMai,
 
                     PhuongThucThanhToan = phuongThucThanhToan,
@@ -193,12 +191,12 @@ fun ManHinhThanhToan(
         ) {
             DiaChiNhanHang { diaChiDangChon = it }
             SanPhamDonHang(danhSachSanPham)
-            // Trong ManHinhThanhToan.kt
+
             MaKhuyenMai(khuyenMaiDaChon) {
-                // 1. Lưu tổng tiền hàng vào bộ nhớ tạm để màn hình kia đọc được
+                // Lưu tổng tiền hàng vào bộ nhớ tạm
                 navController.currentBackStackEntry?.savedStateHandle?.set("tongTienGioHang", tongTienSanPham)
 
-                // 2. Chuyển màn hình
+                // Chuyển màn hình
                 navController.navigate("khuyenmai")
             }
             KhuVucGhiChuChoShop(ghiChu) { ghiChu = it }
@@ -210,14 +208,13 @@ fun ManHinhThanhToan(
     }
 }
 
-/* ====================== CÁC HÀM CON ====================== */
 
 @Composable
 fun DiaChiNhanHang(khiChon: (DiaChi) -> Unit) {
     val user = BienDungChung.userHienTai
     var ds by remember { mutableStateOf<List<DiaChi>>(emptyList()) }
 
-    // Logic lấy dữ liệu giữ nguyên
+    // Lấy dữ liệu giữ nguyên
     LaunchedEffect(Unit) {
         user?.let {
             val res = RetrofitClient.api.layDanhSachDiaChi(it.MaNguoiDung)
@@ -232,7 +229,7 @@ fun DiaChiNhanHang(khiChon: (DiaChi) -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp),
-        shape = RoundedCornerShape(8.dp), // Bo góc nhẹ
+        shape = RoundedCornerShape(8.dp),
         colors = CardDefaults.cardColors(containerColor = Color(0xFFF2F2F2)),
         elevation = CardDefaults.cardElevation(2.dp)
     ) {
@@ -251,7 +248,7 @@ fun DiaChiNhanHang(khiChon: (DiaChi) -> Unit) {
             if (ds.isNotEmpty()) {
                 val diaChi = ds.first()
 
-                // 1. Dòng Tên (Icon Người)
+                    //Dòng tên
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.padding(bottom = 8.dp)
@@ -259,7 +256,7 @@ fun DiaChiNhanHang(khiChon: (DiaChi) -> Unit) {
                     Icon(
                         imageVector = Icons.Default.Person,
                         contentDescription = null,
-                        tint = Color(0xFF0D71A3), // Màu xanh chủ đạo
+                        tint = Color(0xFF0D71A3),
                         modifier = Modifier.size(20.dp)
                     )
                     Spacer(modifier = Modifier.width(12.dp))
@@ -270,7 +267,7 @@ fun DiaChiNhanHang(khiChon: (DiaChi) -> Unit) {
                     )
                 }
 
-                // 2. Dòng Số điện thoại (Icon Điện thoại)
+                // Dòng sđt
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.padding(bottom = 8.dp)
@@ -289,7 +286,7 @@ fun DiaChiNhanHang(khiChon: (DiaChi) -> Unit) {
                     )
                 }
 
-                // 3. Dòng Địa chỉ (Icon Vị trí)
+                // Dòng đchi
                 Row(verticalAlignment = Alignment.Top) {
                     Icon(
                         imageVector = Icons.Default.LocationOn,
@@ -302,7 +299,7 @@ fun DiaChiNhanHang(khiChon: (DiaChi) -> Unit) {
                         text = diaChi.DiaChiChiTiet,
                         fontSize = 14.sp,
                         color = Color.DarkGray,
-                        lineHeight = 20.sp // Giãn dòng cho dễ đọc nếu địa chỉ dài
+                        lineHeight = 20.sp
                     )
                 }
             } else {
@@ -516,10 +513,10 @@ fun ChiTietThanhToan(tienHang: Int, ship: Int, giam: Int, tong: Int) {
         elevation = CardDefaults.cardElevation(2.dp)
     ) {
         Column(Modifier.padding(16.dp)) {
-            // Tiêu đề có icon
+            // Tiêu đề
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
-                    imageVector = Icons.Default.ReceiptLong, // Icon hóa đơn
+                    imageVector = Icons.Default.ReceiptLong,
                     contentDescription = null,
                     tint = Color(0xFF0D71A3),
                     modifier = Modifier.size(20.dp)
@@ -537,7 +534,7 @@ fun ChiTietThanhToan(tienHang: Int, ship: Int, giam: Int, tong: Int) {
                 color = Color(0xFFEEEEEE)
             )
 
-            // Các dòng chi tiết (Dãn cách bằng padding trong hàm DongTien)
+            // Các dòng chi tiết
             DongTien("Tổng tiền hàng", tienHang)
             DongTien("Phí vận chuyển", ship)
 
@@ -545,13 +542,12 @@ fun ChiTietThanhToan(tienHang: Int, ship: Int, giam: Int, tong: Int) {
                 DongTien("Voucher giảm giá", -giam, Color.Red)
             }
 
-            // Đường kẻ đậm hơn chút trước khi chốt Tổng
             Divider(
                 modifier = Modifier.padding(vertical = 12.dp),
                 color = Color.LightGray
             )
 
-            // Dòng Tổng tiền (To và Nổi bật hẳn)
+            //dòng Tổng tiền
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -564,9 +560,9 @@ fun ChiTietThanhToan(tienHang: Int, ship: Int, giam: Int, tong: Int) {
                 )
                 Text(
                     formatTienVND(tong),
-                    color = Color(0xFF0D71A3), // Màu xanh chủ đạo
+                    color = Color(0xFF0D71A3),
                     fontWeight = FontWeight.Bold,
-                    fontSize = 20.sp // Cỡ chữ to
+                    fontSize = 20.sp
                 )
             }
         }
@@ -578,18 +574,18 @@ fun DongTien(label: String, value: Int, color: Color = Color.Black) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 6.dp), // Tăng khoảng cách giữa các dòng lên 6dp
+            .padding(vertical = 6.dp),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Text(
             label,
-            color = Color.Gray, // Chữ tiêu đề màu xám cho dịu mắt
+            color = Color.Gray,
             fontSize = 15.sp
         )
         Text(
             formatTienVND(value),
             color = color,
-            fontWeight = FontWeight.Medium, // Đậm vừa phải
+            fontWeight = FontWeight.Medium,
             fontSize = 15.sp
         )
     }
@@ -614,8 +610,8 @@ fun ThanhTongCongDatHang(tongTien: Int, dangXuLy: Boolean, onDatHang: () -> Unit
                 onClick = onDatHang,
                 enabled = !dangXuLy,
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFFD32F2F),   // đỏ chính
-                    disabledContainerColor = Color(0xFFEF9A9A) // đỏ nhạt khi disable
+                    containerColor = Color(0xFFD32F2F),
+                    disabledContainerColor = Color(0xFFEF9A9A)
                 ),
                 shape = RoundedCornerShape(12.dp)
                 ) {

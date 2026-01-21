@@ -30,7 +30,7 @@ import java.nio.charset.StandardCharsets
 import java.text.NumberFormat
 import java.util.Locale
 
-/* ===================== MAP TRẠNG THÁI BACKEND -> UI ===================== */
+
 fun mapTrangThai(trangThai: String): String {
     return when (trangThai.trim()) {
         "MoiDat","DangXuLy" -> "Chờ xác nhận"
@@ -45,12 +45,12 @@ fun mapTrangThai(trangThai: String): String {
 @Composable
 fun QuanLyDonHangAdmin(
     navController: NavController,
-    bamQuayLai: () -> Unit // Hàm này sẽ xử lý logout về màn login
+    bamQuayLai: () -> Unit //xử lý logout về màn login
 ) {
     var danhSachDonHang by remember { mutableStateOf<List<DonHang>>(emptyList()) }
     var dangTaiDuLieu by remember { mutableStateOf(true) }
 
-    // [MỚI] Biến trạng thái hiện Dialog Đăng xuất
+    // Biến trạng thái hiện Đăng xuất
     var hienThiDialogDangXuat by remember { mutableStateOf(false) }
 
     // Biến Tab
@@ -65,7 +65,7 @@ fun QuanLyDonHangAdmin(
 
     val context = LocalContext.current
 
-    /* ===================== LOAD DATA ===================== */
+    // Load dl
     LaunchedEffect(Unit) {
         try {
             val res = RetrofitClient.api.layDanhSachDonHang()
@@ -79,7 +79,7 @@ fun QuanLyDonHangAdmin(
         }
     }
 
-    /* ===================== FILTER ===================== */
+    //Lọc
     val danhSachLoc = remember(tabDangChon, danhSachDonHang) {
         if (tabDangChon == 0) {
             danhSachDonHang
@@ -90,7 +90,7 @@ fun QuanLyDonHangAdmin(
         }
     }
 
-    /* ===================== DIALOG XÁC NHẬN ĐĂNG XUẤT (MỚI) ===================== */
+    // Xác nhận đăng xuất
     if (hienThiDialogDangXuat) {
         AlertDialog(
             onDismissRequest = { hienThiDialogDangXuat = false },
@@ -100,9 +100,9 @@ fun QuanLyDonHangAdmin(
                 Button(
                     onClick = {
                         hienThiDialogDangXuat = false
-                        bamQuayLai() // Gọi hàm logout khi bấm Đồng ý
+                        bamQuayLai()
                     },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFD32F2F)) // Màu đỏ
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFD32F2F))
                 ) {
                     Text("Đăng xuất")
                 }
@@ -115,7 +115,7 @@ fun QuanLyDonHangAdmin(
         )
     }
 
-    /* ===================== UI CHÍNH ===================== */
+
     Scaffold(
         containerColor = Color(0xFFF5F7FA),
         topBar = {
@@ -124,7 +124,6 @@ fun QuanLyDonHangAdmin(
                     Text("Quản Lý Đơn Hàng", fontWeight = FontWeight.Bold, color = Color.White)
                 },
                 navigationIcon = {
-                    // [SỬA] Bấm nút này sẽ hiện Dialog chứ không thoát ngay
                     IconButton(onClick = { hienThiDialogDangXuat = true }) {
                         Icon(Icons.Default.Output, contentDescription = "Đăng xuất", tint = Color.White)
                     }
@@ -139,7 +138,7 @@ fun QuanLyDonHangAdmin(
                 .padding(padding)
         ) {
 
-            /* ===================== TAB ===================== */
+            //Tab
             ScrollableTabRow(
                 selectedTabIndex = tabDangChon,
                 containerColor = Color.White,
@@ -165,7 +164,7 @@ fun QuanLyDonHangAdmin(
                 }
             }
 
-            /* ===================== CONTENT ===================== */
+           //nội dung
             when {
                 dangTaiDuLieu -> {
                     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -201,7 +200,7 @@ fun QuanLyDonHangAdmin(
     }
 }
 
-/* ===================== ITEM ===================== */
+
 @Composable
 fun ItemDonHang(donHang: DonHang, onClick: () -> Unit) {
     val formatter = NumberFormat.getCurrencyInstance(Locale("vi", "VN"))
@@ -226,14 +225,14 @@ fun ItemDonHang(donHang: DonHang, onClick: () -> Unit) {
             .clickable { onClick() },
         shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.cardElevation(4.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White) // Thêm màu nền trắng cho Card nổi bật
+        colors = CardDefaults.cardColors(containerColor = Color.White)
     ) {
         Column(
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
 
-            /* ===== MÃ ĐƠN + TRẠNG THÁI ===== */
+            // Mã đơn và trạng thái
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -261,7 +260,7 @@ fun ItemDonHang(donHang: DonHang, onClick: () -> Unit) {
 
             Divider(color = Color(0xFFEEEEEE))
 
-            /* ===== THÔNG TIN NGƯỜI ĐẶT ===== */
+         //Thông tin người đặt
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Default.Person, null, modifier = Modifier.size(16.dp), tint = Color.Gray)
                 Spacer(Modifier.width(6.dp))
@@ -279,11 +278,11 @@ fun ItemDonHang(donHang: DonHang, onClick: () -> Unit) {
 
             Divider(color = Color(0xFFEEEEEE))
 
-            /* ===== TỔNG TIỀN ===== */
+         //Tổng tiên
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
                 Text(
                     text = "Tổng tiền: ${formatter.format(donHang.tongTien)}",
-                    color = Color(0xFFD32F2F), // Màu đỏ đậm
+                    color = Color(0xFFD32F2F),
                     fontWeight = FontWeight.Bold,
                     fontSize = 15.sp
                 )

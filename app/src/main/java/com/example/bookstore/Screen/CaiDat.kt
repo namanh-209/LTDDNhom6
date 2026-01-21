@@ -20,7 +20,7 @@ import com.example.bookstore.KhungGiaoDien
 @Composable
 fun CaiDat(navController: NavController, onBackClick: () -> Unit) {
     KhungGiaoDien(tieuDe = "Cài đặt",
-        onBackClick = onBackClick, // TRANG CON -> CÓ BACK (được truyền từ AppNavGraph)
+        onBackClick = onBackClick,
         onHomeClick = { navController.navigate("home") },
         onCategoryClick = { navController.navigate("trangdanhsach") },
         onCartClick = { navController.navigate("giohang") },
@@ -42,7 +42,7 @@ fun CaiDat(navController: NavController, onBackClick: () -> Unit) {
                     "Chỉnh sửa thông tin",
                     "Tài khoản/ Thẻ ngân hàng"
                 ),onItemClick = { item ->
-                    // Kiểm tra xem người dùng bấm vào dòng nào
+                    // Kiểm tra người dùng bấm vào dòng nào
                     if (item == "Thay đổi mật khẩu") {
                         navController.navigate("thaydoimatkhau")
                     }

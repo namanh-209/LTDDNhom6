@@ -19,38 +19,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-//            CaiDat()
-
-
-//            ManHinhThayDoiMatKhau()
-
-
-//            ManHinhTrangChu()
-
-//            var selectedSach by remember { mutableStateOf<Sach?>(null) }
-//
-//            if (selectedSach == null) {
-//                // Hiện trang chủ
-//                ManHinhTrangChu(
-//                    onSachClick = { sach ->
-//                        selectedSach = sach // Khi bấm sách, lưu sách lại để chuyển trang
-//                    }
-//                )
-//            } else {
-//                // Hiện trang chi tiết
-//                ManHinhChiTietSach(
-//                    sach = selectedSach!!,
-//                    onBackClick = {
-//                        selectedSach = null // Bấm nút quay lại thì xóa sách đi để về trang chủ
-//                    }
-//                )
-//            }
-
-        //  ChinhSuaThongTin()
-//            ManHinhThayDoiMatKhau()
-            //gọi trang login & đăng kí
-        AppNavGraph()
-//            DonDaMua()
+            AppNavGraph()
         }
     }
 }

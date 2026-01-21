@@ -31,7 +31,7 @@ fun KhuyenMai(navController: NavController,onBackClick: () -> Unit) {
     var danhSach by remember { mutableStateOf<List<KhuyenMai>>(emptyList()) }
     var dangTai by remember { mutableStateOf(true) }
 
-    // ===== LOAD DANH SÁCH KHUYẾN MÃI =====
+   // Lấy ds khuyến mãi
     LaunchedEffect(Unit) {
         scope.launch {
             try {
@@ -78,13 +78,12 @@ fun KhuyenMai(navController: NavController,onBackClick: () -> Unit) {
                         km = km,
                         tongTienGioHang = tongTienGioHang,
                         onDung = {
-                            // ✅ GỬI VỀ MÀN TRƯỚC (THANH TOÁN)
                             navController.previousBackStackEntry
                                 ?.savedStateHandle
                                 ?.set("khuyenMaiDaChon", km)
 
-                            // QUAY LẠI THANH TOÁN
-                            navController.navigate("giohang")
+                            //Quay lại trang thanh toan
+                            navController.popBackStack()
                         }
                     )
                 }
@@ -96,14 +95,14 @@ fun KhuyenMai(navController: NavController,onBackClick: () -> Unit) {
 @Composable
 fun ItemKhuyenMai(
     km: KhuyenMai,
-    tongTienGioHang: Int, // Thêm tham số này
+    tongTienGioHang: Int,
     onDung: () -> Unit
 ) {
-    // 1. Kiểm tra điều kiện: Tổng tiền hàng có lớn hơn hoặc bằng Đơn tối thiểu không
+    // Kiểm tra Tổng tiền hàng có lớn hơn hoặc bằng Đơn tối thiểu
     val donToiThieu = km.DonToiThieu ?: 0.0
     val duDieuKien = tongTienGioHang >= donToiThieu
 
-    // 2. Màu sắc: Nếu đủ điều kiện thì màu Xanh, không thì màu Xám
+    // Nếu đủ điều kiện thì màu Xanh, không thì màu Xám
     val cardColor = if (duDieuKien) Color(0xFFE3F3FB) else Color(0xFFF5F5F5)
     val contentColor = if (duDieuKien) Color.Black else Color.Gray
     val alpha = if (duDieuKien) 1f else 0.6f // Độ mờ
@@ -113,13 +112,13 @@ fun ItemKhuyenMai(
         colors = CardDefaults.cardColors(containerColor = cardColor),
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 4.dp) // Thêm chút khoảng cách
-            .then(if (!duDieuKien) Modifier else Modifier) // Có thể thêm hiệu ứng nếu cần
+            .padding(vertical = 4.dp)
+            .then(if (!duDieuKien) Modifier else Modifier)
     ) {
         Column(
             modifier = Modifier
                 .padding(16.dp)
-                // Nếu không đủ điều kiện, làm mờ toàn bộ nội dung bên trong
+                // Nếu không đủ điều kiện dùng km, làm mờ toàn bộ nội dung bên trong
                 .alpha(alpha)
         ) {
             Row(
@@ -163,14 +162,14 @@ fun ItemKhuyenMai(
             // Nút bấm
             Button(
                 onClick = onDung,
-                enabled = duDieuKien, // <--- KHÓA NÚT NẾU KHÔNG ĐỦ ĐIỀU KIỆN
+                enabled = duDieuKien, // khoá nút nếu k đủ đkien
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(10.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFFBFDCEA),
                     contentColor = Color.Black,
-                    disabledContainerColor = Color.LightGray, // Màu nền khi bị khóa
-                    disabledContentColor = Color.White        // Màu chữ khi bị khóa
+                    disabledContainerColor = Color.LightGray,
+                    disabledContentColor = Color.White
                 )
             ) {
                 Text(if (duDieuKien) "Dùng" else "Mua thêm để dùng")

@@ -39,32 +39,26 @@ import retrofit2.http.Query
 
 interface ApiService {
 
-    // 1. Lấy danh sách tất cả sách
-    // Server trả về: { status: 'success', data: [Danh sách sách] }
-    // Sửa: Dùng ApiResponse<List<Sach>> thay vì SachResponse để đồng bộ
+    // Lấy danh sách tất cả sách
     @GET("api/sach")
     suspend fun layDanhSachSach(): ApiResponse<List<Sach>>
 
-    // 2. Đăng ký tài khoản
-    // Server trả về: { status: 'success', message: '...', userId: 123 }
-    // Giữ nguyên RegisterResponse vì server trả về 'userId' chứ không phải 'data'
+    // Đăng ký tài khoản
     @POST("api/register")
     suspend fun dangKy(@Body request: DangKi): RegisterResponse
 
-    // 3. Đăng nhập
-    // Server trả về: { status: 'success', message: '...', data: {User...} }
+    // Đăng nhập
     @POST("api/login")
     suspend fun dangNhap(@Body request: DangNhap): ApiResponse<User>
 
-    // 4. Lấy sách đã mua (Lịch sử đơn hàng)
-    // Server trả về: { status: 'success', data: [Danh sách đơn hàng sách] }
+    // Lấy sách đã mua (Lịch sử đơn hàng)
     @GET("api/donhang/sach/{userId}")
     suspend fun laySachDaMua(@Path("userId") userId: Int): ApiResponse<List<DonHangSach>>
 
     @GET("api/theloai")
     suspend fun layDanhSachTheLoai(): ApiResponse<List<TheLoai>>
 
-    // 2. Lấy sách thuộc thể loại đó (khi bấm vào Tab)
+    // Lấy sách thuộc thể loại đó (khi bấm vào Tab)
     @GET("api/sach/theloai/{id}")
     suspend fun laySachTheoTheLoai(@Path("id") maTheLoai: Int): ApiResponse<List<Sach>>
 
@@ -73,7 +67,7 @@ interface ApiService {
         @Path("userId") userId: Int
     ): ApiResponse<List<Sach>>
 
-    //  THÊM / XOÁ YÊU THÍCH (TOGGLE)
+    //  HÊM / XOÁ YÊU THÍCH
     @POST("api/yeuthich")
     suspend fun toggleYeuThich(
         @Body request: YeuThichRequest
@@ -85,7 +79,6 @@ interface ApiService {
         @Path("userId") userId: Int
     ): ApiResponse<List<SachtrongGioHang>>
 
-    ///có sửa nhưng không đáng kể
     @GET("api/diachi/{maNguoiDung}")
     suspend fun layDanhSachDiaChi(
         @Path("maNguoiDung") maNguoiDung: Int
@@ -103,7 +96,7 @@ interface ApiService {
         @Path("id") maGioHang: Int
     ): ApiResponse<Unit>
 
-// ... các api khác ...
+
 
     // API Đổi mật khẩu
     @POST("api/changepassword")
@@ -137,18 +130,18 @@ interface ApiService {
     fun taoDonHang(
         @Body donHang: DonHangGui
     ): Call<PhanHoiApi>
-    // 1. Lấy danh sách đơn hàng
-    @GET("api/admin/donhang") // Đã bỏ .php
+
+    //Lấy danh sách đơn hàng
+    @GET("api/admin/donhang")
     suspend fun layDanhSachDonHang(): ApiResponse<List<DonHang>>
 
-    // 2. Cập nhật trạng thái
+    // Cập nhật trạng thái
     @POST("api/admin/capnhattrangthai")
     suspend fun capNhatTrangThai(
         @Body request: CapNhatTrangThaiRequest
     ): ApiResponse<Any>
 
 
-    // SỬA LẠI THÀNH:
 
     @GET("api/donhang/sach/{userId}")
     suspend fun getLichSuMuaHang(
@@ -156,7 +149,7 @@ interface ApiService {
     ): ApiResponse<List<LichSuDonHang>>
 
 
-    // Dùng @Path và thêm {maDonHang} vào đường dẫn để khớp với Node.js
+
     @GET("api/donhang/chitiet/{maDonHang}")
     suspend fun layChiTietDonHang(@Path("maDonHang") maDonHang: Int): ApiResponse<List<MChiTietDonHangAdmin>>
 
@@ -164,18 +157,16 @@ interface ApiService {
     @POST("api/nguoidung/update")
     suspend fun capNhatThongTin(
         @Body request: CapNhatThongTinRequest
-    ): ApiResponse<User> // Server trả về data user mới cập nhật
-// Trong ApiService.kt
+    ): ApiResponse<User>
 
 
-    // API Hủy đơn hàng (User tự hủy)
+
+    // API Hủy đơn hàng
     @retrofit2.http.PUT("api/donhang/huy/{maDonHang}")
     suspend fun huyDonHang(
         @Path("maDonHang") maDonHang: Int
     ): retrofit2.Response<PhanHoiApi>
 
-//    @PUT("api/donhang/huy/{maDonHang}")
-//    suspend fun huyDonHang(@Path("maDonHang") maDonHang: Int): Response<PhanHoiApi>
 
 }
 

@@ -30,7 +30,7 @@ import java.text.Normalizer
 import java.util.regex.Pattern
 
 
-// --- DATA CLASS CHO BỘ LỌC ---
+
 data class FilterCriteria(
     val sortOption: SortOption = SortOption.BanChayNhat,
     val minPrice: String = "",
@@ -45,7 +45,7 @@ enum class SortOption(val label: String) {
 }
 
 
-// --- GIAO DIỆN CHÍNH ---
+
 @Composable
 fun ThanhTimKiem(
     tuKhoa: String,

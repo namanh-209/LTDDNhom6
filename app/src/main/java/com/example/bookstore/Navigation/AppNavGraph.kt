@@ -43,7 +43,6 @@ fun AppNavGraph() {
 
     NavHost(navController = navController, startDestination = "login") {
 
-        // --- ĐĂNG NHẬP & ĐĂNG KÝ ---
         composable("login") {
             LoginScreen(
                 onRegisterClick = { navController.navigate("register") },
@@ -65,7 +64,7 @@ fun AppNavGraph() {
             RegisterScreen(onLoginClick = { navController.popBackStack() })
         }
 
-        // --- TRANG CHỦ & CÁC TRANG CHÍNH ---
+
         composable("home") {
             ManHinhTrangChu(
                 navController = navController,
@@ -94,7 +93,7 @@ fun AppNavGraph() {
             KhuyenMai(navController = navController, onBackClick = { navController.popBackStack() })
         }
 
-        // --- KHU VỰC ADMIN ---
+
         composable("admin_quanlydonhang") {
             QuanLyDonHangAdmin(
                 navController = navController,
@@ -111,7 +110,6 @@ fun AppNavGraph() {
             ChiTietDonHangAdmin(navController = navController, donHang = donHang)
         }
 
-        // --- CÁC TRANG CHỨC NĂNG (USER) ---
 
         composable("detail") {
             if (selectedSach != null) {
@@ -123,7 +121,7 @@ fun AppNavGraph() {
             }
         }
 
-        // === ĐÂY LÀ ĐOẠN BẠN CẦN THÊM ĐỂ HẾT VĂNG APP ===
+
         composable("dondamua") {
             DonDaMua(
                 navController = navController,
@@ -151,7 +149,6 @@ fun AppNavGraph() {
             ChiTietDonHangDat(navController, maDonHang, trangThai)
         }
 
-        // --- CÁC TRANG KHÁC ---
         composable("caidat") {
             CaiDat(navController = navController, onBackClick = { navController.popBackStack() })
         }

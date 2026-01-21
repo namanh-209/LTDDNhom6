@@ -81,7 +81,7 @@ fun ChinhSuaThongTin(
         ) {
             Spacer(Modifier.height(20.dp))
 
-            // --- ẢNH ĐẠI DIỆN ---
+            // Ảnh đại diện
             Box(contentAlignment = Alignment.BottomEnd) {
                 if (!user?.AnhDaiDien.isNullOrBlank()) {
                     AsyncImage(
@@ -115,7 +115,7 @@ fun ChinhSuaThongTin(
 
             Spacer(Modifier.height(24.dp))
 
-            // === THÔNG TIN TÀI KHOẢN ===
+            // Thông tin tài khoản
             Text("THÔNG TIN TÀI KHOẢN", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.Gray, modifier = Modifier.padding(vertical = 8.dp))
             Card(
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
@@ -149,7 +149,7 @@ fun ChinhSuaThongTin(
 
             Spacer(Modifier.height(20.dp))
 
-            // === THÔNG TIN NHẬN HÀNG ===
+            // Thông tin nhận hàng
             Text("THÔNG TIN NHẬN HÀNG", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.Gray, modifier = Modifier.padding(vertical = 8.dp))
             Card(
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
@@ -165,12 +165,12 @@ fun ChinhSuaThongTin(
 
             Spacer(Modifier.height(24.dp))
 
-            // === NÚT LƯU THAY ĐỔI ===
+            // Nút lưu
             Button(
                 onClick = {
                     if (user == null) return@Button
 
-                    // 1. Validate Thông tin tài khoản
+                    // Thông tin về tài khoản
                     if (hoTen.isBlank()) {
                         Toast.makeText(context, "Họ tên không được để trống!", Toast.LENGTH_SHORT).show()
                         return@Button
@@ -188,7 +188,7 @@ fun ChinhSuaThongTin(
                         return@Button
                     }
 
-                    // 2. Validate Thông tin nhận hàng (Nếu có nhập)
+                    // Thông tin nhận hàng
                     if (sdtNguoiNhan.isNotBlank()) {
                         if (sdtNguoiNhan.length != 10 || !sdtNguoiNhan.all { it.isDigit() }) {
                             Toast.makeText(context, "SĐT người nhận phải đủ 10 số!", Toast.LENGTH_SHORT).show()
@@ -196,7 +196,7 @@ fun ChinhSuaThongTin(
                         }
                     }
 
-                    // --- NẾU HỢP LỆ THÌ MỚI GỌI API ---
+                    // Nếu các ttin hợp lệ gọi api
                     scope.launch {
                         dangXuLy = true
                         try {
@@ -252,7 +252,7 @@ fun ChinhSuaThongTin(
     }
 }
 
-// === CÁC COMPONENT CON (GIỮ NGUYÊN) ===
+
 @Composable
 fun DatePickerField(value: String, onDateSelected: (String) -> Unit, label: String) {
     val context = LocalContext.current

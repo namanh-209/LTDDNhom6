@@ -5,7 +5,7 @@ data class DonHangSach(
     val TenSach: String,
     val AnhBia: String,
     val GiaBan: Double,
-    val TrangThai: String, // Quan trọng: Để lọc tab (MoiDat, DangGiao...)
+    val TrangThai: String,
     val MaDonHang: Int,
     val TenTacGia: String? = ""
 )

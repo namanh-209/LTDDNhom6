@@ -29,8 +29,8 @@ fun DanhGia(
     var soSao by remember { mutableStateOf(5) }
     var noiDung by remember { mutableStateOf("") }
 
-    var dangGui by remember { mutableStateOf(false) }              // 🔒 Disable nút
-    var hienDialogThanhCong by remember { mutableStateOf(false) } // 🎉 Dialog
+    var dangGui by remember { mutableStateOf(false) }
+    var hienDialogThanhCong by remember { mutableStateOf(false) }
 
     val scope = rememberCoroutineScope()
 
@@ -85,7 +85,7 @@ fun DanhGia(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // ⭐ Chọn sao
+           //Chọn sao
             Row(
                 horizontalArrangement = Arrangement.Center,
                 modifier = Modifier.fillMaxWidth()

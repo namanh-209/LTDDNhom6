@@ -30,15 +30,15 @@ import kotlinx.coroutines.launch
 fun RegisterScreen(
     onLoginClick: () -> Unit
 ) {
-    // Các biến trạng thái lưu dữ liệu nhập
+    //biến trạng thái lưu dữ liệu nhập
     var name by remember { mutableStateOf("") }
     var contact by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
-    // [MỚI] Biến trạng thái ẩn/hiện mật khẩu
+    //biến trạng thái ẩn/hiện mật khẩu
     var passwordVisible by remember { mutableStateOf(false) }
 
-    // Biến hỗ trợ
+    //các biến hỗ trợ
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     var isLoading by remember { mutableStateOf(false) }
@@ -56,7 +56,7 @@ fun RegisterScreen(
             modifier = Modifier.size(250.dp)
         )
 
-        // --- Nhập Tên ---
+        // Nhập Tên
         Text(text = "Tên hiển thị", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Start)
         OutlinedTextField(
             value = name,
@@ -69,7 +69,7 @@ fun RegisterScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // --- Nhập Email/SĐT ---
+        // Nhập Email/SĐT
         Text(text = "Email/SĐT", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Start)
         OutlinedTextField(
             value = contact,
@@ -82,7 +82,7 @@ fun RegisterScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // --- Nhập Mật Khẩu (CÓ NÚT MẮT) ---
+        // Nhập mk
         Text(text = "Mật khẩu", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Start)
         OutlinedTextField(
             value = password,
@@ -90,7 +90,7 @@ fun RegisterScreen(
             label = { Text("Nhập mật khẩu") },
             leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) },
 
-            // [MỚI] Xử lý ẩn hiện mật khẩu
+            // xử lý ẩn/ hiện mk
             visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
             trailingIcon = {
@@ -106,26 +106,24 @@ fun RegisterScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // --- Nút Đăng Ký (CÓ VALIDATE) ---
+        // Nút đky
         Button(
             onClick = {
-                // 1. Kiểm tra rỗng
+                // Kiểm tra rỗng
                 if (name.isBlank() || contact.isBlank() || password.isBlank()) {
                     Toast.makeText(context, "Vui lòng điền đầy đủ thông tin", Toast.LENGTH_SHORT).show()
                     return@Button
                 }
 
-                // 2. Kiểm tra định dạng SĐT hoặc Email
-                val isNumber = contact.all { it.isDigit() } // Kiểm tra có phải toàn số không
+                // Kiểm tra định dạng SĐT/Email
+                val isNumber = contact.all { it.isDigit() }
 
                 if (isNumber) {
-                    // ==> NẾU LÀ SỐ: Phải đúng 10 ký tự
                     if (contact.length != 10) {
                         Toast.makeText(context, "Số điện thoại phải bao gồm đúng 10 chữ số!", Toast.LENGTH_SHORT).show()
                         return@Button
                     }
                 } else {
-                    // ==> NẾU LÀ CHỮ: Phải đúng định dạng Email
                     val isEmailValid = android.util.Patterns.EMAIL_ADDRESS.matcher(contact).matches()
                     if (!isEmailValid) {
                         Toast.makeText(context, "Email không đúng định dạng!", Toast.LENGTH_SHORT).show()
@@ -133,11 +131,11 @@ fun RegisterScreen(
                     }
                 }
 
-                // 3. Chuẩn bị dữ liệu gửi API
+                // Dữ liệu gửi API
                 val emailToSend = if (!isNumber) contact else ""
                 val phoneToSend = if (isNumber) contact else ""
 
-                // 4. Gọi API Đăng ký
+                // Gọi API Đăng ký
                 isLoading = true
                 scope.launch {
                     try {
@@ -152,7 +150,7 @@ fun RegisterScreen(
 
                         if (response.status == "success") {
                             Toast.makeText(context, "Đăng ký thành công! Vui lòng đăng nhập.", Toast.LENGTH_LONG).show()
-                            onLoginClick() // Chuyển về màn hình đăng nhập
+                            onLoginClick()
                         } else {
                             Toast.makeText(context, "Đăng ký thất bại: ${response.message}", Toast.LENGTH_SHORT).show()
                         }
@@ -179,7 +177,7 @@ fun RegisterScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // --- Chuyển sang Đăng Nhập ---
+        // Chuyển sang trang đnhap
         Text(
             text = "Đã có tài khoản? Đăng nhập",
             color = Color.Red,

@@ -37,8 +37,6 @@ fun TaiKhoan(
 ) {
     val nguoiDung = BienDungChung.userHienTai
     var diaChiHienThi by remember { mutableStateOf<DiaChi?>(null) }
-
-    // [MỚI] Biến trạng thái để hiện Dialog xác nhận
     var showLogoutDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
@@ -56,7 +54,7 @@ fun TaiKhoan(
         }
     }
 
-    // [MỚI] Hộp thoại xác nhận Đăng xuất
+    // Hiển thị xác nhận Đăng xuất
     if (showLogoutDialog) {
         AlertDialog(
             onDismissRequest = { showLogoutDialog = false },
@@ -124,7 +122,6 @@ fun TaiKhoan(
                 Spacer(Modifier.height(24.dp))
                 Button(
                     onClick = {
-                        // [SỬA] Thay vì đăng xuất ngay, chỉ bật Dialog lên
                         showLogoutDialog = true
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = Color.White),
@@ -137,8 +134,7 @@ fun TaiKhoan(
     }
 }
 
-/* ---------------- HEADER NGƯỜI DÙNG ---------------- */
-
+//Phần người dùng
 @Composable
 fun HeaderNguoiDung(nguoiDung: User?) {
     Row(
@@ -195,8 +191,7 @@ fun HeaderNguoiDung(nguoiDung: User?) {
     }
 }
 
-/* ---------------- ACTION ROW ---------------- */
-
+// Các nút chức năng
 @Composable
 fun ActionRow(navController: NavController) {
     Card(
@@ -232,8 +227,7 @@ fun RowScope.ActionItem(icon: ImageVector, title: String, onClick: () -> Unit) {
     }
 }
 
-/* ---------------- THÔNG TIN CÁ NHÂN ---------------- */
-
+// Thông tin cá nhân
 @Composable
 fun ThongTinCaNhan(nguoiDung: User?) {
     Card(
@@ -300,8 +294,7 @@ fun InfoLine(label: String, value: String?) {
     }
 }
 
-/* ---------------- THÔNG TIN NHẬN HÀNG ---------------- */
-
+//Thông tin nhận hàng
 @Composable
 fun ThongTinNhanHang(diaChi: DiaChi?) {
     Card(

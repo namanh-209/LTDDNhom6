@@ -16,7 +16,7 @@ data class Sach(
     val MaTheLoai: Int?,
     val MoTa: String,
     val DiemDanhGia: Double,
-    val SoLuongDaBan: Int,       // Đã có từ trước
-    val SoLuongTon: Int = 0,     // MỚI: Thêm trường này, mặc định 0 để tránh lỗi null
+    val SoLuongDaBan: Int,
+    val SoLuongTon: Int = 0,
     val NgayThem: String? = null
 )

@@ -112,7 +112,7 @@ fun ItemDonHang(
     navController: NavController,
     don: LichSuDonHang
 ) {
-    // Hàm format tiền cục bộ
+    // Hàm format tiền
     fun formatGia(gia: Double): String {
         val formatter = NumberFormat.getInstance(Locale("vi", "VN"))
         return "${formatter.format(gia)} VND"
@@ -122,7 +122,7 @@ fun ItemDonHang(
         modifier = Modifier
             .fillMaxWidth()
             .clickable {
-                // --- SỰ KIỆN CLICK CHUYỂN SANG TRANG CHI TIẾT ---
+                //click chuyển trang sanh chi tiết
                 navController.navigate("chitietdonhang/${don.MaDonHang}/${don.TrangThai}")
             },
         shape = RoundedCornerShape(10.dp),
@@ -131,7 +131,7 @@ fun ItemDonHang(
     ) {
         Column(modifier = Modifier.padding(12.dp)) {
 
-            // 1. TRẠNG THÁI ĐƠN
+            //trạng thái đơn
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -164,7 +164,7 @@ fun ItemDonHang(
             Divider(color = Color(0xFFEEEEEE))
             Spacer(modifier = Modifier.height(8.dp))
 
-            // 2. THÔNG TIN SÁCH
+            //thông tin sách
             Row {
                 AsyncImage(
                     model = don.AnhBia,
@@ -192,7 +192,7 @@ fun ItemDonHang(
             Divider(color = Color(0xFFEEEEEE))
             Spacer(modifier = Modifier.height(8.dp))
 
-            // 3. TỔNG TIỀN
+            //tổng tiền
             val tongTien = don.GiaBan * don.SoLuong
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
                 Text(text = "Thành tiền: ", fontSize = 14.sp)
@@ -204,7 +204,7 @@ fun ItemDonHang(
                 )
             }
 
-            // ĐÃ XÓA CÁC NÚT BẤM ĐỂ GIAO DIỆN GỌN GÀNG
+
         }
     }
 }

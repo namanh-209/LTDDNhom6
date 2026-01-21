@@ -11,7 +11,7 @@ data class RegisterResponse(
     val userId: Int?
 )
 
-// Class User khớp với bảng nguoidung trong Database
+
 data class User(
     val MaNguoiDung: Int,
     val HoTen: String,
@@ -22,7 +22,7 @@ data class User(
     val NgaySinh: String?,
     val GioiTinh: String?,
     val DiaChi: String?,
-    // Thêm 2 trường này để hứng dữ liệu từ API Login
+
     val TenNguoiNhan: String?,
     val SDTNguoiNhan: String?
 )

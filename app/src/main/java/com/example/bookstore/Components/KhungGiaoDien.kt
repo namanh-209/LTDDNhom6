@@ -35,7 +35,7 @@ fun KhungGiaoDien(
                     Text(tieuDe, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 24.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 },
                 navigationIcon = {
-                    // CHỈ HIỆN NÚT BACK NẾU onBackClick KHÁC NULL
+
                     if (onBackClick != null) {
                         IconButton(onClick = onBackClick) {
                             Icon(Icons.Default.ArrowBack, contentDescription = null, tint = Color.White)

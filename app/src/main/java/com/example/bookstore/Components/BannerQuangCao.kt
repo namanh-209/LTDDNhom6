@@ -38,7 +38,7 @@ fun BannerQuangCao(danhSachSach: List<Sach>,
         // Auto-scroll
         LaunchedEffect(Unit) {
             while (true) {
-                delay(2500) // Tăng lên 4s để người dùng kịp đọc chữ
+                delay(2500)
                 val nextPage = (pagerState.currentPage + 1) % sachBanner.size
                 pagerState.animateScrollToPage(nextPage)
             }
@@ -46,9 +46,9 @@ fun BannerQuangCao(danhSachSach: List<Sach>,
 
         HorizontalPager(
             state = pagerState,
-            // Tăng chiều cao lên 220dp để chứa đủ thông tin mới
+
             modifier = Modifier.fillMaxWidth().height(220.dp),
-            contentPadding = PaddingValues(horizontal = 16.dp), // Hiệu ứng hở 2 bên
+            contentPadding = PaddingValues(horizontal = 16.dp),
             pageSpacing = 8.dp
         ) { page ->
             val sach = sachBanner[page]
@@ -67,7 +67,7 @@ fun BannerQuangCao(danhSachSach: List<Sach>,
                         modifier = Modifier.fillMaxSize()
                     )
 
-                    // 2. Lớp phủ Gradient (QUAN TRỌNG: Giúp chữ không bị chìm)
+
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
@@ -76,22 +76,22 @@ fun BannerQuangCao(danhSachSach: List<Sach>,
                                     colors = listOf(
                                         Color.Transparent,
                                         Color.Black.copy(alpha = 0.1f),
-                                        Color.Black.copy(alpha = 0.8f), // Đậm dần xuống dưới
+                                        Color.Black.copy(alpha = 0.8f),
                                         Color.Black
                                     ),
-                                    startY = 100f // Bắt đầu gradient từ phía trên một chút
+                                    startY = 100f
                                 )
                             )
                     )
 
-                    // 3. Nội dung chữ
+                    // Nội dung chữ
                     Column(
                         modifier = Modifier
                             .align(Alignment.BottomStart)
                             .padding(16.dp)
                             .fillMaxWidth()
                     ) {
-                        // Nhãn Thể loại nhỏ bên trên
+
                         ContainerTheLoai(tenTheLoai = sach.TenTheLoai ?: "Nổi bật")
 
                         Spacer(modifier = Modifier.height(4.dp))
@@ -106,18 +106,18 @@ fun BannerQuangCao(danhSachSach: List<Sach>,
                             overflow = TextOverflow.Ellipsis
                         )
 
-                        // Mô tả ngắn (Thêm cái này cho nhiều chữ)
+                        // Mô tả ngắn
                         Text(
                             text = sach.MoTa ?: "Một cuốn sách hấp dẫn đang chờ bạn khám phá.",
                             color = Color.White.copy(alpha = 0.8f),
                             fontSize = 12.sp,
-                            maxLines = 2, // Chỉ hiện 2 dòng mô tả để không bị tràn
+                            maxLines = 2,
                             overflow = TextOverflow.Ellipsis,
                             lineHeight = 16.sp,
                             modifier = Modifier.padding(vertical = 4.dp)
                         )
 
-                        // Hàng dưới cùng: Giá tiền và Nút xem
+                        // Hàng dưới cùng
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             verticalAlignment = Alignment.CenterVertically,
@@ -125,12 +125,12 @@ fun BannerQuangCao(danhSachSach: List<Sach>,
                         ) {
                             Text(
                                 text = formatCurrency(sach.GiaBan),
-                                color = Color(0xFFFFC107), // Màu vàng cam nổi bật
+                                color = Color(0xFFFFC107),
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 16.sp
                             )
 
-                            // Nút giả lập (Button nhỏ)
+
                             Button(
                                 onClick = {onXemNgayClick(sach) },
                                 colors = ButtonDefaults.buttonColors(
@@ -156,13 +156,13 @@ fun BannerQuangCao(danhSachSach: List<Sach>,
     }
 }
 
-// Component phụ: Badge thể loại
+
 @Composable
 fun ContainerTheLoai(tenTheLoai: String) {
     Box(
         modifier = Modifier
             .clip(RoundedCornerShape(4.dp))
-            .background(Color.Red.copy(alpha = 0.8f)) // Màu đỏ làm điểm nhấn
+            .background(Color.Red.copy(alpha = 0.8f))
             .padding(horizontal = 6.dp, vertical = 2.dp)
     ) {
         Text(
@@ -174,7 +174,7 @@ fun ContainerTheLoai(tenTheLoai: String) {
     }
 }
 
-// Hàm format tiền tệ (VND)
+// Hàm format tiền tệ
 fun formatCurrency(amount: Double): String {
     val formatter = NumberFormat.getCurrencyInstance(Locale("vi", "VN"))
     return formatter.format(amount)

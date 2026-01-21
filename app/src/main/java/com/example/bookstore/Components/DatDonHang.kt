@@ -18,10 +18,10 @@ fun datDonHang(
     danhSachSanPham: List<SachtrongGioHang>,
     diaChiGiaoHang: String,
     ghiChu: String,
-    // --- SỬA THẬT Ở ĐÂY: Thay chữ Double bằng chữ Int ---
+
     tongTien: Int,
     maKhuyenMai: Int?,
-    // --- SỬA THẬT Ở ĐÂY: Thay chữ Double bằng chữ Int ---
+
     phiVanChuyen: Int
 ) {
     val user = BienDungChung.userHienTai
@@ -34,8 +34,8 @@ fun datDonHang(
         MaNguoiDung = user.MaNguoiDung,
         MaKhuyenMai = maKhuyenMai,
         PhuongThucThanhToan = phuongThuc,
-        PhiVanChuyen = phiVanChuyen, // Giờ cả 2 đều là Int -> Khớp nhau
-        TongTien = tongTien,         // Giờ cả 2 đều là Int -> Khớp nhau
+        PhiVanChuyen = phiVanChuyen,
+        TongTien = tongTien,
         DiaChiGiaoHang = diaChiGiaoHang,
         GhiChu = ghiChu,
         ChiTiet = danhSachSanPham.map {

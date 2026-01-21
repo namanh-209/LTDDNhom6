@@ -9,7 +9,7 @@ data class CapNhatThongTinRequest(
     @SerializedName("GioiTinh") val gioiTinh: String,
     @SerializedName("NgaySinh") val ngaySinh: String,
 
-    // Thông tin người nhận (Mới thêm)
+    // Thông tin người nhận
     @SerializedName("TenNguoiNhan") val tenNguoiNhan: String,
     @SerializedName("SDTNguoiNhan") val sdtNguoiNhan: String,
     @SerializedName("DiaChi") val diaChi: String

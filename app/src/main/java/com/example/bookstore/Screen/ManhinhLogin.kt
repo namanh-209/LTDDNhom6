@@ -98,25 +98,22 @@ fun LoginScreen(
 
         Button(
             onClick = {
-                // --- BẮT ĐẦU KIỂM TRA ĐIỀU KIỆN ---
 
-                // 1. Kiểm tra để trống
+                //Kiểm tra để trống
                 if (contactInput.isBlank() || password.isBlank()) {
                     Toast.makeText(context, "Vui lòng nhập đầy đủ thông tin!", Toast.LENGTH_SHORT).show()
                     return@Button
                 }
 
-                // 2. Kiểm tra định dạng Email hoặc Số điện thoại
-                val isNumber = contactInput.all { it.isDigit() } // Kiểm tra xem có phải toàn số không
+                //Kiểm tra định dạng Email/Sdt
+                val isNumber = contactInput.all { it.isDigit() } // Kiểm tra có phải toàn số không
 
-                if (isNumber) {
-                    // ==> NẾU LÀ SỐ ĐIỆN THOẠI
+                if (isNumber) {//nếu toàn số
                     if (contactInput.length != 10) {
                         Toast.makeText(context, "Số điện thoại phải bao gồm đúng 10 chữ số!", Toast.LENGTH_SHORT).show()
                         return@Button
                     }
-                } else {
-                    // ==> NẾU LÀ EMAIL (Không phải toàn số)
+                } else {//nếu email
                     val isEmailValid = android.util.Patterns.EMAIL_ADDRESS.matcher(contactInput).matches()
                     if (!isEmailValid) {
                         Toast.makeText(context, "Email không đúng định dạng (ví dụ: abc@gmail.com)!", Toast.LENGTH_SHORT).show()
@@ -124,7 +121,7 @@ fun LoginScreen(
                     }
                 }
 
-                // --- NẾU THỎA MÃN HẾT THÌ MỚI GỌI API ---
+              //thoả các đkiện thì gọi api
                 scope.launch {
                     try {
                         val req = DangNhap(contact = contactInput, password = password)

@@ -7,6 +7,6 @@ data class DanhGia(
     val SoSao: Int,
     val BinhLuan: String,
     val NgayDanhGia: String,
-    val HoTen: String,       // <-- Cái này quan trọng để hiện tên người bình luận
-    val AnhDaiDien: String?  // <-- Cái này để hiện avatar
+    val HoTen: String,
+    val AnhDaiDien: String?
 )

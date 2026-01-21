@@ -103,7 +103,7 @@ fun ChiTietDonHangDat(
         }
     }
 
-    // Dialog Xác nhận hủy
+    // Xác nhận hủy
     if (hienThiDialogHuy) {
         AlertDialog(
             onDismissRequest = { hienThiDialogHuy = false },
@@ -200,7 +200,7 @@ fun ChiTietDonHangDat(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // 1. HEADER TRẠNG THÁI (Timeline)
+            //  HEADER TRẠNG THÁI
             Card(
                 colors = CardDefaults.cardColors(containerColor = Color.White),
                 elevation = CardDefaults.cardElevation(2.dp),
@@ -224,7 +224,7 @@ fun ChiTietDonHangDat(
                 }
             }
 
-            // 2. DANH SÁCH SẢN PHẨM
+            // DANH SÁCH SẢN PHẨM
             Card(
                 colors = CardDefaults.cardColors(containerColor = Color.White),
                 elevation = CardDefaults.cardElevation(2.dp),
@@ -326,7 +326,7 @@ fun ProductItemView(sp: MChiTietDonHangAdmin, formatter: java.text.NumberFormat)
             .fillMaxWidth()
             .padding(16.dp)
     ) {
-        // --- PHẦN ẢNH ĐƯỢC LÀM ĐẸP ---
+        
         Card(
             shape = RoundedCornerShape(6.dp),
             elevation = CardDefaults.cardElevation(4.dp), // Tạo bóng đổ nhẹ
