@@ -49,10 +49,8 @@ fun ManHinhChiTietSach(
     val scope = rememberCoroutineScope()
     val user = BienDungChung.userHienTai
 
-    // --- LOGIC HẾT HÀNG ---
     val hetHang = sach.SoLuongTon <= 0
 
-    // --- STATE QUẢN LÝ ---
     var selectedTab by remember { mutableIntStateOf(0) }
     var listDanhGia by remember { mutableStateOf<List<DanhGia>>(emptyList()) }
     var isFavorite by remember { mutableStateOf(false) }
@@ -95,7 +93,7 @@ fun ManHinhChiTietSach(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    // --- NÚT YÊU THÍCH ---
+                    //NÚT YÊU THÍCH
                     IconButton(onClick = {
                         if (user == null) {
                             Toast.makeText(context, "Vui lòng đăng nhập!", Toast.LENGTH_SHORT).show()
@@ -123,7 +121,7 @@ fun ManHinhChiTietSach(
 
                     Spacer(modifier = Modifier.width(2.dp).height(24.dp).background(Color.Gray))
 
-                    // --- NÚT THÊM VÀO GIỎ HÀNG (CẬP NHẬT LOGIC HẾT HÀNG) ---
+                    //THÊM HÀNG VÀO GIỎ
                     IconButton(
                         onClick = {
                             if (hetHang) {
@@ -175,7 +173,8 @@ fun ManHinhChiTietSach(
                                     TenTacGia = sach.TenTacGia ?: "Đang cập nhật",
                                     GiaBan = sach.GiaBan,
                                     SoLuong = 1,
-                                    AnhBia = sach.AnhBia
+                                    AnhBia = sach.AnhBia,
+                                    SoLuongTon = sach.SoLuongTon
                                 )
                             )
                             navController.currentBackStackEntry?.savedStateHandle?.set("gioHang", muaNgay)

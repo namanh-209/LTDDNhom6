@@ -96,7 +96,7 @@ fun ChiTietDonHangDat(
     fun xuLyMuaLai() {
         if (danhSachSanPham.isNotEmpty()) {
             val listMuaLai = danhSachSanPham.map { sp ->
-                SachtrongGioHang(0, sp.maSach, sp.tenSach, sp.anhBia, sp.donGia, sp.soLuong, "")
+                SachtrongGioHang(0, sp.maSach, sp.tenSach, sp.anhBia, sp.donGia, sp.soLuong, "", SoLuongTon = 1)
             }
             navController.currentBackStackEntry?.savedStateHandle?.set("mua_lai_san_pham", listMuaLai)
             navController.navigate("thanhtoan")

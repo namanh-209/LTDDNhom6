@@ -46,7 +46,6 @@ fun BannerQuangCao(danhSachSach: List<Sach>,
 
         HorizontalPager(
             state = pagerState,
-
             modifier = Modifier.fillMaxWidth().height(220.dp),
             contentPadding = PaddingValues(horizontal = 16.dp),
             pageSpacing = 8.dp

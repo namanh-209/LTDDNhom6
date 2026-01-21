@@ -10,5 +10,6 @@ data class SachtrongGioHang(
     val AnhBia: String,
     val GiaBan: Double,
     val SoLuong: Int,
-    val TenTacGia: String
+    val TenTacGia: String,
+    val SoLuongTon: Int
 ) : Serializable
