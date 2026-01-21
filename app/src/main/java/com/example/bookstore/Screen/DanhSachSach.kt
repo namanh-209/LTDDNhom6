@@ -248,14 +248,12 @@ fun DanhSachSach(
             if (filter.minPrice.isNotBlank() || filter.maxPrice.isNotBlank()) {
                 ketQua = ketQua.filter { it.GiaBan in minVal..maxVal }
             }
-            if (filter.minRating > 0) {
-                ketQua = ketQua.filter { it.DiemDanhGia >= filter.minRating }
-            }
+
             ketQua = when (filter.sortOption) {
-                SortOption.PRICE_ASC -> ketQua.sortedBy { it.GiaBan }
-                SortOption.PRICE_DESC -> ketQua.sortedByDescending { it.GiaBan }
-                SortOption.NEWEST -> ketQua.sortedByDescending { it.NgayThem ?: it.MaSach.toString() }
-                SortOption.BEST_SELLING -> ketQua.sortedByDescending { it.SoLuongDaBan }
+                SortOption.GiaThapToiCao -> ketQua.sortedBy { it.GiaBan }
+                SortOption.GiaCaoToiThap -> ketQua.sortedByDescending { it.GiaBan }
+                SortOption.MoiNhat -> ketQua.sortedByDescending { it.NgayThem ?: it.MaSach.toString() }
+                SortOption.BanChayNhat -> ketQua.sortedByDescending { it.SoLuongDaBan }
                 else -> ketQua
             }
         }

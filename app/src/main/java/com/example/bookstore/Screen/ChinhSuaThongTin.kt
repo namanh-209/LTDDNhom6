@@ -36,7 +36,6 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.bookstore.Api.RetrofitClient
 import com.example.bookstore.Components.BienDungChung
-import com.example.bookstore.Components.unAccent
 import com.example.bookstore.KhungGiaoDien
 import kotlinx.coroutines.launch
 import java.util.Calendar
@@ -201,7 +200,7 @@ fun ChinhSuaThongTin(
                     scope.launch {
                         dangXuLy = true
                         try {
-                            val emailClean = unAccent(email)
+                            val emailClean = email
 
                             val request = CapNhatThongTinRequest(
                                 maNguoiDung = user.MaNguoiDung,

@@ -19,7 +19,7 @@ val MauXanh = Color(0xFF0E73A9)
 @Composable
 fun KhungGiaoDien(
     tieuDe: String,
-    onBackClick: (() -> Unit)? = null, // Nếu null => Ẩn nút Back
+    onBackClick: (() -> Unit)? = null,
     onHomeClick: () -> Unit = {},
     onCategoryClick: () -> Unit = {},
     onCartClick: () -> Unit = {},

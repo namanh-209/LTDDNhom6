@@ -29,33 +29,21 @@ import com.example.bookstore.R
 import java.text.Normalizer
 import java.util.regex.Pattern
 
-// --- HÀM BỎ DẤU TIẾNG VIỆT (DÙNG CHUNG TOÀN APP) ---
-// Gọi hàm này ở nút Lưu hoặc nút Tìm kiếm, KHÔNG gọi trong onValueChange
-fun unAccent(s: String): String {
-    val temp = Normalizer.normalize(s, Normalizer.Form.NFD)
-    val pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+")
-    return pattern.matcher(temp).replaceAll("").replace('đ', 'd').replace('Đ', 'D')
-}
 
 // --- DATA CLASS CHO BỘ LỌC ---
 data class FilterCriteria(
-    val sortOption: SortOption = SortOption.BEST_SELLING,
+    val sortOption: SortOption = SortOption.BanChayNhat,
     val minPrice: String = "",
     val maxPrice: String = "",
-    val formats: List<BookFormat> = emptyList(),
-    val minRating: Int = 0
 )
 
 enum class SortOption(val label: String) {
-    BEST_SELLING("Bán chạy nhất"),
-    NEWEST("Mới nhất"),
-    PRICE_ASC("Giá: Thấp -> Cao"),
-    PRICE_DESC("Giá: Cao -> Thấp"),
+    BanChayNhat("Bán chạy nhất"),
+    MoiNhat("Mới nhất"),
+    GiaThapToiCao("Giá: Thấp -> Cao"),
+    GiaCaoToiThap("Giá: Cao -> Thấp"),
 }
 
-enum class BookFormat(val label: String) {
-    PAPERBACK("Bìa mềm"),
-}
 
 // --- GIAO DIỆN CHÍNH ---
 @Composable
@@ -83,7 +71,6 @@ fun ThanhTimKiem(
             if (tuKhoa.isEmpty()) {
                 Text("Tìm kiếm sách...", color = Color.Gray, fontSize = 14.sp)
             }
-            // SỬA: onValueChange chỉ truyền dữ liệu, không xử lý logic bỏ dấu tại đây
             BasicTextField(
                 value = tuKhoa,
                 onValueChange = khiGoChu,
@@ -124,11 +111,9 @@ fun FilterDialog(
     onDismiss: () -> Unit,
     onApply: (FilterCriteria) -> Unit
 ) {
-    var selectedSort by remember { mutableStateOf(SortOption.BEST_SELLING) }
+    var selectedSort by remember { mutableStateOf(SortOption.BanChayNhat) }
     var minPrice by remember { mutableStateOf("") }
     var maxPrice by remember { mutableStateOf("") }
-    var selectedFormats by remember { mutableStateOf(setOf<BookFormat>()) }
-    var minRating by remember { mutableStateOf(0) }
 
     Dialog(onDismissRequest = onDismiss) {
         Card(
@@ -148,11 +133,10 @@ fun FilterDialog(
                 ) {
                     Text("Bộ lọc", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
                     TextButton(onClick = {
-                        selectedSort = SortOption.BEST_SELLING
+                        selectedSort = SortOption.BanChayNhat
                         minPrice = ""
                         maxPrice = ""
-                        selectedFormats = emptySet()
-                        minRating = 0
+
                     }) {
                         Text("Thiết lập lại", color = Color.Red)
                     }
@@ -210,7 +194,7 @@ fun FilterDialog(
 
                 Button(
                     onClick = {
-                        onApply(FilterCriteria(selectedSort, minPrice, maxPrice, selectedFormats.toList(), minRating))
+                        onApply(FilterCriteria(selectedSort, minPrice, maxPrice))
                     },
                     modifier = Modifier.fillMaxWidth().height(50.dp),
                     shape = RoundedCornerShape(12.dp),
