@@ -49,26 +49,22 @@ fun ManHinhChiTietSach(
     val scope = rememberCoroutineScope()
     val user = BienDungChung.userHienTai
 
+    // --- LOGIC HẾT HÀNG ---
+    val hetHang = sach.SoLuongTon <= 0
+
     // --- STATE QUẢN LÝ ---
     var selectedTab by remember { mutableIntStateOf(0) }
     var listDanhGia by remember { mutableStateOf<List<DanhGia>>(emptyList()) }
-
-    // State cho nút Yêu thích (Tim)
     var isFavorite by remember { mutableStateOf(false) }
 
-    // --- LOGIC KHỞI TẠO (Gọi API khi mở màn hình) ---
     LaunchedEffect(sach.MaSach) {
         scope.launch {
             try {
-                // 1. Lấy danh sách đánh giá
                 val responseDG = RetrofitClient.api.layDanhSachDanhGia(sach.MaSach)
                 listDanhGia = responseDG.data ?: emptyList()
-
-                // 2. Kiểm tra xem sách này có trong danh sách yêu thích của User không
                 if (user != null) {
                     val responseYT = RetrofitClient.api.layDanhSachYeuThich(user.MaNguoiDung)
                     val danhSachYeuThich = responseYT.data ?: emptyList()
-                    // Nếu tìm thấy sách trong list yêu thích -> set tim màu đỏ
                     isFavorite = danhSachYeuThich.any { it.MaSach == sach.MaSach }
                 }
             } catch (e: Exception) {
@@ -99,22 +95,17 @@ fun ManHinhChiTietSach(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    // --- NÚT YÊU THÍCH (XỬ LÝ LOGIC) ---
+                    // --- NÚT YÊU THÍCH ---
                     IconButton(onClick = {
                         if (user == null) {
                             Toast.makeText(context, "Vui lòng đăng nhập!", Toast.LENGTH_SHORT).show()
                         } else {
-                            // 1. Đổi trạng thái UI ngay lập tức cho mượt (Optimistic Update)
                             isFavorite = !isFavorite
-
-                            // 2. Gọi API cập nhật server
                             scope.launch {
                                 try {
                                     RetrofitClient.api.toggleYeuThich(
                                         YeuThichRequest(user.MaNguoiDung, sach.MaSach)
                                     )
-                                    // Thông báo nhẹ
-
                                 } catch (e: Exception) {
                                     isFavorite = !isFavorite
                                     Toast.makeText(context, "Lỗi kết nối", Toast.LENGTH_SHORT).show()
@@ -122,51 +113,56 @@ fun ManHinhChiTietSach(
                             }
                         }
                     }) {
-                        // Đổi Icon và Màu sắc dựa trên biến isFavorite
                         Icon(
                             imageVector = if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
                             contentDescription = null,
-                            modifier = Modifier.size(32.dp), // To hơn xíu cho dễ bấm
-                            tint = if (isFavorite) Color.Red else Color.Gray // Đỏ nếu thích, Xám nếu không
+                            modifier = Modifier.size(32.dp),
+                            tint = if (isFavorite) Color.Red else Color.Gray
                         )
                     }
 
                     Spacer(modifier = Modifier.width(2.dp).height(24.dp).background(Color.Gray))
 
-                    // --- NÚT THÊM VÀO GIỎ HÀNG (XỬ LÝ LOGIC) ---
-                    IconButton(onClick = {
-                        if (user == null) {
-                            Toast.makeText(context, "Vui lòng đăng nhập!", Toast.LENGTH_SHORT).show()
-                        } else {
-                            scope.launch {
-                                try {
-                                    RetrofitClient.api.capNhatGioHang(
-                                        CapNhatGioHangRequest(
-                                            MaNguoiDung = user.MaNguoiDung,
-                                            MaSach = sach.MaSach,
-                                            SoLuong = 1 // Mặc định thêm 1 cuốn
+                    // --- NÚT THÊM VÀO GIỎ HÀNG (CẬP NHẬT LOGIC HẾT HÀNG) ---
+                    IconButton(
+                        onClick = {
+                            if (hetHang) {
+                                Toast.makeText(context, "Sản phẩm đã hết hàng!", Toast.LENGTH_SHORT).show()
+                            } else if (user == null) {
+                                Toast.makeText(context, "Vui lòng đăng nhập!", Toast.LENGTH_SHORT).show()
+                            } else {
+                                scope.launch {
+                                    try {
+                                        RetrofitClient.api.capNhatGioHang(
+                                            CapNhatGioHangRequest(
+                                                MaNguoiDung = user.MaNguoiDung,
+                                                MaSach = sach.MaSach,
+                                                SoLuong = 1
+                                            )
                                         )
-                                    )
-                                    Toast.makeText(context, "Đã thêm vào giỏ hàng!", Toast.LENGTH_SHORT).show()
-                                } catch (e: Exception) {
-                                    Toast.makeText(context, "Lỗi thêm giỏ hàng", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(context, "Đã thêm vào giỏ hàng!", Toast.LENGTH_SHORT).show()
+                                    } catch (e: Exception) {
+                                        Toast.makeText(context, "Lỗi thêm giỏ hàng", Toast.LENGTH_SHORT).show()
+                                    }
                                 }
                             }
-                        }
-                    }) {
+                        },
+                        enabled = !hetHang // Khoá nút nếu hết hàng
+                    ) {
                         Icon(
                             Icons.Default.ShoppingCart,
                             contentDescription = null,
                             modifier = Modifier.size(32.dp),
-                            tint = Color(0xFF1976D2) // Màu xanh cho giỏ hàng
+                            tint = if (hetHang) Color.Gray else Color(0xFF1976D2) // Đổi màu xám nếu hết
                         )
                     }
 
                     Spacer(modifier = Modifier.width(16.dp))
 
-                    // Nút Mua ( chuyển sang màn thanh toán)// mới thêm
+                    // --- NÚT MUA NGAY (CẬP NHẬT LOGIC HẾT HÀNG) ---
                     Button(
                         onClick = {
+                            if (hetHang) return@Button // Chặn click
                             if (user == null) {
                                 Toast.makeText(context, "Vui lòng đăng nhập!", Toast.LENGTH_SHORT).show()
                                 return@Button
@@ -182,26 +178,26 @@ fun ManHinhChiTietSach(
                                     AnhBia = sach.AnhBia
                                 )
                             )
-
-                            navController.currentBackStackEntry
-                                ?.savedStateHandle
-                                ?.set("gioHang", muaNgay)
-
+                            navController.currentBackStackEntry?.savedStateHandle?.set("gioHang", muaNgay)
                             navController.navigate("thanhtoan")
                         },
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1976D2)),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = if (hetHang) Color.Gray else Color(0xFF1976D2) // Màu xám nếu hết
+                        ),
+                        enabled = !hetHang, // Khoá nút
                         shape = RoundedCornerShape(4.dp),
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(48.dp)
+                        modifier = Modifier.weight(1f).height(48.dp)
                     ) {
-                        Text("Mua ngay", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                        Text(
+                            text = if (hetHang) "HẾT HÀNG" else "MUA NGAY",
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold
+                        )
                     }
                 }
             }
         }
     ) { padding ->
-        // ... (Phần hiển thị nội dung bên dưới GIỮ NGUYÊN CODE CŨ của bạn) ...
         Column(
             modifier = Modifier
                 .padding(padding)
@@ -209,7 +205,6 @@ fun ManHinhChiTietSach(
                 .verticalScroll(rememberScrollState())
                 .background(Color.White)
         ) {
-            // Phần Header Sách
             Row(modifier = Modifier.padding(16.dp)) {
                 Card(elevation = CardDefaults.cardElevation(4.dp), shape = RoundedCornerShape(4.dp)) {
                     AsyncImage(
@@ -227,6 +222,17 @@ fun ManHinhChiTietSach(
                     Spacer(modifier = Modifier.height(8.dp))
                     Text("${formatGia(sach.GiaBan)} ", color = Color.Red, fontSize = 18.sp, fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.height(8.dp))
+
+                    // --- HIỂN THỊ TỒN KHO & ĐÃ BÁN ---
+                    if (hetHang) {
+                        Text("Tình trạng: Hết hàng", color = Color.Red, fontWeight = FontWeight.Bold)
+                    } else {
+                        Text("Tình trạng: Còn hàng", color = Color(0xFF4CAF50), fontWeight = FontWeight.Bold)
+                    }
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text("Đã bán: ${sach.SoLuongDaBan}", fontSize = 14.sp, color = Color.DarkGray)
+
+                    Spacer(modifier = Modifier.height(4.dp))
                     Text("Tác giả: ${sach.TenTacGia ?: "Đang cập nhật"}", fontSize = 14.sp)
 
                     val diemTB = if (listDanhGia.isNotEmpty()) {
@@ -253,7 +259,6 @@ fun ManHinhChiTietSach(
             Spacer(modifier = Modifier.height(16.dp))
 
             if (selectedTab == 0) {
-                // Tab Thông tin
                 Column(modifier = Modifier.padding(horizontal = 16.dp)) {
                     ThongTinDong("Tên sách", sach.TenSach)
                     ThongTinDong("Tác giả", sach.TenTacGia ?: "Đang cập nhật")
@@ -264,7 +269,6 @@ fun ManHinhChiTietSach(
                     Text(text = sach.MoTa ?: "Đang cập nhật mô tả...", style = LocalTextStyle.current.copy(lineHeight = 20.sp), color = Color.DarkGray)
                 }
             } else {
-                // Tab Đánh giá (Dùng ItemDanhGiaThat đẹp đã sửa ở bước trước)
                 Column(modifier = Modifier.padding(horizontal = 16.dp)) {
                     if (listDanhGia.isEmpty()) {
                         Text("Chưa có đánh giá nào.", modifier = Modifier.padding(20.dp).align(Alignment.CenterHorizontally), color = Color.Gray)
@@ -280,7 +284,6 @@ fun ManHinhChiTietSach(
     }
 }
 
-// ... Các hàm phụ trợ ItemDanhGiaThat, ThongTinDong giữ nguyên như cũ ...
 @Composable
 fun ThongTinDong(tieuDe: String, noiDung: String) {
     Row(modifier = Modifier.padding(vertical = 4.dp)) {

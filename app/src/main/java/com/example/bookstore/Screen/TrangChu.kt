@@ -12,6 +12,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -24,7 +25,8 @@ import coil.compose.AsyncImage
 import java.text.NumberFormat
 import java.util.Locale
 import com.example.bookstore.Api.RetrofitClient
-import com.example.bookstore.Components.* import com.example.bookstore.Model.Sach
+import com.example.bookstore.Components.*
+import com.example.bookstore.Model.Sach
 
 @Composable
 fun ManHinhTrangChu(
@@ -35,7 +37,6 @@ fun ManHinhTrangChu(
     var textTimKiem by remember { mutableStateOf("") }
     var currentFilter by remember { mutableStateOf<FilterCriteria?>(null) }
 
-    // API Call
     LaunchedEffect(Unit) {
         try {
             val response = RetrofitClient.api.layDanhSachSach()
@@ -47,47 +48,28 @@ fun ManHinhTrangChu(
         }
     }
 
-    // --- LOGIC LỌC ĐÃ SỬA ---
     val danhSachHienThi = remember(danhSachSach, textTimKiem, currentFilter) {
         var ketQua = danhSachSach
-
-        // 1. Tìm kiếm theo tên
         if (textTimKiem.isNotBlank()) {
             ketQua = ketQua.filter { it.TenSach.contains(textTimKiem, ignoreCase = true) }
         }
-
-        // 2. Bộ lọc nâng cao
         currentFilter?.let { filter ->
-            // --- BƯỚC QUAN TRỌNG: Chuẩn hóa Input Giá ---
-            // Input từ ThanhTimKiem chỉ cho nhập số, nhưng ta cần parse an toàn
             fun cleanPrice(input: String): Double? {
                 if (input.isBlank()) return null
                 return input.replace("[^\\d]".toRegex(), "").toDoubleOrNull()
             }
-
             val minVal = cleanPrice(filter.minPrice) ?: 0.0
             val maxVal = cleanPrice(filter.maxPrice) ?: Double.MAX_VALUE
-
-            // Lọc theo khoảng giá (So sánh Double trực tiếp)
             if (filter.minPrice.isNotBlank() || filter.maxPrice.isNotBlank()) {
-                ketQua = ketQua.filter { sach ->
-                    sach.GiaBan in minVal..maxVal
-                }
+                ketQua = ketQua.filter { sach -> sach.GiaBan in minVal..maxVal }
             }
-
-            // Lọc theo đánh giá (Rating)
             if (filter.minRating > 0) {
-                // Giả sử sach.DiemDanhGia có dữ liệu, nếu không mặc định là 5 để test hoặc 0
                 ketQua = ketQua.filter { it.DiemDanhGia >= filter.minRating }
             }
-
-            // Sắp xếp
             ketQua = when (filter.sortOption) {
                 SortOption.PRICE_ASC -> ketQua.sortedBy { it.GiaBan }
                 SortOption.PRICE_DESC -> ketQua.sortedByDescending { it.GiaBan }
-                // Mới nhất: Dựa vào Mã Sách (ID càng lớn càng mới)
                 SortOption.NEWEST -> ketQua.sortedByDescending { it.MaSach }
-                // Bán chạy: Dựa vào SoLuongDaBan
                 SortOption.BEST_SELLING -> ketQua.sortedByDescending { it.SoLuongDaBan }
                 else -> ketQua
             }
@@ -95,7 +77,6 @@ fun ManHinhTrangChu(
         ketQua
     }
 
-    // Các danh sách cho màn hình chính (giữ nguyên logic)
     val sachBanChay = remember(danhSachSach) { danhSachSach.sortedByDescending { it.SoLuongDaBan }.take(5) }
     val sachKinhDi = remember(danhSachSach) { danhSachSach.filter { it.TenTheLoai?.contains("Trinh Thám", ignoreCase = true) == true } }
     val sachVanHoc = remember(danhSachSach) { danhSachSach.filter { it.TenTheLoai?.contains("Văn Học", ignoreCase = true) == true } }
@@ -120,12 +101,8 @@ fun ManHinhTrangChu(
                     onApplyFilter = { criteria -> currentFilter = criteria }
                 )
             }
-
-            // Kiểm tra xem có đang lọc hay không
             val dangLoc = textTimKiem.isNotBlank() || currentFilter != null
-
             if (!dangLoc) {
-                // GIAO DIỆN MẶC ĐỊNH
                 item { BannerQuangCao(danhSachSach = danhSachSach, onXemNgayClick = onSachClick) }
                 item { MucSachNgang("Sách Bán Chạy", sachBanChay, onSachClick) }
                 item { MucSachNgang("Sách Kinh Dị", sachKinhDi, onSachClick) }
@@ -133,7 +110,6 @@ fun ManHinhTrangChu(
                 item { MucSachNgang("Sách Tâm Lý", sachTamLy, onSachClick) }
                 item { Spacer(modifier = Modifier.height(30.dp)) }
             } else {
-                // GIAO DIỆN KẾT QUẢ LỌC
                 item {
                     Row(
                         Modifier.fillMaxWidth().padding(16.dp),
@@ -149,7 +125,6 @@ fun ManHinhTrangChu(
                         }
                     }
                 }
-
                 if (danhSachHienThi.isEmpty()) {
                     item {
                         Box(Modifier.fillMaxWidth().padding(30.dp), contentAlignment = Alignment.Center) {
@@ -166,7 +141,6 @@ fun ManHinhTrangChu(
     }
 }
 
-// --- HÀM FORMAT TIỀN (Giữ lại để hiển thị, không dùng để tính toán) ---
 fun formatTienTe(gia: Double): String {
     val formatter = NumberFormat.getInstance(Locale("vi", "VN"))
     return "${formatter.format(gia)} VND"
@@ -188,28 +162,52 @@ fun MucSachNgang(tieuDe: String, listSach: List<Sach>, onClick: (Sach) -> Unit) 
 
 @Composable
 fun ItemSach(sach: Sach, onClick: () -> Unit) {
+    // Logic kiểm tra hết hàng
+    val hetHang = sach.SoLuongTon <= 0
+
     Column(modifier = Modifier.width(120.dp).clickable { onClick() }) {
         Card(
             shape = RoundedCornerShape(8.dp),
             elevation = CardDefaults.cardElevation(2.dp),
             colors = CardDefaults.cardColors(containerColor = Color.White)
         ) {
-            AsyncImage(
-                model = sach.AnhBia,
-                contentDescription = null,
-                modifier = Modifier.height(170.dp).fillMaxWidth(),
-                contentScale = ContentScale.Crop
-            )
+            Box {
+                AsyncImage(
+                    model = sach.AnhBia,
+                    contentDescription = null,
+                    modifier = Modifier.height(170.dp).fillMaxWidth().alpha(if(hetHang) 0.5f else 1f),
+                    contentScale = ContentScale.Crop
+                )
+                // Overlay Hết hàng
+                if (hetHang) {
+                    Box(
+                        modifier = Modifier
+                            .matchParentSize()
+                            .background(Color.Black.copy(alpha = 0.5f)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "HẾT HÀNG",
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 12.sp
+                        )
+                    }
+                }
+            }
         }
         Spacer(modifier = Modifier.height(8.dp))
         Text(text = sach.TenSach, maxLines = 2, overflow = TextOverflow.Ellipsis, fontWeight = FontWeight.Medium, fontSize = 14.sp)
-        // Sửa lại: Dùng trực tiếp sach.GiaBan (Double)
         Text(text = formatTienTe(sach.GiaBan), color = Color.Red, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+        // Hiển thị số lượng đã bán
+        Text(text = "Đã bán: ${sach.SoLuongDaBan}", fontSize = 11.sp, color = Color.Gray)
     }
 }
 
 @Composable
 fun ItemSachTimKiem(sach: Sach, onClick: () -> Unit) {
+    val hetHang = sach.SoLuongTon <= 0
+
     Card(
         modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 6.dp).clickable { onClick() },
         shape = RoundedCornerShape(8.dp),
@@ -217,17 +215,31 @@ fun ItemSachTimKiem(sach: Sach, onClick: () -> Unit) {
         colors = CardDefaults.cardColors(containerColor = Color.White)
     ) {
         Row(modifier = Modifier.padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
-            AsyncImage(
-                model = sach.AnhBia,
-                contentDescription = null,
-                modifier = Modifier.width(60.dp).height(90.dp).clip(RoundedCornerShape(4.dp)),
-                contentScale = ContentScale.Crop
-            )
+            Box {
+                AsyncImage(
+                    model = sach.AnhBia,
+                    contentDescription = null,
+                    modifier = Modifier.width(60.dp).height(90.dp).clip(RoundedCornerShape(4.dp)).alpha(if(hetHang) 0.5f else 1f),
+                    contentScale = ContentScale.Crop
+                )
+                if (hetHang) {
+                    Box(
+                        modifier = Modifier
+                            .width(60.dp)
+                            .height(90.dp)
+                            .background(Color.Black.copy(alpha = 0.5f)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text("HẾT", color = Color.White, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                    }
+                }
+            }
             Spacer(modifier = Modifier.width(16.dp))
             Column {
                 Text(text = sach.TenSach, fontWeight = FontWeight.Bold, fontSize = 16.sp, maxLines = 2, overflow = TextOverflow.Ellipsis)
                 Text(text = "Thể loại: ${sach.TenTheLoai ?: "Khác"}", fontSize = 12.sp, color = Color.Gray)
-                // Sửa lại: Dùng trực tiếp sach.GiaBan (Double)
+                // Hiển thị đã bán
+                Text(text = "Đã bán: ${sach.SoLuongDaBan}", fontSize = 12.sp, color = Color(0xFF0D71A3))
                 Text(text = formatTienTe(sach.GiaBan), fontWeight = FontWeight.Bold, fontSize = 15.sp, color = Color.Red)
             }
         }
