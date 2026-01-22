@@ -38,7 +38,7 @@ import kotlinx.coroutines.launch
 import java.text.NumberFormat
 import java.util.Locale
 
-// --- ĐỊNH NGHĨA MÀU SẮC RIÊNG ---
+
 val PrimaryBlue = Color(0xFF0D71A3)
 val SuccessGreen = Color(0xFF4CAF50)
 val WarningOrange = Color(0xFFFF9800)
@@ -92,7 +92,7 @@ fun ChiTietDonHangDat(
         }
     }
 
-    // Logic Mua Lại
+
     fun xuLyMuaLai() {
         if (danhSachSanPham.isNotEmpty()) {
             val listMuaLai = danhSachSanPham.map { sp ->
@@ -200,7 +200,7 @@ fun ChiTietDonHangDat(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            //  HEADER TRẠNG THÁI
+
             Card(
                 colors = CardDefaults.cardColors(containerColor = Color.White),
                 elevation = CardDefaults.cardElevation(2.dp),
@@ -218,13 +218,13 @@ fun ChiTietDonHangDat(
                             }
                         }
                     } else {
-                        // Giao diện Timeline các bước
+
                         OrderStatusTimeline(trangThaiHienTai)
                     }
                 }
             }
 
-            // DANH SÁCH SẢN PHẨM
+
             Card(
                 colors = CardDefaults.cardColors(containerColor = Color.White),
                 elevation = CardDefaults.cardElevation(2.dp),
@@ -251,7 +251,7 @@ fun ChiTietDonHangDat(
                 }
             }
 
-            // 3. TỔNG KẾT TIỀN
+
             Card(
                 colors = CardDefaults.cardColors(containerColor = Color.White),
                 elevation = CardDefaults.cardElevation(2.dp),
@@ -279,7 +279,7 @@ fun ChiTietDonHangDat(
     }
 }
 
-// --- CÁC COMPONENT CON (UI) ---
+
 
 @Composable
 fun OrderStatusTimeline(currentStatus: String) {
@@ -329,16 +329,16 @@ fun ProductItemView(sp: MChiTietDonHangAdmin, formatter: java.text.NumberFormat)
         
         Card(
             shape = RoundedCornerShape(6.dp),
-            elevation = CardDefaults.cardElevation(4.dp), // Tạo bóng đổ nhẹ
+            elevation = CardDefaults.cardElevation(4.dp),
             modifier = Modifier
-                .width(90.dp)   // Chiều rộng nhỏ lại
-                .height(130.dp) // Chiều cao tăng lên => Dáng hình chữ nhật đứng của sách
+                .width(90.dp)
+                .height(130.dp)
         ) {
             AsyncImage(
                 model = sp.anhBia,
                 contentDescription = null,
                 modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Crop // Crop ảnh cho vừa khít khung
+                contentScale = ContentScale.Crop
             )
         }
         // ------------------------------
@@ -348,8 +348,8 @@ fun ProductItemView(sp: MChiTietDonHangAdmin, formatter: java.text.NumberFormat)
         Column(
             modifier = Modifier
                 .weight(1f)
-                .height(130.dp), // Căn chiều cao bằng với ảnh để dàn đều nội dung
-            verticalArrangement = Arrangement.SpaceBetween // Đẩy tên sách lên trên, giá tiền xuống dưới
+                .height(130.dp),
+            verticalArrangement = Arrangement.SpaceBetween
         ) {
             // Tên sách
             Text(

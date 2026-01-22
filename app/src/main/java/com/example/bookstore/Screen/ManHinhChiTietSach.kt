@@ -151,16 +151,16 @@ fun ManHinhChiTietSach(
                             Icons.Default.ShoppingCart,
                             contentDescription = null,
                             modifier = Modifier.size(32.dp),
-                            tint = if (hetHang) Color.Gray else Color(0xFF1976D2) // Đổi màu xám nếu hết
+                            tint = if (hetHang) Color.Gray else Color(0xFF1976D2)
                         )
                     }
 
                     Spacer(modifier = Modifier.width(16.dp))
 
-                    // --- NÚT MUA NGAY (CẬP NHẬT LOGIC HẾT HÀNG) ---
+
                     Button(
                         onClick = {
-                            if (hetHang) return@Button // Chặn click
+                            if (hetHang) return@Button
                             if (user == null) {
                                 Toast.makeText(context, "Vui lòng đăng nhập!", Toast.LENGTH_SHORT).show()
                                 return@Button
@@ -183,7 +183,7 @@ fun ManHinhChiTietSach(
                         colors = ButtonDefaults.buttonColors(
                             containerColor = if (hetHang) Color.Gray else Color(0xFF1976D2) // Màu xám nếu hết
                         ),
-                        enabled = !hetHang, // Khoá nút
+                        enabled = !hetHang,
                         shape = RoundedCornerShape(4.dp),
                         modifier = Modifier.weight(1f).height(48.dp)
                     ) {

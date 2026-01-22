@@ -27,7 +27,7 @@ import kotlinx.coroutines.launch
 import java.text.NumberFormat
 import java.util.Locale
 
-/* ===================== ITEM SÁCH YÊU THÍCH ===================== */
+
 @Composable
 fun SachItemYeuThich(
     sach: Sach,
@@ -104,7 +104,7 @@ fun SachItemYeuThich(
     }
 }
 
-/* ===================== MÀN HÌNH DANH SÁCH YÊU THÍCH ===================== */
+
 @Composable
 fun DanhSachYeuThichScreen(
     onAddCart: (Sach) -> Unit = {},

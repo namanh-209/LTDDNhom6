@@ -38,7 +38,7 @@ import kotlinx.coroutines.launch
 import java.text.NumberFormat
 import java.util.Locale
 
-/* ===================== TAB THỂ LOẠI ===================== */
+
 @Composable
 fun TabTheLoai(
     danhSach: List<TheLoai>,
@@ -78,7 +78,7 @@ fun TabItem(ten: String, isSelected: Boolean, onClick: () -> Unit) {
     )
 }
 
-/* ===================== ITEM SÁCH (ĐÃ SỬA) ===================== */
+
 @Composable
 fun SachItem(
     sach: Sach,
@@ -107,7 +107,7 @@ fun SachItem(
             modifier = Modifier.padding(10.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Ảnh sách có xử lý mờ + overlay nếu hết
+
             Box {
                 AsyncImage(
                     model = sach.AnhBia,
@@ -155,15 +155,15 @@ fun SachItem(
             }
 
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                // Nút giỏ hàng: Vô hiệu hóa nếu hết hàng
+                // Nút giỏ hàng
                 IconButton(
                     onClick = {
                         if (!hetHang) onAddCart()
                     },
-                    enabled = !hetHang, // Khoá nếu hết hàng
+                    enabled = !hetHang,
                     modifier = Modifier
                         .background(
-                            if(hetHang) Color.Gray else Color(0xFF1E88E5), // Đổi màu xám nếu hết
+                            if(hetHang) Color.Gray else Color(0xFF1E88E5),
                             RoundedCornerShape(8.dp)
                         )
                         .size(36.dp)
@@ -185,7 +185,7 @@ fun SachItem(
     }
 }
 
-/* ===================== MÀN HÌNH CHÍNH ===================== */
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DanhSachSach(

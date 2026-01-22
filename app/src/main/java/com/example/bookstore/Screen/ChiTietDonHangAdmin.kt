@@ -207,7 +207,7 @@ fun ChiTietDonHangAdmin(
             modifier = Modifier.fillMaxSize().padding(padding).verticalScroll(scrollState).padding(12.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // === 1. BANNER TRẠNG THÁI ===
+
             Card(
                 colors = CardDefaults.cardColors(containerColor = getStatusColor(trangThaiHienTai)),
                 shape = RoundedCornerShape(12.dp),
@@ -225,7 +225,7 @@ fun ChiTietDonHangAdmin(
                 }
             }
 
-            // === 2. THÔNG TIN NHẬN HÀNG (SỬA Ở ĐÂY) ===
+
             AdminSectionCard(title = "Thông tin nhận hàng", icon = Icons.Default.LocationOn) {
 
                 // Tên người nhận
@@ -237,7 +237,7 @@ fun ChiTietDonHangAdmin(
 
                 Spacer(Modifier.height(8.dp))
 
-                // [MỚI] Số điện thoại
+                // Số điện thoại
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.Default.Phone, null, tint = Color.Gray, modifier = Modifier.size(16.dp))
                     Spacer(Modifier.width(8.dp))
@@ -267,7 +267,7 @@ fun ChiTietDonHangAdmin(
                 }
             }
 
-            // === 4. DANH SÁCH SẢN PHẨM ===
+            //
             Card(
                 colors = CardDefaults.cardColors(containerColor = Color.White),
                 shape = RoundedCornerShape(12.dp),
@@ -314,7 +314,7 @@ fun ChiTietDonHangAdmin(
                 }
             }
 
-            // === 5. THANH TOÁN ===
+            //  THANH TOÁN
             AdminSectionCard(title = "Thanh toán", icon = Icons.Default.Payments) {
                 val tongTienHangGoc = if (danhSachSanPham.isNotEmpty()) danhSachSanPham.sumOf { it.donGia * it.soLuong } else 0.0
                 val phiShip = donHang.phiVanChuyen ?: 0.0
@@ -341,7 +341,7 @@ fun ChiTietDonHangAdmin(
     }
 }
 
-// === HELPER COMPONENTS ===
+
 @Composable
 fun AdminSectionCard(title: String, icon: ImageVector, content: @Composable ColumnScope.() -> Unit) {
     Card(

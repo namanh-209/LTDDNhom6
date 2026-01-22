@@ -36,18 +36,18 @@ import java.util.Locale
 @Composable
 fun DonDaMua(navController: NavController, onBackClick: () -> Unit) {
 
-    // 1. Chuẩn bị dữ liệu
+
     val tabs = listOf("Chờ xác nhận", "Chờ giao hàng", "Đã giao", "Đã huỷ")
 
-    // Lấy ID người dùng từ biến chung (Nếu null thì lấy 0)
+
     val maNguoiDung = BienDungChung.userHienTai?.MaNguoiDung ?: 0
 
-    // 2. Các biến trạng thái (State)
+    // Các biến trạng thái (State)
     var selectedTab by remember { mutableStateOf(0) }
     var danhSachFull by remember { mutableStateOf<List<DonHangSach>>(emptyList()) }
     val scope = rememberCoroutineScope()
 
-    // 3. Gọi API khi mở màn hình
+    // Gọi API khi mở màn hình
     LaunchedEffect(Unit) {
         scope.launch {
             try {
@@ -61,7 +61,7 @@ fun DonDaMua(navController: NavController, onBackClick: () -> Unit) {
         }
     }
 
-    // 4. Vẽ giao diện chính
+    // Vẽ giao diện chính
     KhungGiaoDien(
         tieuDe = "Đơn đã mua",
         onBackClick = onBackClick,
@@ -77,7 +77,7 @@ fun DonDaMua(navController: NavController, onBackClick: () -> Unit) {
                 .padding(paddingValues)
                 .background(Color(0xFFF5F5F5)) // Nền xám nhạt
         ) {
-            // A. Thanh Tab (Menu ngang)
+            //  Thanh Tab
             TabRow(
                 selectedTabIndex = selectedTab,
                 containerColor = Color.White,
@@ -97,7 +97,7 @@ fun DonDaMua(navController: NavController, onBackClick: () -> Unit) {
                 }
             }
 
-            // B. Lọc danh sách theo Tab đang chọn
+            // Lọc danh sách theo Tab đang chọn
             val danhSachHienThi = when (selectedTab) {
                 0 -> danhSachFull.filter { it.TrangThai == "DangXuLy" || it.TrangThai == "MoiDat" } // Gộp cả Mới đặt vào Chờ xác nhận
                 1 -> danhSachFull.filter { it.TrangThai == "DangGiao" }
@@ -110,7 +110,7 @@ fun DonDaMua(navController: NavController, onBackClick: () -> Unit) {
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // C. Hiển thị danh sách hoặc thông báo trống
+            // Hiển thị danh sách hoặc thông báo trống
             if (danhSachHienThi.isEmpty()) {
                 ManHinhTrong() // Gọi hàm vẽ màn hình trống
             } else {
@@ -119,7 +119,7 @@ fun DonDaMua(navController: NavController, onBackClick: () -> Unit) {
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     items(danhSachHienThi) { donHang ->
-                        // Gọi hàm vẽ từng cuốn sách (Item mới đã xóa nút)
+                        // Gọi hàm vẽ từng cuốn sách
                         BookOrderItem(don = donHang, navController = navController)
                     }
                 }
@@ -128,20 +128,18 @@ fun DonDaMua(navController: NavController, onBackClick: () -> Unit) {
     }
 }
 
-// =================================================================
-// PHẦN 2: ITEM CON (VẼ 1 ĐƠN HÀNG) - ĐÃ XÓA NÚT BẤM
-// =================================================================
+
 @Composable
 fun BookOrderItem(
     don: DonHangSach,
     navController: NavController,
 ) {
-    // Logic chọn màu sắc theo trạng thái
+
     val (mauSac, trangThaiText) = when (don.TrangThai) {
-        "DangXuLy", "MoiDat" -> Pair(Color(0xFFFFA000), "Chờ xác nhận")     // Cam
-        "DangGiao" -> Pair(Color(0xFF1976D2), "Đang giao")      // Xanh dương
-        "HoanThanh" -> Pair(Color(0xFF388E3C), "Thành công")    // Xanh lá
-        else -> Pair(Color(0xFFD32F2F), "Đã huỷ")               // Đỏ
+        "DangXuLy", "MoiDat" -> Pair(Color(0xFFFFA000), "Chờ xác nhận")
+        "DangGiao" -> Pair(Color(0xFF1976D2), "Đang giao")
+        "HoanThanh" -> Pair(Color(0xFF388E3C), "Thành công")
+        else -> Pair(Color(0xFFD32F2F), "Đã huỷ")
     }
 
     // Hàm format tiền tệ cục bộ
@@ -170,7 +168,7 @@ fun BookOrderItem(
                 contentDescription = null,
                 modifier = Modifier
                     .width(85.dp)
-                    .height(110.dp) // Giảm chiều cao chút vì bỏ nút
+                    .height(110.dp)
                     .clip(RoundedCornerShape(8.dp))
                     .background(Color.LightGray),
                 contentScale = ContentScale.Crop
@@ -225,15 +223,13 @@ fun BookOrderItem(
                     fontSize = 15.sp
                 )
 
-                // --- KHÔNG CÒN CÁC NÚT MUA LẠI/ĐÁNH GIÁ Ở ĐÂY NỮA ---
+
             }
         }
     }
 }
 
-// =================================================================
-// PHẦN 3: GIAO DIỆN KHI KHÔNG CÓ ĐƠN HÀNG (MÀN HÌNH TRỐNG)
-// =================================================================
+
 @Composable
 fun ManHinhTrong() {
     Box(
@@ -242,7 +238,7 @@ fun ManHinhTrong() {
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Image(
-                painter = painterResource(R.drawable.icon_don_hang), // Đảm bảo bạn có icon này
+                painter = painterResource(R.drawable.icon_don_hang),
                 contentDescription = null,
                 modifier = Modifier.size(120.dp),
                 alpha = 0.5f

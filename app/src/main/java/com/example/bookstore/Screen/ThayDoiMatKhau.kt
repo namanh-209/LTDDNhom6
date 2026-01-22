@@ -35,15 +35,15 @@ fun ManHinhThayDoiMatKhau(navController: NavController, onBackClick: () -> Unit)
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
-    // 1. Tạo biến trạng thái ở đây để Nút Lưu có thể đọc được
+
     var matKhauCu by remember { mutableStateOf("") }
     var matKhauMoi by remember { mutableStateOf("") }
     var xacNhanMatKhau by remember { mutableStateOf("") }
-    var isLoading by remember { mutableStateOf(false) } // Trạng thái đang tải
+    var isLoading by remember { mutableStateOf(false) }
 
     KhungGiaoDien(
         tieuDe = "Thay đổi mật khẩu",
-        onBackClick = onBackClick, // TRANG CON -> CÓ BACK (được truyền từ AppNavGraph)
+        onBackClick = onBackClick,
         onHomeClick = { navController.navigate("home") },
         onCategoryClick = { navController.navigate("trangdanhsach") },
         onCartClick = { navController.navigate("giohang") },
@@ -63,7 +63,7 @@ fun ManHinhThayDoiMatKhau(navController: NavController, onBackClick: () -> Unit)
             Spacer(modifier = Modifier.height(50.dp))
 
             Image(
-                painter = painterResource(id = R.drawable.icon_doi_mat_khau), // Đảm bảo có icon này
+                painter = painterResource(id = R.drawable.icon_doi_mat_khau),
                 contentDescription = "Logo",
                 modifier = Modifier.size(170.dp),
                 colorFilter = ColorFilter.tint(Color(0xFF555555))
@@ -71,7 +71,7 @@ fun ManHinhThayDoiMatKhau(navController: NavController, onBackClick: () -> Unit)
 
             Spacer(modifier = Modifier.height(40.dp))
 
-            // 2. Truyền biến và hàm thay đổi vào ô nhập
+
             ONhapMatKhau(
                 tieuDe = "Mật khẩu hiện tại",
                 goiY = "Nhập mật khẩu hiện tại",
@@ -99,7 +99,7 @@ fun ManHinhThayDoiMatKhau(navController: NavController, onBackClick: () -> Unit)
 
             Button(
                 onClick = {
-                    // 3. LOGIC XỬ LÝ KHI BẤM LƯU
+                    // XỬ LÝ KHI BẤM LƯU
                     if (matKhauCu.isEmpty() || matKhauMoi.isEmpty() || xacNhanMatKhau.isEmpty()) {
                         Toast.makeText(context, "Vui lòng nhập đầy đủ thông tin", Toast.LENGTH_SHORT).show()
                     } else if (matKhauMoi != xacNhanMatKhau) {
@@ -147,15 +147,14 @@ fun ManHinhThayDoiMatKhau(navController: NavController, onBackClick: () -> Unit)
     }
 }
 
-// 4. SỬA HÀM NÀY: Thêm tham số value và onValueChange
 @Composable
 fun ONhapMatKhau(
     tieuDe: String,
     goiY: String,
-    value: String,              // <-- Thêm
-    onValueChange: (String) -> Unit // <-- Thêm
+    value: String,
+    onValueChange: (String) -> Unit
 ) {
-    // XÓA dòng: var text by remember { mutableStateOf("") } đi vì ta dùng biến của cha truyền vào
+
 
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
@@ -166,14 +165,14 @@ fun ONhapMatKhau(
         )
 
         OutlinedTextField(
-            value = value,              // <-- Dùng biến truyền vào
-            onValueChange = onValueChange, // <-- Gọi hàm truyền vào
+            value = value,
+            onValueChange = onValueChange,
             modifier = Modifier.fillMaxWidth(),
             placeholder = { Text(text = goiY, color = Color.Gray, fontSize = 14.sp) },
             singleLine = true,
             leadingIcon = {
                 Image(
-                    painter = painterResource(id = R.drawable.o_khoa_nho), // Đảm bảo có icon
+                    painter = painterResource(id = R.drawable.o_khoa_nho),
                     contentDescription = null,
                     modifier = Modifier.size(20.dp),
                     colorFilter = ColorFilter.tint(Color.Gray)
